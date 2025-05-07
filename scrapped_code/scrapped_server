@@ -1,0 +1,72 @@
+from line_spacer import line_spacer
+from classes.inventory.weapons import weapons
+from classes.create_character import Character, player_character
+from classes.monster_all.goblin import Goblin
+
+is_active = True
+player_alive = True
+game_intro = True  # this signals to run the game_setup function at the begining of the game
+current_room = "Dungeon Entrance"
+
+def game_start():
+    print(f"""
+        {line_spacer}
+        \n Welcome to The Dungeon of Dynae! You are an explorer and must navigate through the dungeon to find the Idol of Dynae and escape!
+        \n To play, simply input the choice you'd like to make. You can always input MENU to see your current options.
+        \n Before you can begin your journey, you must build your adventurer's stats!
+        {line_spacer}
+            """)
+    player_character.set_player_stats()
+    print(f"""\n Here's a short placeholder description about the Dungeon Entrance. """)
+
+def death_sequence():
+    command = input("\n RETRY? - ")
+    if command == "RETRY" or "YES":
+        player_alive = True
+        game_intro = True
+        Character.initial_setup = True
+        #this should trigger the gameplay loop to restart
+    elif command == "NO":
+        print("Thank you for playing!")
+    is_active = False
+
+def game_loop():
+    if game_intro == True:
+        game_start()
+        game_intro = False
+    # print(current_room.descripton)
+
+    command = input("\n What would you like to do? - ")
+
+    if command == "VIEW STATS":
+        player_character.display_player_stats()
+    elif command == "TEST LEVEL UP":
+        player_character.stat_points += 1
+        player_character.set_player_stats()
+    elif command == "TEST DAMAGE":
+        command = input("damage - ")
+        player_character.take_damage(int(command))
+    elif command == "TEST HEALING":
+        command = input("healing - ")
+        player_character.recover_health(int(command))
+    elif command == "TEST GOBLIN":
+        goblin = Goblin()
+        print("A GOBLIN is here!")
+        print(goblin.attack)
+        goblin.display_stats
+    elif command == "ATTACK":
+        damage = player_character.make_attack(goblin.type, goblin.defense)
+        goblin.take_damage(damage)
+    elif command == "GOBLIN ATTACK":
+        damage = goblin.make_attack(player_character.type, player_character.defense)
+        player_character.take_damage(damage)
+    else:
+        print("That's not an option here. Input MENU for a list of current options.") # This doesn't work yet
+    if player_character.current_health <= 0:
+        player_alive = False
+
+while is_active == True:
+    while player_alive == True:
+        game_loop()
+    while player_alive == False:
+        death_sequence()

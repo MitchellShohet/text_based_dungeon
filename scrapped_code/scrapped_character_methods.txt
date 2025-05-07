@@ -1,0 +1,93 @@
+
+
+
+METHODS FOR INCREASING STATS BEFORE IMPLEMENTING DRY
+
+    # def increase_max_health(self):
+    #     command = input(f"""\n How many points would you like to increase MAX HEALTH by? - """)
+    #     if self.initial_setup == False:
+    #         if int(command) < 0:       #prevents the player from gaining extra STAT POINTS by trading from other stats post game setup
+    #             print("STAT POINTS cannot be traded after initial character setup.")
+    #             command = 0
+    #     if int(command) <= self.stat_points:       #prevents the player from expending more STAT POINTS then are available
+    #         if self.max_health + int(command) < 1:       #prevents the player from lowering a stat below 0
+    #             print("You cannot have less that 1 MAX HEALTH")
+    #         else: 
+    #             self.max_health += int(command)
+    #             self.current_health += int(command)
+    #             self.stat_points -= int(command)
+    #             print(f"""\n MAX HEALTH increased by {command} points.
+    #                 {line_spacer}
+    #                 """)
+    #     else:
+    #         print("You don't have that many STAT POINTS.")
+    
+    # def increase_attack(self):
+    #     command = input(f"""\n How many points would you like to increase ATTACK by? - """)
+    #     if self.initial_setup == False:
+    #         if int(command) < 0:
+    #             print("STAT POINTS cannot be traded after initial character setup.")
+    #             command = 0
+    #     if int(command) <= self.stat_points:
+    #         if self.attack + int(command) < 1:
+    #             print("You cannot have less that 1 ATTACK")
+    #         else: 
+    #             self.attack += int(command)
+    #             self.stat_points -= int(command)
+    #             print(f"""\n ATTACK increased by {command} points.
+    #                 {line_spacer}
+    #                 """)
+    #     else:
+    #         print("You don't have that many STAT POINTS.")
+            
+    # def increase_stealth(self):
+    #     command = input(f"""\n How many points would you like to increase STEALTH by? - """)
+    #     if self.initial_setup == False:
+    #         if int(command) < 0:
+    #             print("STAT POINTS cannot be traded after initial character setup.")
+    #             command = 0
+    #     if int(command) <= self.stat_points:
+    #         if self.stealth + int(command) < 1:
+    #             print("You cannot have less that 1 STEALTH")
+    #         else: 
+    #             self.stealth += int(command)
+    #             self.stat_points -= int(command)
+    #             print(f"""\n STEALTH increased by {command} points.
+    #                 {line_spacer}
+    #                 """)
+    #     else:
+    #         print("You don't have that many STAT POINTS.")
+            
+    # def increase_investigation(self):
+    #     command = input(f"""\n How many points would you like to increase INVESTIGATION by? - """)
+    #     if self.initial_setup == False:
+    #         if int(command) < 0:
+    #             print("STAT POINTS cannot be traded after initial character setup.")
+    #             command = 0
+    #     if int(command) <= self.stat_points:
+    #         if self.investigation + int(command) < 1:
+    #             print("You cannot have less that 1 INVESTIGATION")
+    #         else: 
+    #             self.investigation += int(command)
+    #             self.stat_points -= int(command)
+    #             print(f"""\n INVESTIGATION increased by {command} points.
+    #                 {line_spacer}
+    #                 """)
+    #     else:
+    #         print("You don't have that many STAT POINTS.")
+
+
+---------------------METHOD FOR ATTACKING MONSTERS, REPLACED WITH COMBAT CLASS FOR DRY---------------
+
+    def attack_monster(self, monster_type, monster_defense):
+        attack_roll = self.inventory["weapon"]["attack_odds"] + self.inventory["weapon"]["attack_modifier"] + self.attack
+        print(f"""\n You attacked the {monster_type} with {attack_roll} attack!""")
+        if attack_roll >= monster_defense:
+            print(f"""\n THE ATTACK HITS!""")
+            damage = self.inventory["weapon"]["attack_modifier"] + self.attack
+            print(f"""\n The attack deals {damage} damage!""")
+        else:
+            print("\n The attack misses!")
+            damage = 0
+        return damage
+    
