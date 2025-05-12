@@ -63,7 +63,7 @@ class PlayerCharacter(Combatant):
             """)
         if increased_stat == "MAX HEALTH":
             self.current_health += int(command)
-            print(f"""CURRENT HEALTH INCREASED BY {command} points.
+            print(f""" CURRENT HEALTH INCREASED BY {command} points.
                 {line_spacer}
                 """)
         return stat_variable
@@ -74,21 +74,21 @@ class PlayerCharacter(Combatant):
             if self.stat_points != 0:
                 self.get_player_stats()
                 command = input("\n What would you like to spend points on? - ")
-                if command == "CURRENT HEALTH":
+                if command.upper() == "CURRENT HEALTH":
                     print("\n Increasing MAX HEALTH will increase CURRENT HEALTH")
                     command = "MAX HEALTH"
-                if command == "MAX HEALTH":
+                if command.upper() == "MAX HEALTH":
                     self.max_health = self.increase_stat(self.max_health, "MAX HEALTH")
-                elif command == "ATTACK":
+                elif command.upper() == "ATTACK":
                     self.attack = self.increase_stat(self.attack, "ATTACK")
-                elif command == "DEFENSE":
+                elif command.upper() == "DEFENSE":
                     print(f"""\n Your DEFENSE is {self.defense}.
                         \n DEFENSE cannot be upgraded with stat points, but you might find better ARMOR in the dungeon.
                         {line_spacer}
                         """)
-                elif command == "STEALTH":
+                elif command.upper() == "STEALTH":
                     self.stealth = self.increase_stat(self.stealth, "STEALTH")
-                elif command == "INVESTIGATION":
+                elif command.upper() == "INVESTIGATION":
                     self.investigation = self.increase_stat(self.investigation, "INVESTIGATION")
                 else:
                     print("\n Sorry that isn't an option. Please select MAX HEALTH, ATTACK, STEALTH, or INVESTIGATION.")
@@ -103,7 +103,7 @@ class PlayerCharacter(Combatant):
                     setting_stats = False
                     while self.initial_setup == True:
                         command = input("\n To begin game, input START. - ")
-                        if command == "START":
+                        if command.upper() == "START":
                             self.initial_setup = False
                             print(line_spacer)
                             print(line_spacer)

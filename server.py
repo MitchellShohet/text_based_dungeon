@@ -32,41 +32,60 @@ class DungeonRun:
         death_loop = True
         while death_loop == True:
             command = input("\n RETRY? - ")
-            if command == "NO":
+            if command.upper() == "NO":
                 death_loop = False
                 return False
-            if command == "YES":
+            if command.upper() == "YES":
                 death_loop = False
                 return True
 
     def game_loop(self):
         while self.player_alive == True:
             command = input("\n What would you like to do? - ")
-            if command == "VIEW STATS":
+            if command.upper() == "VIEW STATS":
                 self.player_character.get_player_stats()
-            elif command == "TEST LEVEL UP":
+            elif command.upper() == "TEST MOVE FORWARD":
+                self.dungeon.enter_room(1)
+                print(f"""\n {self.dungeon.current_room.description} """)
+            elif command.upper() == "TEST MOVE BACKWARD":
+                self.dungeon.enter_room(0)
+                print(f"""\n {self.dungeon.current_room.description} """)
+            elif command.upper() == "TEST MOVE SIDEWAYS":
+                self.dungeon.enter_room(2)
+                print(f"""\n {self.dungeon.current_room.description} """)
+            elif command.upper() == "TEST LEVEL UP":
                 self.player_character.stat_points += 1
                 self.player_character.set_player_stats()
-            elif command == "TEST DAMAGE":
+            elif command.upper() == "TEST DAMAGE":
                 command = input("damage - ")
                 self.player_character.take_damage(int(command))
-            elif command == "TEST HEALING":
+            elif command.upper() == "TEST HEALING":
                 command = input("healing - ")
                 self.player_character.recover_health(int(command))
-            elif command == "TEST GOBLIN":
+            elif command.upper() == "TEST GOBLIN":
                 goblin = Goblin()
                 print("A GOBLIN is here!")
                 goblin.display_stats
-            elif command == "ATTACK":
+            elif command.upper() == "ATTACK":
                 damage = self.player_character.make_attack(goblin.type, goblin.defense)
                 goblin.take_damage(damage)
-            elif command == "GOBLIN ATTACK":
+            elif command.upper() == "GOBLIN ATTACK":
                 damage = goblin.make_attack(self.player_character.type, self.player_character.defense)
                 self.player_character.take_damage(damage)
+            elif command.upper() == "MENU":
+                print("The MENU logic isn't written yet, this is a placeholder.")
             else:
                 print("That's not an option here. Input MENU for a list of current options.") # This doesn't work yet
             if self.player_character.current_health <= 0:
                 self.player_alive = False
+            if self.dungeon.current_room.name == "Go Home":
+                print(f"""
+                        \n {line_spacer}
+                        \n You live out the rest of your life not dying in the dungeon.
+                        \n Then one day you die.
+                    """)
+                self.player_alive = False
+
 
 while is_active == True:
     current_run = DungeonRun()
@@ -75,4 +94,4 @@ while is_active == True:
     current_run.game_loop()
     is_active = current_run.death_sequence()
     if is_active == False:
-        print("Thanks for playing!")
+        print( "Thanks for playing!")

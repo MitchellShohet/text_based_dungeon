@@ -7,4 +7,4 @@ class Room:
         self.exits = exits
 
     def set_exit_link(self, exit_number, room):
-        self.exits[exit_number].set_Link(room)
+        self.exits[exit_number].set_link(room)
