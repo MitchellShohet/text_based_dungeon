@@ -5,7 +5,7 @@ from classes.combatants.monster_all.goblin import Goblin
 from classes.dungeonComponents.dungeon_navigation import DungeonNavigation
 
 is_active = True
-successive_runs = []
+successive_runs = [] # To save runs, this is a goal for later
 
 class DungeonRun:
     def __init__(self):
@@ -16,7 +16,7 @@ class DungeonRun:
     def game_start(self):
         print(f"""
             {line_spacer}
-            \n Welcome to The Dungeon of Dynae! You are an explorer and must navigate through the dungeon_nav to find the Idol of Dynae and escape!
+            \n Welcome to The Dungeon of Dynae! You are an explorer and must navigate through the dungeon to find the Idol of Dynae and escape!
             \n To play, simply input the choice you'd like to make. You can always input MENU to see your current options.
             \n Before you can begin your journey, you must build your adventurer's stats!
             {line_spacer}""")
@@ -44,6 +44,10 @@ class DungeonRun:
             command = input("\n What would you like to do? - ")
             if command.upper() == "VIEW STATS":
                 self.player_character.get_player_stats()
+            elif command.upper() == "MONSTERS":
+                self.dungeon_nav.view_monster_count()
+            elif command.upper() == "ROOMS":
+                print(f"""\n current room: {self.dungeon_nav.current_room.name}, previous room: {self.dungeon_nav.previous_room.name}""")
             elif command.upper() == "FORWARD":
                 try:
                     self.dungeon_nav.current_room.exits[self.dungeon_nav.test_forward()]
@@ -74,9 +78,8 @@ class DungeonRun:
             elif command.upper() == "TEST LEVEL UP":
                 self.player_character.stat_points += 1
                 self.player_character.set_player_stats()
-            elif command.upper() == "TEST DAMAGE":
-                command = input("damage - ")
-                self.player_character.take_damage(int(command))
+            elif command.upper() == "DIE":
+                self.player_character.take_damage(int(100))
             elif command.upper() == "TEST HEALING":
                 command = input("healing - ")
                 self.player_character.recover_health(int(command))

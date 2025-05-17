@@ -4,6 +4,7 @@ class Monster(Combatant):
 
     def __init__(self, type, description, max_health, current_health, attack, defense, inventory, perception):
         super().__init__(type, max_health, current_health, attack, defense, inventory)
+        self.number = 0
         self.description = description
         self.perception = perception
         self.is_aware = False

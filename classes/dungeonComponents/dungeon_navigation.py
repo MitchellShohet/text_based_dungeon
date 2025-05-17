@@ -7,7 +7,7 @@ class DungeonNavigation:
         self.rooms_visited = [] #all of the room options that have been added to the dungeon already
         self.current_room = self.room_options["general_explorable"][0] #sets the starting room to "Dungeon Entrance"
         self.previous_room = self.current_room.exits[0].link #sets the starting previous room, this prevents the first test_backward() from crashing the game
-        self.unlinked_exits = 2 #counts the total number of unexplored exits generated in the dungeon
+        self.unlinked_exits = 2 #counts the total number of unexplored exits currently in the dungeon
 
     def enter_room(self, exit_number):
         if self.current_room.exits[exit_number].link == None: #determines if the exit being taken already has a room linked to it
@@ -23,6 +23,8 @@ class DungeonNavigation:
         else: 
             self.previous_room = self.current_room
             self.current_room = self.current_room.exits[exit_number].link
+        self.current_room.spawn_monster()
+        self.current_room.view_monster_count()
 
     def find_unexplored_room(self):
         try : #checks if every possible room has already been added to the dungeon
@@ -81,4 +83,5 @@ class DungeonNavigation:
             return 0
         if backward == 3:
             return 1
+        
 
