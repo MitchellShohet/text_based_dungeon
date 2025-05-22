@@ -23,6 +23,7 @@ class DungeonNavigation:
         else: 
             self.previous_room = self.current_room
             self.current_room = self.current_room.exits[exit_number].link
+        print(f"""\n {self.current_room.description} """)
         self.current_room.spawn_monster()
         self.current_room.view_monster_count()
 

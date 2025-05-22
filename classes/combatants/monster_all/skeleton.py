@@ -11,7 +11,7 @@ class Skeleton(Monster):
             current_health=self.difficulty,
             attack=1,
             defense=self.difficulty, 
-            perception= 4,
+            perception=4 + self.difficulty,
             description="Walkin', talkin', weapon-swingin' jumble of bones. Minus the talkin'.",
             inventory={"weapon" : weapons[2],
                     "armor" : "none",

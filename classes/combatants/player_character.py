@@ -10,8 +10,8 @@ class PlayerCharacter(Combatant):
         self.stat_points = 8
         super().__init__(
             type="PLAYER", 
-            max_health=1, 
-            current_health=1, 
+            max_health=10, 
+            current_health=10, 
             attack=1, 
             defense=3, 
             inventory={"weapon": weapons[0],

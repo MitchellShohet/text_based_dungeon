@@ -4,10 +4,7 @@ from classes.combatants.player_character import PlayerCharacter
 from classes.combatants.monster_all.goblin import Goblin
 from classes.dungeonComponents.dungeon_navigation import DungeonNavigation
 
-is_active = True
-successive_runs = [] # To save runs, this is a goal for later
-
-class DungeonRun:
+class PlayThrough:
     def __init__(self):
         self.player_alive = True
         self.dungeon_nav = DungeonNavigation()
@@ -39,13 +36,14 @@ class DungeonRun:
                 death_loop = False
                 return True
 
+#--This needs to be cleaned up
     def game_loop(self):
         while self.player_alive == True:
             command = input("\n What would you like to do? - ")
             if command.upper() == "VIEW STATS":
                 self.player_character.get_player_stats()
             elif command.upper() == "MONSTERS":
-                self.dungeon_nav.view_monster_count()
+                self.dungeon_nav.current_room.view_monster_count(True)
             elif command.upper() == "ROOMS":
                 print(f"""\n current room: {self.dungeon_nav.current_room.name}, previous room: {self.dungeon_nav.previous_room.name}""")
             elif command.upper() == "FORWARD":
@@ -54,27 +52,66 @@ class DungeonRun:
                 except: 
                     print("There is no exit that direction.")
                 else: 
+                    if len(self.dungeon_nav.current_room.monsters) > 0:
+                        for each_monster in self.dungeon_nav.current_room.monsters:
+                            each_monster.notice_player(self.player_character.stealth)
+                            if each_monster.is_aware == True:
+                                each_monster.make_attack(self.player_character)
                     self.dungeon_nav.enter_room(self.dungeon_nav.test_forward())
-                    print(f"""\n {self.dungeon_nav.current_room.description} """)
             elif command.upper() == "BACKWARD":
+                if len(self.dungeon_nav.current_room.monsters) > 0:
+                        for each_monster in self.dungeon_nav.current_room.monsters:
+                            each_monster.notice_player(self.player_character.stealth)
+                            if each_monster.is_aware == True:
+                                each_monster.make_attack(self.player_character)
                 self.dungeon_nav.enter_room(self.dungeon_nav.test_backward())
-                print(f"""\n {self.dungeon_nav.current_room.description} """)
             elif command.upper() == "LEFT":
                 try:
                     self.dungeon_nav.current_room.exits[self.dungeon_nav.test_left()]
                 except: 
                     print("There is no exit that direction.")
                 else: 
+                    if len(self.dungeon_nav.current_room.monsters) > 0:
+                        for each_monster in self.dungeon_nav.current_room.monsters:
+                            each_monster.notice_player(self.player_character.stealth)
+                            if each_monster.is_aware == True:
+                                each_monster.make_attack(self.player_character)
                     self.dungeon_nav.enter_room(self.dungeon_nav.test_left())
-                    print(f"""\n {self.dungeon_nav.current_room.description} """)
             elif command.upper() == "RIGHT":
                 try:
                     self.dungeon_nav.current_room.exits[self.dungeon_nav.test_right()]
                 except: 
                     print("There is no exit that direction.")
                 else: 
+                    if len(self.dungeon_nav.current_room.monsters) > 0:
+                        for each_monster in self.dungeon_nav.current_room.monsters:
+                            each_monster.notice_player(self.player_character.stealth)
+                            if each_monster.is_aware == True:
+                                each_monster.make_attack(self.player_character)
                     self.dungeon_nav.enter_room(self.dungeon_nav.test_right())
-                    print(f"""\n {self.dungeon_nav.current_room.description} """)
+            elif command.upper() == "ATTACK":
+                if len(self.dungeon_nav.current_room.monsters) == 0:
+                    print("\n There are no monsters here to attack.")
+                else:
+                    print("\n Which monster will you attack?")
+                    for each_monster in self.dungeon_nav.current_room.monsters:
+                        print(f"""\n{each_monster.type} {each_monster.number}""")
+                    attack_choice = input("\n - ")
+                    for each_monster in self.dungeon_nav.current_room.monsters:
+                        if attack_choice.upper() == each_monster.type + " " + str(each_monster.number) or attack_choice.upper() == each_monster.type + str(each_monster.number):
+                            self.player_character.make_attack(each_monster)
+                            if each_monster.current_health <= 0:
+                                self.dungeon_nav.current_room.dead_monsters.append(each_monster)
+                                self.dungeon_nav.current_room.monsters.remove(each_monster)
+                                if self.dungeon_nav.current_room.monster_spawning.monster1().type == each_monster.type:
+                                    self.dungeon_nav.current_room.monster1_count -= 1
+                                else:
+                                    self.dungeon_nav.current_room.monster2_count -= 1
+                    for each_monster in self.dungeon_nav.current_room.monsters:
+                        each_monster.is_aware == True
+                        print(f"""\n {each_monster.type} {each_monster.number} noticed you!""")
+                        each_monster.make_attack(self.player_character)
+
             elif command.upper() == "TEST LEVEL UP":
                 self.player_character.stat_points += 1
                 self.player_character.set_player_stats()
@@ -83,16 +120,6 @@ class DungeonRun:
             elif command.upper() == "TEST HEALING":
                 command = input("healing - ")
                 self.player_character.recover_health(int(command))
-            elif command.upper() == "TEST GOBLIN":
-                goblin = Goblin()
-                print("A GOBLIN is here!")
-                goblin.display_stats
-            elif command.upper() == "ATTACK":
-                damage = self.player_character.make_attack(goblin.type, goblin.defense)
-                goblin.take_damage(damage)
-            elif command.upper() == "GOBLIN ATTACK":
-                damage = goblin.make_attack(self.player_character.type, self.player_character.defense)
-                self.player_character.take_damage(damage)
             elif command.upper() == "MENU":
                 print("The MENU logic isn't written yet, this is a placeholder.")
             else:
@@ -102,17 +129,16 @@ class DungeonRun:
             if self.dungeon_nav.current_room.name == "Go Home":
                 print(f"""
                         \n {line_spacer}
-                        \n You live out the rest of your life not dying in the dungeon_nav.
+                        \n You live out the rest of your life not dying in the dungeon.
                         \n Then one day you die.
                     """)
                 self.player_alive = False
 
-
+is_active = True
 while is_active == True:
-    current_run = DungeonRun()
-    successive_runs.append(current_run) # To save runs, this is a goal for later
-    current_run.game_start()
-    current_run.game_loop()
-    is_active = current_run.death_sequence()
+    current_game = PlayThrough()
+    current_game.game_start()
+    current_game.game_loop()
+    is_active = current_game.death_sequence()
     if is_active == False:
         print( "Thanks for playing!")

@@ -1,10 +1,10 @@
+import random
 from classes.combatants.combatant import Combatant
 
 class Monster(Combatant):
 
     def __init__(self, type, description, max_health, current_health, attack, defense, inventory, perception):
         super().__init__(type, max_health, current_health, attack, defense, inventory)
-        self.number = 0
         self.description = description
         self.perception = perception
         self.is_aware = False
@@ -17,7 +17,10 @@ class Monster(Combatant):
             """)
 
     def notice_player(self, stealth):
-        if stealth < self.perception:
+        stealth_check = stealth + random.randint(1,5)
+        print(f"""\n stealth: {stealth_check}. Perception: {self.perception}.""")
+        if stealth_check < self.perception:
             self.is_aware = True
+            print(f"""\n {self.type} {self.number} noticed you!""")
         return self.is_aware
 

@@ -8,6 +8,7 @@ class Room:
         self.exits = exits
         self.monster_spawning = monster_spawning
         self.monsters = []
+        self.dead_monsters = []
         self.monster1_count = 0
         self.monster2_count = 0
         self.monster1_number = 1
@@ -31,8 +32,8 @@ class Room:
                         second_monster1 = self.monster_spawning.monster1()
                         first_monster1.number = self.monster1_number
                         second_monster1.number = self.monster1_number + 1
-                        self.monsters.append(first_monster1)  #****
-                        self.monsters.append(second_monster1)  #****
+                        self.monsters.append(first_monster1)
+                        self.monsters.append(second_monster1)
                         self.monster1_count += 2
                         self.monster1_number += 2
                     else: 

@@ -15,7 +15,7 @@ class Goblin(Monster):
             current_health=self.difficulty,
             attack=self.attack,
             defense=self.difficulty, 
-            perception= 3,
+            perception=3 + self.difficulty,
             description="lil gross potato",
             inventory={"weapon" : weapons[1],
                     "armor" : "none",
