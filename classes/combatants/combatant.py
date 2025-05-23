@@ -1,6 +1,5 @@
 import random
 from line_spacer import line_spacer
-from classes.inventory.weapons import weapons
 
 class Combatant:
 
@@ -14,14 +13,14 @@ class Combatant:
         self.inventory = inventory
 
     def make_attack(self, defender):
-        attack_roll = random.randint(int(self.inventory["weapon"].attack_odds1), int(self.inventory["weapon"].attack_odds2)) + self.attack
+        attack_roll = random.randint(int(self.inventory.weapon.attack_odds1), int(self.inventory.weapon.attack_odds2)) + self.attack
         if self.type == "PLAYER":
             print(f"""\n You attacked the {defender.type} with {attack_roll} attack!""")
         else:
             print(f"""\n {self.type} {self.number} attacked with {attack_roll} attack!""")
         if attack_roll >= defender.defense:
             print(f"""\n THE ATTACK HITS!""")
-            damage = random.randint(int(self.inventory["weapon"].damage_odds1), int(self.inventory["weapon"].damage_odds2)) + self.attack
+            damage = random.randint(int(self.inventory.weapon.damage_odds1), int(self.inventory.weapon.damage_odds2)) + self.attack
             print(f"""\n The attack deals {damage} damage!""")
         else:
             print("\n The attack misses!")

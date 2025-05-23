@@ -1,21 +1,23 @@
-from classes.inventory.weapons import weapons
+from classes.inventory.inventory import Inventory
+from classes.inventory.weapon import weapon_options
 from classes.combatants.monster_all.monster import Monster
 import random
 
 class Skeleton(Monster):
     def __init__(self):
-        self.difficulty = random.randint(4,5)
+        self.difficulty = random.randint(5,6)
         super().__init__(
             type="SKELETON", 
-            max_health=self.difficulty,
-            current_health=self.difficulty,
-            attack=1,
-            defense=self.difficulty, 
-            perception=4 + self.difficulty,
+            max_health=self.difficulty+2,
+            current_health=self.max_health,
+            attack=2,
+            defense=self.difficulty+1, 
+            perception=self.difficulty+3,
             description="Walkin', talkin', weapon-swingin' jumble of bones. Minus the talkin'.",
-            inventory={"weapon" : weapons[2],
-                    "armor" : "none",
-                    "items" : [],  #*** Make sure to update once you build inventory options
-                    "consumables" : [],  #*** Make sure to update once you build inventory options
-                    }
+            inventory=Inventory(
+                weapon_options[2],
+                consumables=[],  #*** Make sure to update once you build consumable options
+                misc=[], #*** Make sure to update
+                dollar_bills=self.difficulty-4
+                )
             )

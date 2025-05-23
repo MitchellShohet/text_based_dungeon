@@ -1,4 +1,5 @@
-from classes.inventory.weapons import weapons
+from classes.inventory.inventory import Inventory
+from classes.inventory.weapon import weapon_options
 from classes.combatants.monster_all.monster import Monster
 import random
 
@@ -17,10 +18,10 @@ class Goblin(Monster):
             defense=self.difficulty, 
             perception=3 + self.difficulty,
             description="lil gross potato",
-            inventory={"weapon" : weapons[1],
-                    "armor" : "none",
-                    "items" : [],  #*** Make sure to update once you build inventory options
-                    "consumables" : [],  #*** Make sure to update once you build inventory options
-                    }
+            inventory=Inventory(weapon_options[1],
+                consumables=[],  #*** Make sure to update once you build consumable options
+                misc=[], #*** Make sure to update
+                dollar_bills=self.difficulty-3
+                )
             )
 

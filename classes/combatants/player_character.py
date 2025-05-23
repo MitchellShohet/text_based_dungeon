@@ -1,6 +1,8 @@
 from line_spacer import line_spacer
 from classes.combatants.combatant import Combatant
-from classes.inventory.weapons import weapons
+from classes.inventory.inventory import Inventory
+from classes.inventory.weapon import weapon_options
+from classes.inventory.armor import armor_options
 
 class PlayerCharacter(Combatant):
 
@@ -14,11 +16,11 @@ class PlayerCharacter(Combatant):
             current_health=10, 
             attack=1, 
             defense=3, 
-            inventory={"weapon": weapons[0],
-                    "armor": "clothes",
-                    "items": [],
-                    "consumables": [],
-                    }
+            inventory=Inventory(
+                weapon_options[0],
+                armor_options[0],
+                misc=[weapon_options[1], armor_options[1]]
+                )
             )
         self.initial_setup = True
 
@@ -109,3 +111,18 @@ class PlayerCharacter(Combatant):
                             print(line_spacer)
                             print(line_spacer)
                     break
+    
+    def equip(self, new_item):
+        if new_item.type == "ARMOR":
+            print("\n equiping armor")
+            self.inventory.misc.append(self.inventory.armor)
+            self.inventory.misc.remove(new_item)
+            self.inventory.armor = new_item
+            self.defense = new_item.defense
+            if "shield" in self.inventory.misc:
+                self.defense += 1
+        elif new_item.type == "WEAPON":
+            print("\n equiping weapon")
+            self.inventory.misc.append(self.inventory.weapon)
+            self.inventory.misc.remove(new_item)
+            self.inventory.weapon = new_item

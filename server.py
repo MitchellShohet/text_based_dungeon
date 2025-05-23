@@ -1,8 +1,9 @@
 from line_spacer import line_spacer
-from classes.inventory.weapons import weapons
 from classes.combatants.player_character import PlayerCharacter
-from classes.combatants.monster_all.goblin import Goblin
 from classes.dungeonComponents.dungeon_navigation import DungeonNavigation
+
+from classes.inventory.weapon import weapon_options
+from classes.inventory.item import Item
 
 class PlayThrough:
     def __init__(self):
@@ -44,8 +45,6 @@ class PlayThrough:
                 self.player_character.get_player_stats()
             elif command.upper() == "MONSTERS":
                 self.dungeon_nav.current_room.view_monster_count(True)
-            elif command.upper() == "ROOMS":
-                print(f"""\n current room: {self.dungeon_nav.current_room.name}, previous room: {self.dungeon_nav.previous_room.name}""")
             elif command.upper() == "FORWARD":
                 try:
                     self.dungeon_nav.current_room.exits[self.dungeon_nav.test_forward()]
@@ -111,7 +110,35 @@ class PlayThrough:
                         each_monster.is_aware == True
                         print(f"""\n {each_monster.type} {each_monster.number} noticed you!""")
                         each_monster.make_attack(self.player_character)
+            elif command.upper() == "EQUIP":
+                if self.player_character.inventory.has_equipables == True:
+                    for each_item in self.player_character.inventory.misc:
+                        if each_item.type == "WEAPON" or each_item.type == "ARMOR":
+                            print(f"""\n {each_item.name}""")
+                    new_equip = input("\n Which item would you like to equip?")
+                    for each_item in self.player_character.inventory.misc:
+                        if each_item.name.upper() == new_equip.upper():
+                            self.player_character.equip(each_item)
+                            break
+                        else:
+                            print(f"""\n {each_item.name} did not equal {new_equip.upper()}""")
+                else:
+                    print("You have nothing new to equip.")
+            elif command.upper() == "USE":
+                if len(self.player_character.inventory.consumables) > 0:
+                    for each_item in self.player_character.inventory.consumables:
+                        print(f"""\n {each_item.name}""")
+                    item_using = input("\n Which item do you want to use?")
+                    for each_item in self.player_character.inventory.consumables:
+                        if each_item.name == item_using.upper():
+                            #update so the item is also used not just removed
+                            self.player_character.inventory.remove_item(each_item)
+                            break
 
+            elif command.upper() == "TEST ADD WEAPON":
+                self.player_character.inventory.add_item(weapon_options[5])
+            elif command.upper() == "TEST ADD CONSUMABLE":
+                self.player_character.inventory.add_item(Item("CONSUMABLE", "APPLE", 1))
             elif command.upper() == "TEST LEVEL UP":
                 self.player_character.stat_points += 1
                 self.player_character.set_player_stats()
