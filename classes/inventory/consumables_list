@@ -1,0 +1,107 @@
+import random
+from classes.inventory.consumable import Consumable
+
+#------------------------------------------------------------------------------------
+
+class HealthPotion(Consumable):
+    def __init__(self):
+        self.name = "HEALTH POTION"
+        self.description = "A small vial with a red liquid; it smells of cherries. Using will heal between 5-7 health."
+        self.value = 12
+        super().__init__(
+            name=self.name,
+            description=self.description,
+            value=self.value
+        )
+
+    def effect(player_character):
+        amount_healed = random.randint(5,7)
+        if player_character.current_health + amount_healed > player_character.max_health:
+            player_character.current_health = player_character.max_health
+        else:
+            player_character.current_health += amount_healed
+
+#------------------------------------------------------------------------------------
+
+class StatMedallion(Consumable):
+    def __init__(self):
+        self.name = "STAT MEDALLION"
+        self.description = "A lime-green coin that's warm to the touch. Using will allow you to increase your stats by 2 points."
+        self.value = 35
+        super().__init__(
+            name=self.name,
+            description=self.description,
+            value=self.value
+        )
+
+    def effect(player_character):
+        player_character.stat_points += 2
+        player_character.set_player_stats()
+
+#------------------------------------------------------------------------------------
+
+class PowerBerry(Consumable):
+    def __init__(self):
+        self.name = "POWER BERRY"
+        self.description = "A massive berry the size of a fist; yet light, like eating a cloud. Using will give a bonus +3 to your next attack and the damage if that attack hits."
+        self.value = 7
+        super().__init__(
+            name=self.name,
+            description=self.description,
+            value=self.value
+        )
+
+    def effect(player_character):
+        player_character.attack_buff = 3
+
+#------------------------------------------------------------------------------------
+
+class DurabilityGem(Consumable):
+    def __init__(self):
+        self.name = "DURABILITY GEM"
+        self.description = "A small, sharp, ceramic gemestone. Using will give a bonus +3 to your defense against the next attack against you."
+        self.value = 10
+        super().__init__(
+            name=self.name,
+            description=self.description,
+            value=self.value
+        )
+
+    def effect(player_character):
+        player_character.defense_buff = 3
+
+#------------------------------------------------------------------------------------
+
+class SmokeBomb(Consumable):
+    def __init__(self):
+        self.name = "SMOKE BOMB"
+        self.description = "A round clump of a charcoal-like substance. Using will give a bonus +3 to your stealth in the current room."
+        self.value = 10
+        super().__init__(
+            name=self.name,
+            description=self.description,
+            value=self.value
+        )
+
+    def effect(player_character):
+        player_character.stealth_buff = 3
+
+#------------------------------------------------------------------------------------
+
+class GreaterHealthPotion(Consumable):
+    def __init__(self):
+        self.name = "GREATER HEALTH POTION"
+        self.description = "A small vial with a pink liquid; it smells of fresh sourdough. Using will heal between 10-15 health."
+        self.value = 20
+        super().__init__(
+            name=self.name,
+            description=self.description,
+            value=self.value
+        )
+
+    def effect(player_character):
+        amount_healed = random.randint(10,15)
+        if player_character.current_health + amount_healed > player_character.max_health:
+            player_character.current_health = player_character.max_health
+        else:
+            player_character.current_health += amount_healed

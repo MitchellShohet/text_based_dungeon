@@ -9,7 +9,7 @@ class Armor(Item):
 armor_options = [
     Armor("ARMOR", "Clothes", 3, 1),
     Armor("ARMOR", "Gambeson", 5, 12),
-    Armor("ARMOR", "Chainmail", 6, 25),
-    Armor("ARMOR", "Plate", 8, 50),
-    Armor("ARMOR", "Magic Plate", 11, 120)
+    Armor("ARMOR", "Chainmail", 7, 30),
+    Armor("ARMOR", "Plate", 9, 100),
+    Armor("ARMOR", "Magic Plate", 12, 350)
 ]

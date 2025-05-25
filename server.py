@@ -131,7 +131,7 @@ class PlayThrough:
                     item_using = input("\n Which item do you want to use?")
                     for each_item in self.player_character.inventory.consumables:
                         if each_item.name == item_using.upper():
-                            #update so the item is also used not just removed
+                            each_item.effect(self.player_character)
                             self.player_character.inventory.remove_item(each_item)
                             break
 

@@ -22,6 +22,7 @@ class PlayerCharacter(Combatant):
                 misc=[weapon_options[1], armor_options[1]]
                 )
             )
+        self.stealth_buff = 0
         self.initial_setup = True
 
     def get_player_stats(self):
