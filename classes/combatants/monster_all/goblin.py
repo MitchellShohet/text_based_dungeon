@@ -1,5 +1,7 @@
 from classes.inventory.inventory import Inventory
 from classes.inventory.weapon import weapon_options
+from classes.inventory.item import Item
+from classes.inventory.consumables_list import HealthPotion, StatMedallion, SmokeBomb, DurabilityGem, PowerBerry
 from classes.combatants.monster_all.monster import Monster
 import random
 
@@ -17,10 +19,11 @@ class Goblin(Monster):
             attack=self.attack,
             defense=self.difficulty, 
             perception=3 + self.difficulty,
+            stealth_mod=1,
             description="lil gross potato",
-            inventory=Inventory(weapon_options[1],
-                consumables=[],  #*** Make sure to update once you build consumable options
-                misc=[], #*** Make sure to update
+            inventory=Inventory(weapon=weapon_options[1],
+                consumables=[HealthPotion(), StatMedallion(), SmokeBomb(), DurabilityGem(), PowerBerry()],
+                misc=[Item("MISC", "Goblin Horn", 2), Item("MISC", "Grass", 0)], #*** Make sure to update
                 dollar_bills=self.difficulty-3
                 )
             )

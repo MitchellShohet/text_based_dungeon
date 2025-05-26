@@ -3,6 +3,7 @@ from classes.combatants.combatant import Combatant
 from classes.inventory.inventory import Inventory
 from classes.inventory.weapon import weapon_options
 from classes.inventory.armor import armor_options
+from classes.inventory.consumables_list import SmokeBomb
 
 class PlayerCharacter(Combatant):
 
@@ -19,10 +20,11 @@ class PlayerCharacter(Combatant):
             inventory=Inventory(
                 weapon_options[0],
                 armor_options[0],
+                consumables=[SmokeBomb()],
                 misc=[weapon_options[1], armor_options[1]]
                 )
             )
-        self.stealth_buff = 0
+        self.hiding_score = 0
         self.initial_setup = True
 
     def get_player_stats(self):

@@ -3,12 +3,13 @@ from classes.dungeonComponents.room import Room
 from classes.dungeonComponents.monster_spawning import MonsterSpawning
 from classes.combatants.monster_all.goblin import Goblin
 from classes.combatants.monster_all.skeleton import Skeleton
+from classes.dungeonComponents.interactables_list import Pool, GlowingCrystal
 
 room_list = { 
     "general_explorable" : [
         Room("Dungeon Entrance", "Here's a short placeholder description about the Dungeon Entrance.", [Exit(0, Room("Go Home", "You decide not to explore the dungeon. Probably a good idea.", None)), Exit(1), Exit(2)]),
-        Room("Pond Room", "A room with a small pond.", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, Skeleton)),
-        Room("Glowing Crystals Room", "A room with some glowing crystals.", [Exit(0), Exit(1), Exit(2), Exit(3)], MonsterSpawning(5, Goblin, 8, Skeleton)),
+        Room("Pond Room", "A room with a small pond.", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, Skeleton),[Pool(1, ["SWIM", "THROW ROCKS"], "that doesn't look too deep.", action2_avail=True)]),
+        Room("Glowing Crystals Room", "A room with some glowing crystals.", [Exit(0), Exit(1), Exit(2), Exit(3)], MonsterSpawning(5, Goblin, 8, Skeleton), [GlowingCrystal(1, [], " human baby."), GlowingCrystal(2, [], "chair."), GlowingCrystal(3, [], "n adult horse.")]),
         Room("Hastily abandoned kitchen", "This room has a large cauldron suspended over a recently extinguished fire pit", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, Skeleton)),
         Room("Autumnal Forrest Room", "A small grove of maple trees, the leaves have changed color for the fall.", [Exit(0), Exit(1), Exit(2), Exit(3)], MonsterSpawning(5, Goblin, 8, Skeleton)),
         Room("Sleeping Quarters", "A small room with a bedroll, an extinguished firepit, and some small trinkets on a short cut of a wide log.", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, "twice")),
@@ -39,7 +40,7 @@ room_list = {
         Room("Deadend", "Placeholder for a deadend", [Exit(0)]),
         Room("Deadend", "Placeholder for a deadend", [Exit(0)]),
         Room("Deadend", "Placeholder for a deadend", [Exit(0)]),
-        Room("Second Floor Tunnel", "A narrow tunnel softly spiraling downward. This is the path to the dungeon's second floor, necessary to finding the idol.", [Exit(0), Exit(1, (Room("Second Floor Landing", "The entrance chamber to the second floor is built of smooth, blue bricks. Decorative pillars dot the edges, and an archway leads to three exits leading deeper into the dungeon.", [Exit(0), Exit(1), Exit(2), Exit(3)])))])
+        # Room("Second Floor Tunnel", "A narrow tunnel softly spiraling downward. This is the path to the dungeon's second floor, necessary to finding the idol.", [Exit(0), Exit(1, (Room("Second Floor Landing", "The entrance chamber to the second floor is built of smooth, blue bricks. Decorative pillars dot the edges, and an archway leads to three exits leading deeper into the dungeon.", [Exit(0), Exit(1), Exit(2), Exit(3)])))])
         ],
     "placeholder_rooms_maxed" : Room("Placeholder Rooms Maxed", 'A deadend with a sign that reads "Sorry, more rooms will be added soon!"', [Exit(0), Exit(1)]) #the second exit needs to be removed when this room is updated (maybe)
 }

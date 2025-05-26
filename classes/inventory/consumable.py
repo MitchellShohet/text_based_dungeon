@@ -7,9 +7,9 @@ class Consumable(Item, ABC):
         self.type = "CONSUMABLE"
         self.description = description
         super().__init__(
-            name, 
-            value, 
-            type=self.type
+            type=self.type,
+            name=name, 
+            value=value
             )
 
     @abstractmethod

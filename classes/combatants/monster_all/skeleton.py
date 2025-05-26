@@ -9,15 +9,16 @@ class Skeleton(Monster):
         super().__init__(
             type="SKELETON", 
             max_health=self.difficulty+2,
-            current_health=self.max_health,
+            current_health=self.difficulty+2,
             attack=2,
             defense=self.difficulty+1, 
-            perception=self.difficulty+3,
+            perception=self.difficulty,
+            stealth_mod=1,
             description="Walkin', talkin', weapon-swingin' jumble of bones. Minus the talkin'.",
             inventory=Inventory(
                 weapon_options[2],
                 consumables=[],  #*** Make sure to update once you build consumable options
                 misc=[], #*** Make sure to update
-                dollar_bills=self.difficulty-4
+                dollar_bills=self.difficulty-1
                 )
             )

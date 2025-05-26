@@ -75,7 +75,7 @@ class DurabilityGem(Consumable):
 class SmokeBomb(Consumable):
     def __init__(self):
         self.name = "SMOKE BOMB"
-        self.description = "A round clump of a charcoal-like substance. Using will give a bonus +3 to your stealth in the current room."
+        self.description = "A round clump of a charcoal-like substance. Using will give a bonus +3 to your stealth until you leave the current room."
         self.value = 10
         super().__init__(
             name=self.name,
@@ -84,7 +84,9 @@ class SmokeBomb(Consumable):
         )
 
     def effect(player_character):
-        player_character.stealth_buff = 3
+        print(f"""\n random number: {player_character.hiding_score}""")
+        player_character.hiding_score += 3
+        print(f"""\n new hiding score: {player_character.hiding_score}""")
 
 #------------------------------------------------------------------------------------
 

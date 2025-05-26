@@ -34,7 +34,7 @@ class DungeonNavigation:
             new_room = self.room_options["placeholder_rooms_maxed"]
         new_exits = self.check_for_new_exits(new_room)
         attempts = 1
-        while new_exits + self.unlinked_exits == 0: #prevents the dungeon from populating every exit with a dead end
+        while new_exits + self.unlinked_exits <= 1: #prevents the dungeon from populating every exit with a dead end
             attempts +=1
             if attempts > 20:
                 new_room = self.room_options["placeholder_rooms_maxed"]
