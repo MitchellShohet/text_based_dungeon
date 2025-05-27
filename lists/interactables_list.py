@@ -1,5 +1,5 @@
 import random
-from classes.dungeonComponents.interactable import Interactable
+from classes.dungeon.room_components import Interactable
 
 class Pool(Interactable):
 

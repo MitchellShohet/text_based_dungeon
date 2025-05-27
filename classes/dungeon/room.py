@@ -1,5 +1,5 @@
 import random
-from classes.dungeonComponents.exit import Exit
+from classes.dungeon.room_components import Exit
 
 class Room:
     def __init__(self, name, description, exits=[Exit(0)], monster_spawning=None, interactables=[]):
@@ -79,7 +79,7 @@ class Room:
         else:
             is_valid = False
             for each_interactable in self.interactables:
-                if len(each_interactable.action_words) > 0 :
+                if len(each_interactable.action_words) <= 0 :
                     for each_action_word in each_interactable.action_words:
                         if player_action == each_action_word:
                             each_interactable.run_interaction(player_action, player, self)

@@ -1,7 +1,7 @@
 import random
-from classes.dungeonComponents.room_list import room_list
+from lists.room_list import room_list
 
-class DungeonNavigation:
+class Navigation:
     def __init__(self):
         self.room_options = room_list #all of the room options that haven't been added to the dungeon yet
         self.rooms_visited = [] #all of the room options that have been added to the dungeon already

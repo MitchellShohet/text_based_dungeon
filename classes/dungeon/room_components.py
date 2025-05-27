@@ -30,3 +30,23 @@ class Interactable(ABC):
         else:
             print("There's not much to find here.")
             self.invest_requirement = 1000
+
+#------------------------------------------------------------------
+
+class MonsterSpawning:
+
+    def __init__(self, threshold1, monster1, threshold2=None, monster2=None):
+        self.threshold1 = threshold1
+        self.monster1 = monster1
+        self.threshold2 = threshold2
+        self.monster2 = monster2
+
+#----------------------------------------------------------------
+
+class Exit:
+    def __init__(self, exit_number, link=None):
+        self.exit_number = exit_number
+        self.link = link
+
+    def set_link(self, link):
+        self.link = link

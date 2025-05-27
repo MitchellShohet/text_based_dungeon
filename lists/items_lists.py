@@ -1,7 +1,38 @@
 import random
-from classes.inventory.consumable import Consumable
+from classes.inventory.items import Item, Weapon, Armor, Consumable
 
-#------------------------------------------------------------------------------------
+#---------------------------------------------
+
+weapon_options = {
+    "FIST" : Weapon(1, "WEAPON", "FIST", 1, 2, 1, 1, 0),
+    "CLUB" : Weapon(2, "WEAPON", "CLUB", 1, 5, 1, 3, 0),
+    "SHORTSWORD" : Weapon(3, "WEAPON", "SHORTSWORD", 2, 6, 1, 4, 4),
+    "LONGSWORD" : Weapon(4, "WEAPON", "LONGSWORD", 2, 8, 2, 4, 12),
+    "BATTLE AXE" : Weapon(5, "WEAPON", "BATTLE AXE", 3, 9, 3, 6, 25),
+    "MAGIC SWORD" : Weapon(6, "WEAPON", "MAGIC SWORD", 4, 11, 3, 9, 120),
+}
+
+#----------------------------------------------
+
+armor_options = {
+    "CLOTHES" : Armor(1, "ARMOR", "CLOTHES", 3, 1),
+    "GAMBESON" : Armor(2, "ARMOR", "GAMBESON", 5, 12),
+    "CHAINMAIL" : Armor(3, "ARMOR", "CHAINMAIL", 7, 30),
+    "PLATE" : Armor(4, "ARMOR", "PLATE", 9, 100),
+    "MAGIC PLATE" : Armor(5, "ARMOR", "MAGIC PLATE", 12, 350)
+}
+
+#---------------------------------------------
+
+misc_options = {
+    "GOBLIN HORN" : Item("MISC", "GOBLIN HORN", 2),
+    "BLADE OF GRASS": Item("MISC", "BLADE OF GRASS", 0),
+    "SHIELD" : Item("MISC", "SHIELD", 35)
+}
+
+#-------------------
+#CONSUMABLE OPTIONS
+#-------------------
 
 class HealthPotion(Consumable):
     def __init__(self):

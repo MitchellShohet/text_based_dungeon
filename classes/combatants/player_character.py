@@ -1,9 +1,7 @@
 from line_spacer import line_spacer
 from classes.combatants.combatant import Combatant
 from classes.inventory.inventory import Inventory
-from classes.inventory.weapon import weapon_options
-from classes.inventory.armor import armor_options
-from classes.inventory.consumables_list import SmokeBomb
+from lists.items_lists import weapon_options, armor_options, SmokeBomb
 
 class PlayerCharacter(Combatant):
 
@@ -18,10 +16,10 @@ class PlayerCharacter(Combatant):
             attack=1, 
             defense=3, 
             inventory=Inventory(
-                weapon_options[0],
-                armor_options[0],
+                weapon_options["FIST"],
+                armor_options["CLOTHES"],
                 consumables=[SmokeBomb()],
-                misc=[weapon_options[1], armor_options[1]]
+                misc=[weapon_options["CLUB"], armor_options["GAMBESON"]]
                 )
             )
         self.hiding_score = 0

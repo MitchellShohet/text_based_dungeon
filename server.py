@@ -1,16 +1,14 @@
 import random
-
 from line_spacer import line_spacer
 from classes.combatants.player_character import PlayerCharacter
-from classes.dungeonComponents.dungeon_navigation import DungeonNavigation
-
-from classes.inventory.weapon import weapon_options
-from classes.inventory.item import Item
+from classes.dungeon.navigation import Navigation
+from classes.inventory.items import Item
+from lists.items_lists import weapon_options, HealthPotion, StatMedallion, SmokeBomb, DurabilityGem, PowerBerry
 
 class PlayThrough:
     def __init__(self):
         self.player_alive = True
-        self.dungeon_nav = DungeonNavigation()
+        self.navigation = Navigation()
         self.player_character = PlayerCharacter()
 
     def game_start(self):
@@ -21,7 +19,7 @@ class PlayThrough:
             \n Before you can begin your journey, you must build your adventurer's stats!
             {line_spacer}""")
         self.player_character.set_player_stats()
-        print(f"""\n {self.dungeon_nav.current_room.description} """)
+        print(f"""\n {self.navigation.current_room.description} """)
 
     def death_sequence(self):
         print(f"""\n {line_spacer}
@@ -46,66 +44,66 @@ class PlayThrough:
             if command.upper() == "VIEW STATS":
                 self.player_character.get_player_stats()
             elif command.upper() == "MONSTERS":
-                self.dungeon_nav.current_room.view_monster_count(True)
+                self.navigation.current_room.view_monster_count(True)
             elif command.upper() == "FORWARD":
                 try:
-                    self.dungeon_nav.current_room.exits[self.dungeon_nav.test_forward()]
+                    self.navigation.current_room.exits[self.navigation.test_forward()]
                 except: 
                     print("There is no exit that direction.")
                 else: 
-                    if len(self.dungeon_nav.current_room.monsters) > 0:
-                        for each_monster in self.dungeon_nav.current_room.monsters:
+                    if len(self.navigation.current_room.monsters) > 0:
+                        for each_monster in self.navigation.current_room.monsters:
                             each_monster.notice_player(self.player_character.hiding_score)
                             if each_monster.is_aware == True:
                                 each_monster.make_attack(self.player_character)
-                    self.dungeon_nav.enter_room(self.dungeon_nav.test_forward())
+                    self.navigation.enter_room(self.navigation.test_forward())
                     self.player_character.hiding_score = random.randint(1,5)
             elif command.upper() == "BACKWARD":
-                if len(self.dungeon_nav.current_room.monsters) > 0:
-                        for each_monster in self.dungeon_nav.current_room.monsters:
+                if len(self.navigation.current_room.monsters) > 0:
+                        for each_monster in self.navigation.current_room.monsters:
                             if each_monster.is_aware == False:
                                 each_monster.notice_player(self.player_character.hiding_score)
                             else:
                                 print(f"""\n {each_monster.type.number} is aware of you!""")
                             if each_monster.is_aware == True:
                                 each_monster.make_attack(self.player_character)
-                self.dungeon_nav.enter_room(self.dungeon_nav.test_backward())
+                self.navigation.enter_room(self.navigation.test_backward())
                 self.player_character.hiding_score = random.randint(1,5)
             elif command.upper() == "LEFT":
                 try:
-                    self.dungeon_nav.current_room.exits[self.dungeon_nav.test_left()]
+                    self.navigation.current_room.exits[self.navigation.test_left()]
                 except: 
                     print("There is no exit that direction.")
                 else: 
-                    if len(self.dungeon_nav.current_room.monsters) > 0:
-                        for each_monster in self.dungeon_nav.current_room.monsters:
+                    if len(self.navigation.current_room.monsters) > 0:
+                        for each_monster in self.navigation.current_room.monsters:
                             each_monster.notice_player(self.player_character.hiding_score)
                             if each_monster.is_aware == True:
                                 each_monster.make_attack(self.player_character)
-                    self.dungeon_nav.enter_room(self.dungeon_nav.test_left())
+                    self.navigation.enter_room(self.navigation.test_left())
                     self.player_character.hiding_score = random.randint(1,5)
             elif command.upper() == "RIGHT":
                 try:
-                    self.dungeon_nav.current_room.exits[self.dungeon_nav.test_right()]
+                    self.navigation.current_room.exits[self.navigation.test_right()]
                 except: 
                     print("There is no exit that direction.")
                 else: 
-                    if len(self.dungeon_nav.current_room.monsters) > 0:
-                        for each_monster in self.dungeon_nav.current_room.monsters:
+                    if len(self.navigation.current_room.monsters) > 0:
+                        for each_monster in self.navigation.current_room.monsters:
                             each_monster.notice_player(self.player_character.hiding_score)
                             if each_monster.is_aware == True:
                                 each_monster.make_attack(self.player_character)
-                    self.dungeon_nav.enter_room(self.dungeon_nav.test_right())
+                    self.navigation.enter_room(self.navigation.test_right())
                     self.player_character.hiding_score = random.randint(1,5)
             elif command.upper() == "ATTACK":
-                if len(self.dungeon_nav.current_room.monsters) == 0:
+                if len(self.navigation.current_room.monsters) == 0:
                     print("\n There are no monsters here to attack.")
                 else:
                     player_attacking = True
                     attack_ready = False
                     while attack_ready == False:
                         print("\n Which monster will you attack?")
-                        for each_monster in self.dungeon_nav.current_room.monsters:
+                        for each_monster in self.navigation.current_room.monsters:
                             print(f"""\n{each_monster.type} {each_monster.number}""")
                         print("\n NEVERMIND")
                         attack_choice = input("\n - ").upper()
@@ -113,21 +111,21 @@ class PlayThrough:
                             attack_ready = True
                             player_attacking = False
                         else:
-                            for each_monster in self.dungeon_nav.current_room.monsters:
+                            for each_monster in self.navigation.current_room.monsters:
                                 if attack_choice == each_monster.type + " " + str(each_monster.number) or attack_choice == each_monster.type + str(each_monster.number):
                                     attack_ready = True
                                     self.player_character.make_attack(each_monster)
                                     if each_monster.current_health <= 0:
-                                        self.dungeon_nav.current_room.interactables.append(each_monster)
-                                        self.dungeon_nav.current_room.monsters.remove(each_monster)
-                                        if self.dungeon_nav.current_room.monster_spawning.monster1().type == each_monster.type:
-                                            self.dungeon_nav.current_room.monster1_count -= 1
+                                        self.navigation.current_room.interactables.append(each_monster)
+                                        self.navigation.current_room.monsters.remove(each_monster)
+                                        if self.navigation.current_room.monster_spawning.monster1().type == each_monster.type:
+                                            self.navigation.current_room.monster1_count -= 1
                                         else:
-                                            self.dungeon_nav.current_room.monster2_count -= 1
+                                            self.navigation.current_room.monster2_count -= 1
                             if attack_ready == False:
                                 print(f"""\n {attack_choice} isn't an option here (include the monster and its number).""")
                     if player_attacking == True:
-                        for each_monster in self.dungeon_nav.current_room.monsters:
+                        for each_monster in self.navigation.current_room.monsters:
                             each_monster.is_aware == True
                             print(f"""\n {each_monster.type} {each_monster.number} noticed you!""")
                             each_monster.make_attack(self.player_character)
@@ -157,18 +155,18 @@ class PlayThrough:
                             self.player_character.inventory.remove_item(each_item)
                             break
             elif command.upper() == "INVESTIGATE": 
-                if len(self.dungeon_nav.current_room.interactables) > 0:
+                if len(self.navigation.current_room.interactables) > 0:
                     selection_loop = True
                     while selection_loop == True:
                         print("\n What would you like to investigate?")
-                        for each_interactable in self.dungeon_nav.current_room.interactables:
+                        for each_interactable in self.navigation.current_room.interactables:
                             if each_interactable.can_investigate == True:
                                 print(f"""\n {each_interactable.type} {each_interactable.number}""")
                         print("\n NEVERMIND")
                         selection = input(" - ").upper()
                         if selection == "NEVERMIND":
                             selection_loop = False
-                        for each_interactable in self.dungeon_nav.current_room.interactables:
+                        for each_interactable in self.navigation.current_room.interactables:
                             if selection == each_interactable.type + " " + str(each_interactable.number) or each_interactable.type + str(each_interactable.number) :
                                 each_interactable.investigate(self.player_character)
                                 selection_loop = False
@@ -180,16 +178,16 @@ class PlayThrough:
                     print("\n There's nothing to INVESTIGATE here. Input MENU for a list of current options.")
                     return
             elif command.upper() == "HIDE":
-                if len(self.dungeon_nav.current_room.monsters) > 0:
-                    if len(self.dungeon_nav.current_room.interactables) > 0:
+                if len(self.navigation.current_room.monsters) > 0:
+                    if len(self.navigation.current_room.interactables) > 0:
                         print(f"""\n current hiding score: {self.player_character.hiding_score}.""")
                         selection_loop = True
                         while selection_loop == True:
                             print("\n Where are you going to hide?")
-                            for each_interactable in self.dungeon_nav.current_room.interactables:
+                            for each_interactable in self.navigation.current_room.interactables:
                                 print(f"""\n {each_interactable.type}""")
                             selection = input(" - ").upper()
-                            for each_interactable in self.dungeon_nav.current_room.interactables:
+                            for each_interactable in self.navigation.current_room.interactables:
                                 if each_interactable.type == selection:
                                     self.player_character.hiding_score += each_interactable.stealth_mod + self.player_character.stealth
                                     print(f"""\n Hiding place mod: {each_interactable.stealth_mod}""")
@@ -200,7 +198,7 @@ class PlayThrough:
                                 if cancel == "NO":
                                     selection_loop = False
                         print(f"""\n player stealth: {self.player_character.stealth}. """)
-                        for each_monster in self.dungeon_nav.current_room.monsters:
+                        for each_monster in self.navigation.current_room.monsters:
                             each_monster.notice_player(self.player_character.hiding_score, player_request=True)
                             if each_monster.is_aware == True:
                                 each_monster.make_attack(self.player_character)
@@ -210,9 +208,13 @@ class PlayThrough:
                     print("\n There's no monsters to hide from here.")                    
 
             elif command.upper() == "TEST ADD WEAPON":
-                self.player_character.inventory.add_item(weapon_options[5])
+                self.player_character.inventory.add_item(weapon_options["MAGIC SWORD"])
             elif command.upper() == "TEST ADD CONSUMABLE":
-                self.player_character.inventory.add_item(Item("CONSUMABLE", "APPLE", 1))
+                self.player_character.inventory.add_item(HealthPotion())
+                self.player_character.inventory.add_item(StatMedallion())
+                self.player_character.inventory.add_item(SmokeBomb())
+                self.player_character.inventory.add_item(DurabilityGem())
+                self.player_character.inventory.add_item(PowerBerry())
             elif command.upper() == "TEST LEVEL UP":
                 self.player_character.stat_points += 1
                 self.player_character.set_player_stats()
@@ -221,10 +223,10 @@ class PlayThrough:
             elif command.upper() == "MENU":
                 print("The MENU logic isn't written yet, this is a placeholder.")
             else:
-                self.dungeon_nav.current_room.room_interaction(self.player_character, command.upper)
+                self.navigation.current_room.room_interaction(self.player_character, command.upper)
             if self.player_character.current_health <= 0:
                 self.player_alive = False
-            if self.dungeon_nav.current_room.name == "Go Home":
+            if self.navigation.current_room.name == "Go Home":
                 print(f"""
                         \n {line_spacer}
                         \n You live out the rest of your life not dying in the dungeon.
