@@ -104,7 +104,7 @@ class PlayThrough:
                     while attack_ready == False:
                         print("\n Which monster will you attack?")
                         for each_monster in self.navigation.current_room.monsters:
-                            print(f"""\n{each_monster.type} {each_monster.number}""")
+                            print(f"""\n {each_monster.type} {each_monster.number}""")
                         print("\n NEVERMIND")
                         attack_choice = input("\n - ").upper()
                         if attack_choice == "NEVERMIND":

@@ -16,10 +16,10 @@ class PlayerCharacter(Combatant):
             attack=1, 
             defense=3, 
             inventory=Inventory(
-                weapon_options["FIST"],
-                armor_options["CLOTHES"],
-                consumables=[SmokeBomb()],
-                misc=[weapon_options["CLUB"], armor_options["GAMBESON"]]
+                weapon=weapon_options["FIST"],
+                armor=armor_options["CLOTHES"],
+                consumables=[SmokeBomb()], #*** Update this once done testing
+                misc=[weapon_options["CLUB"], armor_options["GAMBESON"]] #*** Update this once done testing
                 )
             )
         self.hiding_score = 0
@@ -120,10 +120,14 @@ class PlayerCharacter(Combatant):
             self.inventory.misc.remove(new_item)
             self.inventory.armor = new_item
             self.defense = new_item.defense
-            if "shield" in self.inventory.misc:
-                self.defense += 1
+            for each_misc in self.inventory.misc:
+                if each_misc.name == "SHIELD":
+                    self.defense += 1
+                    break
         elif new_item.type == "WEAPON":
             print("\n equiping weapon")
             self.inventory.misc.append(self.inventory.weapon)
             self.inventory.misc.remove(new_item)
             self.inventory.weapon = new_item
+        elif new_item.name == "SHIELD":
+            self.defense = self.inventory.armor.defense + 1
