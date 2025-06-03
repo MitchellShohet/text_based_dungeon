@@ -50,8 +50,6 @@ class Room:
 
     def view_monster_count(self, player_request=False):
         if self.monster_spawning is not None: 
-            for each_monster in self.monsters:
-                print(f"""\n {each_monster.type} {each_monster.number}""")
             if self.monster1_count == 1 and self.monster2_count == 0:
                 print(f"""\n A {self.monster_spawning.monster1().type} is here.""")
             elif self.monster1_count > 1 and self.monster2_count ==0:
@@ -73,7 +71,7 @@ class Room:
     
     def room_interaction(self, player, player_action):
         try:
-            self.interactables is not None
+            len(self.interactables)
         except:
             print(f"""\n {player_action} isn't an option here. Input MENU for a list of current options.""")
         else:

@@ -3,6 +3,8 @@ from classes.inventory.items import Item, Weapon, Armor, Consumable
 
 #---------------------------------------------
 
+#These all *should* be fine as dictionary elements. If problems with multiples arise, each might need to be it's own class.
+
 weapon_options = {
     "FIST" : Weapon(1, "WEAPON", "FIST", 1, 2, 1, 1, 0),
     "CLUB" : Weapon(2, "WEAPON", "CLUB", 1, 5, 1, 3, 1),

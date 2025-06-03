@@ -27,7 +27,7 @@ class Combatant:
             damage = random.randint(int(self.inventory.weapon.damage_odds1), int(self.inventory.weapon.damage_odds2)) + self.attack + self.attack_buff
             print(f"""\n The attack deals {damage} damage!""")
         else:
-            if self.damage_buff == 5:
+            if self.defense_buff == 5:
                 print(f"""\n {self.type} {self.number} casts SHIELD!""")
             print("\n The attack misses!")
             damage = 0

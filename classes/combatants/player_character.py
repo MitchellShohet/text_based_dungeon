@@ -6,14 +6,14 @@ from lists.items_lists import weapon_options, armor_options, SmokeBomb
 class PlayerCharacter(Combatant):
 
     def __init__(self):
-        self.stealth = 1
-        self.investigation = 1
-        self.stat_points = 8
+        self.stealth = 5 #baseline for normal mode is 3
+        self.investigation = 6 #baseline for normal mode is 1
+        self.stat_points = 0 #baseline for normal mode is 8
         super().__init__(
             type="PLAYER", 
-            max_health=10, 
-            current_health=10, 
-            attack=1, 
+            max_health=20, #baseline for normal mode is 10
+            current_health=20, #baseline for normal mode is 10
+            attack=10, #baseline for normal mode is 0
             defense=3, 
             inventory=Inventory(
                 weapon=weapon_options["FIST"],
@@ -23,6 +23,7 @@ class PlayerCharacter(Combatant):
                 )
             )
         self.hiding_score = 0
+        self.hiding = False
         self.initial_setup = True
 
     def get_player_stats(self):
@@ -105,8 +106,8 @@ class PlayerCharacter(Combatant):
                     self.get_player_stats()
                     setting_stats = False
                     while self.initial_setup == True:
-                        command = input("\n To begin game, input START. - ")
-                        if command.upper() == "START":
+                        #command = input("\n To begin game, input START. - ")
+                        #if command.upper() == "START":
                             self.initial_setup = False
                             print(line_spacer)
                             print(line_spacer)
@@ -115,7 +116,7 @@ class PlayerCharacter(Combatant):
     
     def equip(self, new_item):
         if new_item.type == "ARMOR":
-            print("\n equiping armor")
+            print(f"""\n equiping {new_item.name}""")
             self.inventory.misc.append(self.inventory.armor)
             self.inventory.misc.remove(new_item)
             self.inventory.armor = new_item
@@ -125,9 +126,10 @@ class PlayerCharacter(Combatant):
                     self.defense += 1
                     break
         elif new_item.type == "WEAPON":
-            print("\n equiping weapon")
+            print(f"""\n equiping {new_item.name}""")
             self.inventory.misc.append(self.inventory.weapon)
             self.inventory.misc.remove(new_item)
             self.inventory.weapon = new_item
         elif new_item.name == "SHIELD":
             self.defense = self.inventory.armor.defense + 1
+            print("\n A SHIELD has been equipped")

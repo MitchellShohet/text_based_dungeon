@@ -16,7 +16,7 @@ class Interactable(ABC):
         self.can_investigate = True
 
     @abstractmethod
-    def run_interaction(self, action_word, player, room):
+    def run_interaction(self, action_word, player, room): # doesn't work yet, look into it later
         pass
 
     def investigate(self, player):

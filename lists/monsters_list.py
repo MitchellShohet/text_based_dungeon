@@ -62,7 +62,7 @@ class Wizard(Monster):
             current_health=self.difficulty-1,
             attack=self.attack,
             defense=self.difficulty-2, 
-            perception=self.difficulty+4,
+            perception=self.difficulty+3,
             stealth_mod=2,
             description="Weird old person with magical abilities.",
             inventory=Inventory(weapon=weapon_options["MAGIC WAND"],

@@ -10,7 +10,7 @@ room_list = {
         Room("Glowing Crystals Room", "A room with some glowing crystals.", [Exit(0), Exit(1), Exit(2), Exit(3)], MonsterSpawning(5, Goblin, 8, Skeleton), [GlowingCrystal(1, [], " human baby."), GlowingCrystal(2, [], "chair."), GlowingCrystal(3, [], "n adult horse.")]),
         Room("Hastily abandoned kitchen", "This room has a large cauldron suspended over a recently extinguished fire pit", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, Skeleton)),
         Room("Autumnal Forrest Room", "A small grove of maple trees, the leaves have changed color for the fall.", [Exit(0), Exit(1), Exit(2), Exit(3)], MonsterSpawning(5, Goblin, 8, Skeleton)),
-        Room("Sleeping Quarters", "A small room with a bedroll, an extinguished firepit, and some small trinkets on a short cut of a wide log.", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, "twice")),
+        Room("Sleeping Quarters", "A small room with a bedroll, an extinguished firepit, and some small trinkets on a raw wood table.", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, "twice")),
         Room("Magma River", "A 5ft wide river of magma flows in your path. You could travel up to the source of the magma, or down to see where it leads, or cross it to continue onward.", [Exit(0), Exit(1), Exit(2), Exit(3)], MonsterSpawning(5, Goblin, 8, "twice")),
         Room("Trader's Camp", "A canvas tent opened in the front reveals a pleasent interior. Currently empty shelves as a woman in her 60's appears to be packing up.", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, "twice")),
         # Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "twice")),
