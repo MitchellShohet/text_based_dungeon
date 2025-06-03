@@ -69,19 +69,21 @@ class Room:
             elif self.monster1_count == 0 and self.monster2_count == 0 and player_request == True: 
                 print("\n No monsters are here.")
     
-    def room_interaction(self, player, player_action):
-        try:
-            len(self.interactables)
-        except:
-            print(f"""\n {player_action} isn't an option here. Input MENU for a list of current options.""")
+    def room_interaction(self, player_action, player, room):
+        if len(self.interactables) <= 0:
+            print(f"""\n {player_action} isn't an option here. iiiiiiiiiiiiiiiiiiiiiInput MENU for a list of current options.""") #edit after testing
         else:
             is_valid = False
             for each_interactable in self.interactables:
-                if len(each_interactable.action_words) <= 0 :
+                print(each_interactable.type)
+                if len(each_interactable.action_words) > 0 :
+                    print("yup")
                     for each_action_word in each_interactable.action_words:
+                        print(each_action_word)
                         if player_action == each_action_word:
-                            each_interactable.run_interaction(player_action, player, self)
+                            print("running")
+                            each_interactable.run_interaction(player_action, player, room)
                             is_valid = True
                             break
             if is_valid == False:
-                print(f"""\n {player_action} isn't an option here. Input MENU for a list of current options.""")
+                print(f"""\n {player_action} isn't an option here.2222222222222Input MENU for a list of current options.""") #edit after testing

@@ -28,7 +28,7 @@ class Pool(Interactable):
                     if player.current_health > 0:
                         print("You make it back to solid ground. Swimming in heavy armor could lead to drowning.")
                 else:
-                    print("\n You took a quick dip in the refreshing water!")
+                    print("\n You took a quick dip in the refreshing water!") #edit to check if full
                     player.recover_health(4)
                     self.action1_avail == False
                     self.action_words.remove("SWIM")

@@ -1,10 +1,30 @@
 import random
 from abc import ABC, abstractmethod
 
+class Exit:
+    def __init__(self, exit_number, link=None):
+        self.exit_number = exit_number
+        self.link = link
+
+    def set_link(self, link):
+        self.link = link
+
+#----------------------------------------------------------------
+
+class MonsterSpawning:
+
+    def __init__(self, threshold1, monster1, threshold2=None, monster2=None):
+        self.threshold1 = threshold1
+        self.monster1 = monster1
+        self.threshold2 = threshold2
+        self.monster2 = monster2
+
+#------------------------------------------------------------------
+
 class Interactable(ABC):
 
     def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, action1_avail=True, action2_avail=False, action3_avail=False):
-        self.name = type
+        self.type = type
         self.number = number
         self.action_words = action_words
         self.description = description
@@ -19,34 +39,16 @@ class Interactable(ABC):
     def run_interaction(self, action_word, player, room): # doesn't work yet, look into it later
         pass
 
-    def investigate(self, player):
+    def investigate(self, player, room):
+        if "INVESTIGATE" in self.action_words:
+            self.run_interaction("INVESTIGATE", player, room)
         if player.investigation + random.randint(1,5) >= self.invest_requirement:
             print(f"""\n {self.description}""")
             if len(self.action_words) > 0:
                 print("\n You could try to ")
                 for each_action_word in self.action_words:
-                    print(f"""{ each_action_word}""")
+                    print(f""" {each_action_word}""")
             self.invest_requirement = 0
         else:
             print("There's not much to find here.")
             self.invest_requirement = 1000
-
-#------------------------------------------------------------------
-
-class MonsterSpawning:
-
-    def __init__(self, threshold1, monster1, threshold2=None, monster2=None):
-        self.threshold1 = threshold1
-        self.monster1 = monster1
-        self.threshold2 = threshold2
-        self.monster2 = monster2
-
-#----------------------------------------------------------------
-
-class Exit:
-    def __init__(self, exit_number, link=None):
-        self.exit_number = exit_number
-        self.link = link
-
-    def set_link(self, link):
-        self.link = link

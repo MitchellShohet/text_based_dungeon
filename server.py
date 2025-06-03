@@ -2,7 +2,6 @@ import random
 from line_spacer import line_spacer
 from classes.combatants.player_character import PlayerCharacter
 from classes.dungeon.navigation import Navigation
-from classes.inventory.items import Item
 from lists.items_lists import weapon_options, HealthPotion, StatMedallion, SmokeBomb, DurabilityGem, PowerBerry
 
 class PlayThrough:
@@ -85,10 +84,18 @@ class PlayThrough:
                 self.nav_sequence(command)
             elif command == "VIEW STATS":
                 self.player_character.get_player_stats()
-                print(f"""\n Current weapon: {self.player_character.inventory.weapon}. 
-                    \n Current armor: {self.player_character.inventory.armor}.""")
+            elif command == "INVENTORY": #add this to view stats
+                print(f"""\n Current weapon: {self.player_character.inventory.weapon.name}. 
+                    \n Current armor: {self.player_character.inventory.armor.name}.""")
                 if "SHIELD" in self.player_character.inventory.misc:
                     print("You are using a shield.")
+                print("Consumables:")
+                for each_consumable in self.player_character.inventory.consumables:
+                    print(f"""\n {each_consumable.name}""")
+                print("Misc:")
+                for each_misc in self.player_character.inventory.misc:
+                    print(f"""\n {each_misc.name}""")
+                print(f"""\n Dollar bills: {self.player_character.inventory.dollar_bills}""")
             elif command == "USE":
                 if len(self.player_character.inventory.consumables) > 0:
                     print("\n Which item do you want to use?")
@@ -121,14 +128,17 @@ class PlayThrough:
                         print("\n What would you like to investigate?")
                         for each_interactable in self.navigation.current_room.interactables:
                             if each_interactable.can_investigate == True:
-                                print(f"""\n {each_interactable.type} {each_interactable.number}""")
+                                if each_interactable.number == 0:
+                                    print(f"""\n {each_interactable.type}""")
+                                else:
+                                    print(f"""\n {each_interactable.type} {each_interactable.number}""")
                         print("\n NEVERMIND")
                         selection = input(" - ").upper()
                         if selection == "NEVERMIND":
                             selection_loop = False
                         for each_interactable in self.navigation.current_room.interactables:
-                            if selection == each_interactable.type + " " + str(each_interactable.number) or each_interactable.type + str(each_interactable.number):
-                                each_interactable.investigate(self.player_character)
+                            if selection == each_interactable.type + " " + str(each_interactable.number) or selection == each_interactable.type + str(each_interactable.number) or str(selection) + "0" == each_interactable.type + str(each_interactable.number):
+                                each_interactable.investigate(self.player_character, self.navigation.current_room)
                                 selection_loop = False
                         if selection_loop == True:
                                 cancel = input(f"""\n {selection} is not an option. Investigate something else? (Please include the number)""")
@@ -143,9 +153,10 @@ class PlayThrough:
                         selection_loop = True
                         while selection_loop == True:
                             print("\n Where are you going to hide?")
-                            for each_interactable in self.navigation.current_room.interactables:
+                            if each_interactable.number == 0:
+                                print(f"""\n {each_interactable.type}""")
+                            else:
                                 print(f"""\n {each_interactable.type} {each_interactable.number}""")
-                            print("\n NEVERMIND")
                             selection = input(" - ").upper()
                             if selection == "NEVERMIND":
                                 selection_loop = False
@@ -226,7 +237,7 @@ class PlayThrough:
             elif command == "MENU":
                 print("The MENU logic isn't written yet, this is a placeholder.")
             else:
-                self.navigation.current_room.room_interaction(self.player_character, command)
+                self.navigation.current_room.room_interaction(command, self.player_character, self.navigation.current_room) #
             if self.player_character.current_health <= 0:
                 self.player_alive = False
             if self.navigation.current_room.name == "Go Home":

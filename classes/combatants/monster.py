@@ -33,7 +33,7 @@ class Monster(Combatant):
             print(f"""\n {self.type} {self.number} hasn't noticed you!""")
         return self.is_aware
 
-    def investigate(self, player):
+    def investigate(self, player, room):
         if player.investigation + random.randint(1,5) >= self.invest_requirement:
             print(f"""\n You searched {self.type} {self.number} and found a {self.inventory.weapon.name}, """)
             if self.inventory.weapon.name == "MAGIC WAND":
@@ -46,7 +46,7 @@ class Monster(Combatant):
             if len(self.inventory.consumables) > 0:
                 for each_consumable in self.inventory.consumables:
                     print(f""" a {each_consumable.name}, """)
-                    player.inventory.misc.append(each_consumable)
+                    player.inventory.consumables.append(each_consumable)
             print(f""" and {self.inventory.dollar_bills} dollar bills.""")
             player.inventory.dollar_bills += self.inventory.dollar_bills
         else:

@@ -6,7 +6,7 @@ from lists.interactables_list import Pool, GlowingCrystal
 room_list = { 
     "general_explorable" : [
         Room("Dungeon Entrance", "Here's a short placeholder description about the Dungeon Entrance.", [Exit(0, Room("Go Home", "You decide not to explore the dungeon. Probably a good idea.", None)), Exit(1), Exit(2)]),
-        Room("Pond Room", "A room with a small pond.", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, Skeleton),[Pool(1, ["SWIM", "THROW ROCKS"], "that doesn't look too deep.", action2_avail=True)]),
+        Room("Pond Room", "A room with a small pond.", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, Skeleton),[Pool(0, ["SWIM", "THROW ROCKS"], "that doesn't look too deep.", action2_avail=True)]),
         Room("Glowing Crystals Room", "A room with some glowing crystals.", [Exit(0), Exit(1), Exit(2), Exit(3)], MonsterSpawning(5, Goblin, 8, Skeleton), [GlowingCrystal(1, [], " human baby."), GlowingCrystal(2, [], "chair."), GlowingCrystal(3, [], "n adult horse.")]),
         Room("Hastily abandoned kitchen", "This room has a large cauldron suspended over a recently extinguished fire pit", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, Skeleton)),
         Room("Autumnal Forrest Room", "A small grove of maple trees, the leaves have changed color for the fall.", [Exit(0), Exit(1), Exit(2), Exit(3)], MonsterSpawning(5, Goblin, 8, Skeleton)),
