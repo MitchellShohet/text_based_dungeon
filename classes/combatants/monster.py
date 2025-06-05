@@ -12,7 +12,7 @@ class Monster(Combatant):
         self.invest_requirement = 5
         self.stealth_mod = stealth_mod
         self.can_investigate = True
-        self.action_words = None
+        self.action_words = []
 
     def display_stats(self):
         print(f"""\n The {self.type}'S attack is {self.attack}.
@@ -39,14 +39,14 @@ class Monster(Combatant):
             if self.inventory.weapon.name == "MAGIC WAND":
                 player.inventory.consumables.append(MagicWand())
             else:
-                player.inventory.misc.append(self.inventory.weapon)
+                player.inventory.add_item(self.inventory.weapon)
             for each_misc in self.inventory.misc:
                 print(f""" a {each_misc.name}, """)
-                player.inventory.misc.append(each_misc)
+                player.inventory.add_item(each_misc)
             if len(self.inventory.consumables) > 0:
                 for each_consumable in self.inventory.consumables:
                     print(f""" a {each_consumable.name}, """)
-                    player.inventory.consumables.append(each_consumable)
+                    player.inventory.add_item(each_consumable)
             print(f""" and {self.inventory.dollar_bills} dollar bills.""")
             player.inventory.dollar_bills += self.inventory.dollar_bills
         else:

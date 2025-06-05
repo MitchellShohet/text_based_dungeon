@@ -1,7 +1,7 @@
 from line_spacer import line_spacer
 from classes.combatants.combatant import Combatant
 from classes.inventory.inventory import Inventory
-from lists.items_lists import weapon_options, armor_options, SmokeBomb
+from lists.items_lists import weapon_options, armor_options, SmokeBomb, HealthPotion, GreaterHealthPotion
 
 class PlayerCharacter(Combatant):
 
@@ -18,7 +18,7 @@ class PlayerCharacter(Combatant):
             inventory=Inventory(
                 weapon=weapon_options["FIST"],
                 armor=armor_options["CLOTHES"],
-                consumables=[SmokeBomb()], #*** Update this once done testing
+                consumables=[SmokeBomb(), HealthPotion(), GreaterHealthPotion()], #*** Update this once done testing
                 misc=[weapon_options["CLUB"], armor_options["GAMBESON"]] #*** Update this once done testing
                 )
             )
@@ -27,13 +27,15 @@ class PlayerCharacter(Combatant):
         self.initial_setup = True
 
     def get_player_stats(self):
-            print(f"""\n Your CURRENT HEALTH is {self.current_health}.
-            \n Your MAX HEALTH is {self.max_health}.
-            \n Your ATTACK is +{self.attack}.
-            \n Your DEFENSE is {self.defense}.
-            \n Your STEALTH is +{self.stealth}.
-            \n Your INVESTIGATION is +{self.investigation}.
-            \n You have {self.stat_points} STAT POINTS to spend.
+            print(f"""\n Your CURRENT HEALTH is {self.current_health}.""")
+            print(f""" Your MAX HEALTH is {self.max_health}.""")
+            print(f""" Your ATTACK is +{self.attack}.""")
+            print(f""" Your DEFENSE is {self.defense}.""")
+            print(f""" Your STEALTH is +{self.stealth}.""")
+            print(f""" Your INVESTIGATION is +{self.investigation}.""")
+            print(f""" Your ATTACK BUFF is +{self.attack_buff}.""")
+            print(f""" Your DEFENSE BUFF is +{self.defense_buff}.""")
+            print(f""" You have {self.stat_points} STAT POINTS to spend.
             {line_spacer}
             """)
 
@@ -44,7 +46,8 @@ class PlayerCharacter(Combatant):
         print(f"""\n CURRENT HEALTH increased by {amount} points.""")
 
     def increase_stat(self, stat_variable, increased_stat):
-        command = input(f"""\n How many points would you like to increase {increased_stat} by? - """)
+        print(f"""\n How many points would you like to increase {increased_stat} by?""")
+        command = input("\n - ")
         try:        #
             int(command)
         except:
@@ -73,11 +76,16 @@ class PlayerCharacter(Combatant):
         return stat_variable
 
     def set_player_stats(self):
+        self.get_player_stats()
         setting_stats = True
         while setting_stats == True:
             if self.stat_points != 0:
-                self.get_player_stats()
-                command = input("\n What would you like to spend points on? - ")
+                print("\n What would you like to spend points on?")
+                print(" MAX HEALTH")
+                print(" ATTACK")
+                print(" STEALTH")
+                print(" INVESTIGATION")
+                command = input("\n - ")
                 if command.upper() == "CURRENT HEALTH":
                     print("\n Increasing MAX HEALTH will increase CURRENT HEALTH")
                     command = "MAX HEALTH"
@@ -97,6 +105,7 @@ class PlayerCharacter(Combatant):
                 else:
                     print("\n Sorry that isn't an option. Please select MAX HEALTH, ATTACK, STEALTH, or INVESTIGATION.")
                     print(line_spacer)
+                self.get_player_stats()
             else:
                 if self.initial_setup == False:      #later in the game players will earn additional STAT POINTS, and can reenter the stat menu
                     setting_stats = False
@@ -112,7 +121,6 @@ class PlayerCharacter(Combatant):
                             print(line_spacer)
                             print(line_spacer)
                             print(line_spacer)
-                    break
     
     def equip(self, new_item):
         if new_item.type == "ARMOR":

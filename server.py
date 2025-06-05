@@ -28,7 +28,8 @@ class PlayThrough:
             \n {line_spacer} """)
         death_loop = True
         while death_loop == True:
-            command = input("\n RETRY? - ")
+            print("\n RETRY?")
+            command = input("\n - ")
             if command.upper() == "NO":
                 death_loop = False
                 return False
@@ -64,6 +65,7 @@ class PlayThrough:
                         print(f"""\n {each_monster.type} {each_monster.number} is aware of you!""")
                     if each_monster.is_aware == True:
                         each_monster.make_attack(self.player_character)
+            print(line_spacer)
             print(f"""\n You moved {direction}""")
             self.navigation.enter_room(move_function())
             self.player_character.hiding_score = random.randint(1,5)
@@ -73,15 +75,16 @@ class PlayThrough:
 #-- work on moving the functions outside of the loop for cleanliness?
     def game_loop(self):
         while self.player_alive == True:
-            command = input("\n What would you like to do? - ").upper()
-            if command == "FORWARD":
-                self.nav_sequence(command)
+            print("\n What would you like to do?")
+            command = input("\n - ").upper()
+            if command == "FORWARD" or command == "FF":
+                self.nav_sequence("FORWARD")
             elif command == "BACKWARD":
-                self.nav_sequence(command)
+                self.nav_sequence("BACKWARD")
             elif command == "LEFT":
-                self.nav_sequence(command)
+                self.nav_sequence("LEFT")
             elif command == "RIGHT":
-                self.nav_sequence(command)
+                self.nav_sequence("RIGHT")
             elif command == "VIEW STATS":
                 self.player_character.get_player_stats()
             elif command == "INVENTORY": #add this to view stats
@@ -89,51 +92,62 @@ class PlayThrough:
                     \n Current armor: {self.player_character.inventory.armor.name}.""")
                 if "SHIELD" in self.player_character.inventory.misc:
                     print("You are using a shield.")
-                print("Consumables:")
+                print("\n Consumables:")
                 for each_consumable in self.player_character.inventory.consumables:
-                    print(f"""\n {each_consumable.name}""")
-                print("Misc:")
+                    print(f""" {each_consumable.name}""")
+                print("\n Misc:")
                 for each_misc in self.player_character.inventory.misc:
-                    print(f"""\n {each_misc.name}""")
+                    print(f""" {each_misc.name}""")
                 print(f"""\n Dollar bills: {self.player_character.inventory.dollar_bills}""")
             elif command == "USE":
                 if len(self.player_character.inventory.consumables) > 0:
-                    print("\n Which item do you want to use?")
-                    for each_item in self.player_character.inventory.consumables:
-                        print(f"""\n {each_item.name}""")
-                    item_using = input("\n - ")
-                    for each_item in self.player_character.inventory.consumables:
-                        if each_item.name == item_using.upper():
-                            each_item.effect(self.player_character)
-                            self.player_character.inventory.remove_item(each_item)
-                            break
-            elif command == "EQUIP":
+                    selection_loop = True
+                    while selection_loop == True:
+                        print("\n Which item do you want to use?")
+                        for each_item in self.player_character.inventory.consumables:
+                            print(f""" {each_item.name}""")
+                        print(" NEVERMIND")
+                        selection = input("\n - ").upper()
+                        if selection == "NEVERMIND":
+                            selection_loop = False
+                        for each_item in self.player_character.inventory.consumables:
+                            if each_item.name == selection:
+                                if each_item.name == "HEALTH POTION" and self.player_character.current_health == self.player_character.max_health or each_item.name == "GREATER HEALTH POTION" and self.player_character.current_health == self.player_character.max_health:
+                                    print("\n Your health is already full.")
+                                    selection_loop = False
+                                else:
+                                    each_item.effect(self.player_character)
+                                    self.player_character.inventory.remove_item(each_item)
+                                    selection_loop = False
+                                break
+                        if selection_loop == True:
+                                print(f"""\n {selection} is not an option.""")
+            elif command == "EQUIP": #add a while loop for sequence
                 if self.player_character.inventory.has_equipables == True:
+                    print("\n Which item would you like to equip?")
                     for each_item in self.player_character.inventory.misc:
                         if each_item.type == "WEAPON" or each_item.type == "ARMOR":
-                            print(f"""\n {each_item.name}""")
-                    new_equip = input("\n Which item would you like to equip?").upper
+                            print(f""" {each_item.name}""")
+                    selection = input("\n - ").upper()
                     for each_item in self.player_character.inventory.misc:
-                        if each_item.name == new_equip:
+                        if each_item.name == selection:
                             self.player_character.equip(each_item)
                             break
-                        else:
-                            print(f"""\n {each_item.name} did not equal {new_equip.upper()}""")
                 else:
                     print("You have nothing new to equip.")
             elif command == "INVESTIGATE": 
                 if len(self.navigation.current_room.interactables) > 0:
-                    selection_loop = True
+                    selection_loop = True 
                     while selection_loop == True:
                         print("\n What would you like to investigate?")
                         for each_interactable in self.navigation.current_room.interactables:
                             if each_interactable.can_investigate == True:
                                 if each_interactable.number == 0:
-                                    print(f"""\n {each_interactable.type}""")
+                                    print(f""" {each_interactable.type}""")
                                 else:
-                                    print(f"""\n {each_interactable.type} {each_interactable.number}""")
-                        print("\n NEVERMIND")
-                        selection = input(" - ").upper()
+                                    print(f""" {each_interactable.type} {each_interactable.number}""")
+                        print(" NEVERMIND")
+                        selection = input("\n - ").upper()
                         if selection == "NEVERMIND":
                             selection_loop = False
                         for each_interactable in self.navigation.current_room.interactables:
@@ -141,9 +155,7 @@ class PlayThrough:
                                 each_interactable.investigate(self.player_character, self.navigation.current_room)
                                 selection_loop = False
                         if selection_loop == True:
-                                cancel = input(f"""\n {selection} is not an option. Investigate something else? (Please include the number)""")
-                                if cancel == "NO":
-                                    selection_loop = False
+                                print(f"""\n {selection} is not an option (include the number if it has one).""")
                 else:
                     print("\n There's nothing to INVESTIGATE here. Input MENU for a list of current options.")
                     return
@@ -154,10 +166,11 @@ class PlayThrough:
                         while selection_loop == True:
                             print("\n Where are you going to hide?")
                             if each_interactable.number == 0:
-                                print(f"""\n {each_interactable.type}""")
+                                print(f""" {each_interactable.type}""")
                             else:
-                                print(f"""\n {each_interactable.type} {each_interactable.number}""")
-                            selection = input(" - ").upper()
+                                print(f""" {each_interactable.type} {each_interactable.number}""")
+                            print(" NEVERMIND")
+                            selection = input("\n - ").upper()
                             if selection == "NEVERMIND":
                                 selection_loop = False
                             for each_interactable in self.navigation.current_room.interactables:
@@ -168,9 +181,7 @@ class PlayThrough:
                                     selection_loop = False
                                     break
                             if selection_loop == True:
-                                cancel = input(f"""\n {selection} is not an option. Hide somewhere else?""").upper()
-                                if cancel == "NO":
-                                    selection_loop = False
+                                print(f"""\n {selection} is not an option (include the number if it has one.)""")
                         print(f"""\n player stealth: {self.player_character.stealth}. """)
                         for each_monster in self.navigation.current_room.monsters:
                             each_monster.notice_player(self.player_character.hiding_score, player_request=True)
@@ -187,10 +198,10 @@ class PlayThrough:
                     player_attacking = True
                     attack_ready = False
                     while attack_ready == False:
-                        print("\n Which monster will you attack?")
+                        print("\n What will you attack?")
                         for each_monster in self.navigation.current_room.monsters:
-                            print(f"""\n {each_monster.type} {each_monster.number}""")
-                        print("\n NEVERMIND")
+                            print(f""" {each_monster.type} {each_monster.number}""")
+                        print(" NEVERMIND")
                         attack_choice = input("\n - ").upper()
                         if attack_choice == "NEVERMIND":
                             attack_ready = True
@@ -210,6 +221,7 @@ class PlayThrough:
                             if attack_ready == False:
                                 print(f"""\n {attack_choice} isn't an option here (include the monster and its number).""")
                     if player_attacking == True:
+                        self.player_character.hiding = False
                         for each_monster in self.navigation.current_room.monsters:
                             each_monster.is_aware == True
                             print(f"""\n {each_monster.type} {each_monster.number} noticed you!""")
@@ -247,7 +259,6 @@ class PlayThrough:
                         \n Then one day you die.
                     """)
                 self.player_alive = False
-            print(f"""\n {line_spacer}""")
 
 is_active = True
 while is_active == True:
@@ -256,4 +267,4 @@ while is_active == True:
     current_game.game_loop()
     is_active = current_game.death_sequence()
     if is_active == False:
-        print( "Thanks for playing!")
+        print("\n Thanks for playing!")

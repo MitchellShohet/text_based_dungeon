@@ -73,17 +73,31 @@ class Room:
         if len(self.interactables) <= 0:
             print(f"""\n {player_action} isn't an option here. iiiiiiiiiiiiiiiiiiiiiInput MENU for a list of current options.""") #edit after testing
         else:
-            is_valid = False
+            options = []
             for each_interactable in self.interactables:
-                print(each_interactable.type)
                 if len(each_interactable.action_words) > 0 :
-                    print("yup")
                     for each_action_word in each_interactable.action_words:
-                        print(each_action_word)
                         if player_action == each_action_word:
-                            print("running")
-                            each_interactable.run_interaction(player_action, player, room)
-                            is_valid = True
+                            options.append(each_interactable)
                             break
-            if is_valid == False:
+            if len(options) == 0:
                 print(f"""\n {player_action} isn't an option here.2222222222222Input MENU for a list of current options.""") #edit after testing
+            elif len(options) == 1:
+                options[0].run_interaction(player_action, player, room)
+            else:
+                selection_loop = True
+                while selection_loop == True:
+                    print(f"""\n Which {options[0].type} would you like to {player_action}?""")
+                    for each_option in options:
+                        print(f"""\n {each_option.type} {each_option.number}""")
+                    print("\n NEVERMIND")
+                    selection = input("\n - ").upper()
+                    if selection == "NEVERMIND":
+                        selection_loop = False
+                    for each_option in options:
+                        if selection == each_option.type + " " + str(each_option.number) or selection == each_option.type + str(each_option.number):
+                            each_option.run_interaction(player_action, player, room)
+                            selection_loop = False
+                            break
+                    if selection_loop == True:
+                        print(f"""\n {selection} is not an option (include the number if it has one).""")

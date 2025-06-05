@@ -3,9 +3,9 @@ from line_spacer import line_spacer
 
 class Combatant:
 
-    def __init__(self, type, max_health, current_health, attack, defense, inventory, attack_buff=0, defense_buff=0):
+    def __init__(self, type, max_health, current_health, attack, defense, inventory, number=0, attack_buff=0, defense_buff=0):
         self.type = type
-        self.number = 0
+        self.number = number
         self.max_health = max_health
         self.current_health = current_health
         self.attack = attack
@@ -23,13 +23,13 @@ class Combatant:
                 print(f"""\n {self.type} {self.number} casts FIREBALL!""")
             print(f"""\n {self.type} {self.number} attacked with {attack_roll} attack!""")
         if attack_roll >= defender.defense + defender.defense_buff:
-            print(f"""\n THE ATTACK HITS!""")
+            print(f""" THE ATTACK HITS!""")
             damage = random.randint(int(self.inventory.weapon.damage_odds1), int(self.inventory.weapon.damage_odds2)) + self.attack + self.attack_buff
-            print(f"""\n The attack deals {damage} damage!""")
+            print(f""" The attack deals {damage} damage!""")
         else:
             if self.defense_buff == 5:
-                print(f"""\n {self.type} {self.number} casts SHIELD!""")
-            print("\n The attack misses!")
+                print(f""" {self.type} {self.number} casts SHIELD!""")
+            print(" The attack misses!")
             damage = 0
         defender.take_damage(damage)
         self.attack_buff = 0
@@ -39,4 +39,7 @@ class Combatant:
         self.current_health -= incoming_damage
         if self.current_health < 0:
             if self.type != "PLAYER":
-                print(f"""{self.type} {self.number} has died.""")
+                if self.type == "GLOWING CRYSTAL":
+                    print(f""" {self.type} {self.number} has been destroyed.""")
+                else:
+                    print(f""" {self.type} {self.number} has died.""")

@@ -1,7 +1,7 @@
 import random
 from classes.inventory.inventory import Inventory
 from classes.combatants.monster import Monster
-from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, SmokeBomb, DurabilityGem, PowerBerry, GreaterHealthPotion
+from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, SmokeBomb, DurabilityGem, PowerBerry, GreaterHealthPotion, MagicWand
 
 class Goblin(Monster):
     def __init__(self):
@@ -20,7 +20,7 @@ class Goblin(Monster):
             stealth_mod=1,
             description="Lil gross potato",
             inventory=Inventory(weapon=weapon_options["CLUB"],
-                consumables=[HealthPotion(), StatMedallion(), SmokeBomb(), DurabilityGem(), PowerBerry()], #*** Update when done testing
+                consumables=[HealthPotion(), StatMedallion(), SmokeBomb(), DurabilityGem(), PowerBerry(), GreaterHealthPotion(), MagicWand()], #*** Update when done testing
                 misc=[misc_options["GOBLIN HORN"], misc_options["BLADE OF GRASS"]],
                 dollar_bills=self.difficulty-3
                 )

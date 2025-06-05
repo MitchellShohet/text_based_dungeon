@@ -53,12 +53,10 @@ class HealthPotion(Consumable):
             value=self.value
         )
 
-    def effect(player_character):
+    def effect(self, player_character):
+        print(f"""\n You used the {self.name}!""")
         amount_healed = random.randint(5,7)
-        if player_character.current_health + amount_healed > player_character.max_health:
-            player_character.current_health = player_character.max_health
-        else:
-            player_character.current_health += amount_healed
+        player_character.recover_health(amount_healed)
 
 #------------------------------------------------------------------------------------
 
@@ -73,7 +71,8 @@ class StatMedallion(Consumable):
             value=self.value
         )
 
-    def effect(player_character):
+    def effect(self, player_character):
+        print(f"""\n You used the {self.name}!""")
         player_character.stat_points += 2
         player_character.set_player_stats()
 
@@ -82,7 +81,7 @@ class StatMedallion(Consumable):
 class PowerBerry(Consumable):
     def __init__(self):
         self.name = "POWER BERRY"
-        self.description = "A massive berry the size of a fist; yet light, like eating a cloud. Using will give a bonus +3 to your next attack and the damage if that attack hits."
+        self.description = "A massive berry the size of a fist; yet light, like eating a cloud. Using will give a bonus +3 to your next attack and the damage if that attack hits (does not stack)."
         self.value = 9
         super().__init__(
             name=self.name,
@@ -90,7 +89,9 @@ class PowerBerry(Consumable):
             value=self.value
         )
 
-    def effect(player_character):
+    def effect(self, player_character):
+        print(f"""\n You used the {self.name}!""")
+        print(" ATTACK AND DAMAGE increased by 3 for your next attack.")
         player_character.attack_buff = 3
 
 #------------------------------------------------------------------------------------
@@ -98,7 +99,7 @@ class PowerBerry(Consumable):
 class DurabilityGem(Consumable):
     def __init__(self):
         self.name = "DURABILITY GEM"
-        self.description = "A small, sharp, ceramic gemestone. Using will give a bonus +3 to your defense against the next attack against you."
+        self.description = "A small, sharp, ceramic gemestone. Using will give a bonus +3 to your defense against the next attack against you (does not stack)."
         self.value = 13
         super().__init__(
             name=self.name,
@@ -106,7 +107,9 @@ class DurabilityGem(Consumable):
             value=self.value
         )
 
-    def effect(player_character):
+    def effect(self, player_character):
+        print(f"""\n You used the {self.name}!""")
+        print(" DEFENSE increased by 3 for the next attack.")
         player_character.defense_buff = 3
 
 #------------------------------------------------------------------------------------
@@ -122,10 +125,11 @@ class SmokeBomb(Consumable):
             value=self.value
         )
 
-    def effect(player_character):
-        print(f"""\n random number: {player_character.hiding_score}""")
+    def effect(self, player_character):
+        print(f"""\n You used the {self.name}!""")
+        print(f""" previous hiding luck: {player_character.hiding_score}.""")
         player_character.hiding_score += 3
-        print(f"""\n new hiding score: {player_character.hiding_score}""")
+        print(f""" new hiding score: {player_character.hiding_score}""")
 
 #------------------------------------------------------------------------------------
 
@@ -140,12 +144,10 @@ class GreaterHealthPotion(Consumable):
             value=self.value
         )
 
-    def effect(player_character):
+    def effect(self, player_character):
+        print(f"""\n You used the {self.name}!""")
         amount_healed = random.randint(10,15)
-        if player_character.current_health + amount_healed > player_character.max_health:
-            player_character.current_health = player_character.max_health
-        else:
-            player_character.current_health += amount_healed
+        player_character.recover_health(amount_healed)
 
 #------------------------------------------------------------------------------------
 
@@ -160,6 +162,8 @@ class MagicWand(Consumable):
             value=self.value
         )
 
-    def effect(player_character):
+    def effect(self, player_character):
+        print(f"""\n You used the {self.name}!""")
+        print(" ATTACK and DAMAGE increased by 2 for your next attack, and DEFENSE increased by 2 for the next attack")
         player_character.attack_buff = 2
-        player_character.damage_buff = 2
+        player_character.defense_buff = 2

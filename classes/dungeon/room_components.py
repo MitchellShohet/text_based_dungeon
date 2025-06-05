@@ -36,19 +36,14 @@ class Interactable(ABC):
         self.can_investigate = True
 
     @abstractmethod
-    def run_interaction(self, action_word, player, room): # doesn't work yet, look into it later
+    def run_interaction(self, action_word, player, room):
         pass
 
     def investigate(self, player, room):
-        if "INVESTIGATE" in self.action_words:
-            self.run_interaction("INVESTIGATE", player, room)
-        if player.investigation + random.randint(1,5) >= self.invest_requirement:
-            print(f"""\n {self.description}""")
-            if len(self.action_words) > 0:
-                print("\n You could try to ")
-                for each_action_word in self.action_words:
-                    print(f""" {each_action_word}""")
-            self.invest_requirement = 0
+        print(f"""\n {self.description}""")
+        if len(self.action_words) > 0:
+            print("\n You could try to ")
+            for each_action_word in self.action_words:
+                print(f""" {each_action_word}""")
         else:
-            print("There's not much to find here.")
-            self.invest_requirement = 1000
+            print("There's not much to do.")
