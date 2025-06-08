@@ -124,10 +124,15 @@ class PlayThrough:
                                 print(f"""\n {selection} is not an option.""")
             elif command == "EQUIP": #add a while loop for sequence
                 if self.player_character.inventory.has_equipables == True:
+                    selection_loop = True
                     print("\n Which item would you like to equip?")
                     for each_item in self.player_character.inventory.misc:
                         if each_item.type == "WEAPON" or each_item.type == "ARMOR":
                             print(f""" {each_item.name}""")
+                    print(" NEVERMIND")
+                    selection = input("\n - ").upper()
+                    if selection == "NEVERMIND":
+                        selection_loop = False
                     selection = input("\n - ").upper()
                     for each_item in self.player_character.inventory.misc:
                         if each_item.name == selection:
