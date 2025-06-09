@@ -35,9 +35,7 @@ class PlayerCharacter(Combatant):
             print(f""" Your INVESTIGATION is +{self.investigation}.""")
             print(f""" Your ATTACK BUFF is +{self.attack_buff}.""")
             print(f""" Your DEFENSE BUFF is +{self.defense_buff}.""")
-            print(f""" You have {self.stat_points} STAT POINTS to spend.
-            {line_spacer}
-            """)
+            print(f""" You have {self.stat_points} STAT POINTS to spend.""")
 
     def recover_health(self, amount):
         if self.current_health + amount > self.max_health:
@@ -66,7 +64,6 @@ class PlayerCharacter(Combatant):
         stat_variable += int(command)
         self.stat_points -= int(command)
         print(f"""\n {increased_stat} increased by {command} points.
-            {line_spacer}
             """)
         if increased_stat == "MAX HEALTH":
             self.current_health += int(command)
@@ -113,6 +110,7 @@ class PlayerCharacter(Combatant):
                 else:
                     print("\n Thank you for creating your character!")
                     self.get_player_stats()
+                    print(line_spacer)
                     setting_stats = False
                     while self.initial_setup == True:
                         #command = input("\n To begin game, input START. - ")
@@ -138,6 +136,11 @@ class PlayerCharacter(Combatant):
             self.inventory.misc.append(self.inventory.weapon)
             self.inventory.misc.remove(new_item)
             self.inventory.weapon = new_item
+            for each_misc in self.inventory.misc:
+                if each_misc.name == "SHIELD":
+                    self.defense = self.inventory.armor.defense
+                    self.defense += 1
+                    break
         elif new_item.name == "SHIELD":
             self.defense = self.inventory.armor.defense + 1
             print("\n A SHIELD has been equipped")

@@ -23,7 +23,7 @@ class Room:
             if self.monster_spawning.threshold2 is not None:
                 if monster_chance >= self.monster_spawning.threshold2:
                     if self.monster_spawning.monster2 == "twice":
-                        print(f"""\n Two new {self.monster_spawning.monster1().type}S have appeared!""")
+                        print(f""" Two new {self.monster_spawning.monster1().type}S have appeared!""")
                         first_monster1 = self.monster_spawning.monster1()
                         second_monster1 = self.monster_spawning.monster1()
                         first_monster1.number = self.monster1_number
@@ -33,7 +33,7 @@ class Room:
                         self.monster1_count += 2
                         self.monster1_number += 2
                     else: 
-                        print(f"""\n A new {self.monster_spawning.monster2().type} has appeared!""")
+                        print(f""" A new {self.monster_spawning.monster2().type} has appeared!""")
                         monster = self.monster_spawning.monster2()
                         monster.number = self.monster2_number
                         self.monsters.append(monster)
@@ -41,7 +41,7 @@ class Room:
                         self.monster2_number += 1
                     monster_chance = 0
             if monster_chance >= self.monster_spawning.threshold1:
-                print(f"""\n A new {self.monster_spawning.monster1().type} has appeared!""")
+                print(f""" A new {self.monster_spawning.monster1().type} has appeared!""")
                 monster = self.monster_spawning.monster1()
                 monster.number = self.monster1_number
                 self.monsters.append(monster)
@@ -51,23 +51,23 @@ class Room:
     def view_monster_count(self, player_request=False):
         if self.monster_spawning is not None: 
             if self.monster1_count == 1 and self.monster2_count == 0:
-                print(f"""\n A {self.monster_spawning.monster1().type} is here.""")
+                print(f""" A {self.monster_spawning.monster1().type} is here.""")
             elif self.monster1_count > 1 and self.monster2_count ==0:
-                print(f"""\n {self.monster1_count} {self.monster_spawning.monster1().type}S are here.""")
+                print(f""" {self.monster1_count} {self.monster_spawning.monster1().type}S are here.""")
             elif self.monster1_count == 0 and self.monster2_count == 1:
-                print(f"""\n A {self.monster_spawning.monster2().type} is here.""")
+                print(f""" A {self.monster_spawning.monster2().type} is here.""")
             elif self.monster1_count == 0 and self.monster2_count > 1:
-                print(f"""\n {self.monster2_count} {self.monster_spawning.monster2().type}S are here.""")
+                print(f""" {self.monster2_count} {self.monster_spawning.monster2().type}S are here.""")
             elif self.monster1_count == 1 and self.monster2_count == 1:
-                print(f"""\n A {self.monster_spawning.monster1().type} and a {self.monster_spawning.monster2().type} are here.""")
+                print(f""" A {self.monster_spawning.monster1().type} and a {self.monster_spawning.monster2().type} are here.""")
             elif self.monster1_count == 1 and self.monster2_count > 1:
-                print(f"""\n A {self.monster_spawning.monster1().type} and {self.monster2_count} {self.monster_spawning.monster2().type}S are here.""")
+                print(f""" A {self.monster_spawning.monster1().type} and {self.monster2_count} {self.monster_spawning.monster2().type}S are here.""")
             elif self.monster1_count > 1 and self.monster2_count == 1:
-                print(f"""\n {self.monster1_count} {self.monster_spawning.monster1().type}S and a {self.monster_spawning.monster2().type} are here.""")
+                print(f""" {self.monster1_count} {self.monster_spawning.monster1().type}S and a {self.monster_spawning.monster2().type} are here.""")
             elif self.monster1_count > 1 and self.monster2_count > 1:
-                print(f"""\n {self.monster1_count} {self.monster_spawning.monster1().type}S and {self.monster2_count} {self.monster_spawning.monster2().type}S are here.""")
+                print(f""" {self.monster1_count} {self.monster_spawning.monster1().type}S and {self.monster2_count} {self.monster_spawning.monster2().type}S are here.""")
             elif self.monster1_count == 0 and self.monster2_count == 0 and player_request == True: 
-                print("\n No monsters are here.")
+                print(" No monsters are here.")
     
     def room_interaction(self, player_action, player, room):
         if len(self.interactables) <= 0:

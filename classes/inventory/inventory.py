@@ -9,7 +9,7 @@ class Inventory:
         self.has_equipables = False
 
     def add_item(self, item):
-        if item.type == "WEAPON" or item.type == "ARMOR":
+        if item.type == "WEAPON" or item.type == "ARMOR" or item.name == "SHIELD":
             self.has_equipables = True
         if item.type == "CONSUMABLE":
             self.consumables.append(item)
