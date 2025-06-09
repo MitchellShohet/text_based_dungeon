@@ -28,7 +28,7 @@ class PlayThrough:
             \n {line_spacer}
             \n {line_spacer} """)
         death_loop = True
-        while death_loop == True:
+        while death_loop == True: 
             print("\n RETRY?")
             command = input("\n - ")
             if command.upper() == "NO":
@@ -58,18 +58,18 @@ class PlayThrough:
         except:
             print("There is no exit that direction.")
         else: 
-            if len(self.navigation.current_room.monsters) > 0:
-                for each_monster in self.navigation.current_room.monsters:
+            if len(self.navigation.current_room.monsters) > 0: 
+                for each_monster in self.navigation.current_room.monsters: #this loop determines if monsters notice and/or attack the player on their way out
                     if each_monster.is_aware == False:
                         each_monster.notice_player(self.player_character.hiding_score)
                     else:
                         print(f"""\n {each_monster.type} {each_monster.number} is aware of you!""")
                     if each_monster.is_aware == True:
                         each_monster.make_attack(self.player_character)
-            print(line_spacer)
+            print(line_spacer) #this visually segments the game for each room entered. It helps with readability.
             print(f"""\n You moved {direction}""")
-            self.navigation.enter_room(move_function())
-            self.player_character.hiding_score = random.randint(1,5)
+            self.navigation.enter_room(move_function()) #uses the move function determined by the direction earlier, as an argument to move rooms
+            self.player_character.hiding_score = random.randint(1,5) #this is the luck component of hiding for each room as the player enters it
             self.player_character.hiding = False
             print(f""" current hiding luck: {self.player_character.hiding_score}.""")
 
@@ -80,7 +80,7 @@ class PlayThrough:
                 print("\n Where would you like to HIDE?")
             else:
                 print(f""" What would you like to {action_word}?""")
-            for each_thing in list:
+            for each_thing in list: #Prints out each option for the player to choose from depending on the list provided
                 if action_word == "INVESTIGATE":
                     if each_thing.can_investigate == True and each_thing.number == 0:
                         print(f""" {each_thing.type}""")
@@ -103,17 +103,17 @@ class PlayThrough:
             if selection == "NEVERMIND":
                 selection_loop = False
                 player_attacking = False
-            for each_thing in list:
-                if action_word == "INVESTIGATE":
+            for each_thing in list: 
+                if action_word == "INVESTIGATE": #each_thing is each interactable in the room
                     if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number) or str(selection) + "0" == each_thing.type + str(each_thing.number):
                         each_thing.investigate(self.player_character, self.navigation.current_room)
                         selection_loop = False
-                if action_word == "EQUIP":
+                if action_word == "EQUIP": #each_thing is each equipable item in the player's inventory
                     if each_thing.name == selection:
                         self.player_character.equip(each_thing)
                         selection_loop = False
                         break
-                if action_word == "USE":
+                if action_word == "USE": #each_thing is each consumable item in the player's inventory
                     if each_thing.name == selection:
                         if each_thing.name == "HEALTH POTION" and self.player_character.current_health == self.player_character.max_health or each_thing.name == "GREATER HEALTH POTION" and self.player_character.current_health == self.player_character.max_health:
                             print("\n Your health is already full.")
@@ -123,13 +123,13 @@ class PlayThrough:
                             self.player_character.inventory.remove_item(each_thing)
                             selection_loop = False
                         break
-                if action_word == "HIDE":
+                if action_word == "HIDE": #each_thing is each interactable in the room
                     if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number) or selection + "0" == each_thing.type + str(each_thing.number):
                         self.player_character.hiding_score += each_thing.stealth_mod + self.player_character.stealth
                         print(f"""\n Hiding place modifier: {each_thing.stealth_mod}""") #to be removed?
                         self.player_character.hiding = True
                         selection_loop = False
-                if action_word == "ATTACK":
+                if action_word == "ATTACK": #each_thing is each monster in the room
                     if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number):
                         self.player_character.make_attack(each_thing)
                         if each_thing.current_health <= 0:
@@ -160,7 +160,7 @@ class PlayThrough:
                     self.select_sequence("USE", self.player_character.inventory.consumables)
                 else:
                     print("You have no consumables to use.")
-            elif command == "EQUIP": #add a while loop for sequence
+            elif command == "EQUIP":
                 if self.player_character.inventory.has_equipables == True:
                     self.select_sequence("EQUIP", self.player_character.inventory.misc)
                 else:
@@ -243,7 +243,7 @@ class PlayThrough:
 
 
 
-            elif command == "TEST ADD WEAPON":
+            elif command == "TEST ADD WEAPON": #might add some cheat codes for fun?
                 self.player_character.inventory.add_item(weapon_options["MAGIC SWORD"])
             elif command == "DIE":
                 self.player_character.take_damage(int(100))
