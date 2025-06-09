@@ -64,7 +64,7 @@ class GlowingCrystal(Interactable):
             action3_avail)
 
     def run_interaction(self, action_word, player, room):
-        if action_word == "BREAK": #maybe connect this with ATTACK command later
+        if action_word == "SHATTER": #maybe connect this with ATTACK command later
             if self.action1_avail == True:
                 crystal_def = Combatant("GLOWING CRYSTAL", 1, 1, 0, self.number*3+2, None, self.number)
                 player.make_attack(crystal_def)
@@ -78,11 +78,12 @@ class GlowingCrystal(Interactable):
                     if self.number == 3:
                         player.inventory.add_item(StatMedallion())
                         print(f"""\n You found a STAT MEDALLION""")
-                    self.action_words.remove("BREAK")
-                    if "INVESTIGATE FURTHER" in self.action_words:
-                        self.action_words.remove("INVESTIGATE FURTHER")
+                    self.action_words.remove("SHATTER")
+                    if "INSPECT" in self.action_words:
+                        self.action_words.remove("INSPECT")
                     self.type = "DESTROYED CRYSTAL PILE"
                     self.description = "The shattered remains of what used to by a GLOWING CRYSTAL"
+                    self.stealth_mod-=1
                 else:
                     print(f"""\n You couldn't break GLOWING CRYSTAL {self.number}.""")
                 self.action1_avail = False
@@ -90,7 +91,7 @@ class GlowingCrystal(Interactable):
                 print(f"""\n You've already destroyed GLOWING CRYSTAL {self.number}.""")
             else:
                 print(f"""\n You've already tried breaking GLOWING CRYSTAL {self.number}.""")
-        elif action_word == "INVESTIGATE FURTHER":
+        elif action_word == "INSPECT":
             if self.action2_avail == True and self.action1_avail == True:
                 if player.investigation + random.randint(1,5) >= self.invest_requirement:
                     self.invest_requirement = 0
@@ -100,11 +101,11 @@ class GlowingCrystal(Interactable):
                     else:
                         player.recover_health(self.number*3)
                         self.action2_avail == False
-                        self.action_words.remove("INVESTIGATE FURTHER")
+                        self.action_words.remove("INSPECT")
                 else:
                     print(f"""\n The secrets of GLOWING CRYSTAL {self.number} elude you.""")
                     self.action2_avail = False
-                    self.action_words.remove("INVESTIGATE FURTHER")
+                    self.action_words.remove("INSPECT")
             elif self.type == "DESTROYED CRYSTAL PILE":
                 print(f"""\n You've already destroyed GLOWING CRYSTAL {self.number}.""")
             else:

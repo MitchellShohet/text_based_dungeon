@@ -66,12 +66,13 @@ class PlayThrough:
                         print(f"""\n {each_monster.type} {each_monster.number} is aware of you!""")
                     if each_monster.is_aware == True:
                         each_monster.make_attack(self.player_character)
-            print(line_spacer) #this visually segments the game for each room entered. It helps with readability.
-            print(f"""\n You moved {direction}""")
-            self.navigation.enter_room(move_function()) #uses the move function determined by the direction earlier, as an argument to move rooms
-            self.player_character.hiding_score = random.randint(1,5) #this is the luck component of hiding for each room as the player enters it
-            self.player_character.hiding = False
-            print(f""" current hiding luck: {self.player_character.hiding_score}.""")
+            if self.player_character.current_health > 0:
+                print(line_spacer) #this visually segments the game for each room entered. It helps with readability.
+                print(f"""\n You moved {direction}""")
+                self.navigation.enter_room(move_function()) #uses the move function determined by the direction earlier, as an argument to move rooms
+                self.player_character.hiding_score = random.randint(1,5) #this is the luck component of hiding for each room as the player enters it
+                self.player_character.hiding = False
+                print(f""" current hiding luck: {self.player_character.hiding_score}.""")
 
     def select_sequence(self, action_word, list, ):
         selection_loop = True
@@ -96,13 +97,13 @@ class PlayThrough:
                         print(f""" {each_thing.type}""")
                     else:
                         print(f""" {each_thing.type} {each_thing.number}""")
-                if action_word == "ATTACK":
+                if action_word == "ATTACK" or action_word == "OBSERVE":
                         print(f""" {each_thing.type} {each_thing.number}""")
             print(" NEVERMIND")
             selection = input("\n - ").upper()
             if selection == "NEVERMIND":
                 selection_loop = False
-                player_attacking = False
+                self.player_attacking = False
             for each_thing in list: 
                 if action_word == "INVESTIGATE": #each_thing is each interactable in the room
                     if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number) or str(selection) + "0" == each_thing.type + str(each_thing.number):
@@ -140,6 +141,9 @@ class PlayThrough:
                             else:
                                 self.navigation.current_room.monster2_count -= 1
                         selection_loop = False
+                if action_word == "OBSERVE": 
+                    if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number):
+                        each_thing.display_stats(self.player_character.investigation)
             if selection_loop == True:
                 print(f"""\n {selection} is not an option (include the number if it has one).""")
 
@@ -167,28 +171,30 @@ class PlayThrough:
                     print("You have nothing new to equip.")
             elif command == "INVESTIGATE": 
                 if len(self.navigation.current_room.interactables) > 0:
-                    self.select_sequence("INVESTIGATE", self.navigation.current_room.interactables, )
+                    self.select_sequence("INVESTIGATE", self.navigation.current_room.interactables)
                 else:
                     print("\n There's nothing to INVESTIGATE here. Input MENU for a list of current options.")
                     return
             elif command == "HIDE":
                 if self.player_character.hiding == False:
                     if len(self.navigation.current_room.interactables) > 0:
+                        self.player_attacking = True
                         self.select_sequence("HIDE", self.navigation.current_room.interactables)
-                        print(f""" player stealth: {self.player_character.stealth}. """)
-                        for each_monster in self.navigation.current_room.monsters:
-                            each_monster.notice_player(self.player_character.hiding_score, player_request=True)
-                            if each_monster.is_aware == True:
-                                each_monster.make_attack(self.player_character)
+                        if self.player_attacking == True:
+                            print(f""" player stealth: {self.player_character.stealth}. """)
+                            for each_monster in self.navigation.current_room.monsters:
+                                each_monster.notice_player(self.player_character.hiding_score, player_request=True)
+                                if each_monster.is_aware == True:
+                                    each_monster.make_attack(self.player_character)
                     else:
                         print("\n There's nowhere to hide here.")
                 else:
                     print("\n You are already hiding.")
             elif command == "ATTACK":
                 if len(self.navigation.current_room.monsters) > 0:
-                    player_attacking = True
+                    self.player_attacking = True
                     self.select_sequence("ATTACK", self.navigation.current_room.monsters)
-                    if player_attacking == True:
+                    if self.player_attacking == True:
                         self.player_character.hiding = False
                         for each_monster in self.navigation.current_room.monsters:
                             each_monster.is_aware == True
@@ -196,6 +202,9 @@ class PlayThrough:
                             each_monster.make_attack(self.player_character)
                 else:
                     print("\n There are no monsters here to attack.")
+            elif command == "OBSERVE" or command == "WATCH":
+                if len(self.navigation.current_room.monsters) > 0:
+                    self.select_sequence("OBSERVE", self.navigation.current_room.monsters)
             elif command == "VIEW STATS":
                 self.player_character.get_player_stats()
                 print(f"""\n Your current weapon is: {self.player_character.inventory.weapon.name}.""") 
@@ -210,39 +219,44 @@ class PlayThrough:
                     print(f""" {each_misc.name}""")
                 print(f"""\n DOLLAR BILLS: {self.player_character.inventory.dollar_bills}""")
             elif command == "MENU":
-                print("BACKWARD")
-                try:self.navigation.current_room.exits(self.navigation.test_forward())
+                options = []
+                try:self.navigation.current_room.exits[self.navigation.test_forward()]
                 except: pass
-                else: print("FORWARD")
-                try:self.navigation.current_room.exits(self.navigation.test_left())
+                else: options.append("FORWARD")
+                options.append("BACKWARD")
+                try:self.navigation.current_room.exits[self.navigation.test_left()]
                 except: pass
-                else: print("LEFT")
-                try:self.navigation.current_room.exits(self.navigation.test_right())
+                else: options.append("LEFT")
+                try:self.navigation.current_room.exits[self.navigation.test_right()]
                 except: pass
-                else: print("RIGHT")
-                print("VIEW STATS")
-                if len(self.player_character.inventory.consumables) > 0:
-                    print("USE ITEM")
-                if self.player_character.inventory.has_equipables == True:
-                    print("EQUIP")
-                if len(self.navigation.current_room.interactables) > 0:
-                    print("INVESTIGATE")
-                if self.player_character.hiding == False and self.player_character.hiding == False:
-                    print("HIDE")
+                else: options.append("RIGHT")
                 if len(self.navigation.current_room.monsters) > 0:
-                    print("ATTACK")
+                    options.append("ATTACK")
+                    options.append("OBSERVE")
+                if len(self.navigation.current_room.interactables) > 0:
+                    options.append("INVESTIGATE")
+                if self.player_character.hiding == False and self.player_character.hiding == False:
+                    options.append("HIDE")
+                if len(self.player_character.inventory.consumables) > 0:
+                    options.append("USE ITEM")
+                if self.player_character.inventory.has_equipables == True:
+                    options.append("EQUIP")
+                options.append("VIEW STATS")
                 if len(self.navigation.current_room.interactables) > 0:
                     for each_interactable in self.navigation.current_room.interactables:
                         if len(each_interactable.action_words) > 0:
                             for each_action_word in each_interactable.action_words:
-                                print(each_action_word)
-
-
-
-
-
-
-
+                                options.append(f"""{each_action_word}""")
+                i=0
+                while i < len(options):
+                    j=i+1
+                    while j < len(options):
+                        if options[i] == options[j]:
+                            options.remove(options[j])
+                            j-=1
+                        j+=1
+                    print(f""" {options[i]}""")
+                    i+=1
             elif command == "TEST ADD WEAPON": #might add some cheat codes for fun?
                 self.player_character.inventory.add_item(weapon_options["MAGIC SWORD"])
             elif command == "DIE":

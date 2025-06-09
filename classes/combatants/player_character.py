@@ -12,7 +12,7 @@ class PlayerCharacter(Combatant):
         super().__init__(
             type="PLAYER", 
             max_health=20, #baseline for normal mode is 10
-            current_health=20, #baseline for normal mode is 10
+            current_health=50, #baseline for normal mode is 10
             attack=10, #baseline for normal mode is 0
             defense=3, 
             inventory=Inventory(

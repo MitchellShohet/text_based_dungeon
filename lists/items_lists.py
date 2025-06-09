@@ -29,8 +29,9 @@ armor_options = {
 #---------------------------------------------
 
 misc_options = {
-    "GOBLIN HORN" : Item("MISC", "GOBLIN HORN", 3),
     "BLADE OF GRASS": Item("MISC", "BLADE OF GRASS", 0),
+    "WOOD" : Item("MISC", "WOOD", 1),
+    "GOBLIN HORN" : Item("MISC", "GOBLIN HORN", 3),
     "JAW BONE" : Item("MISC", "JAW BONE", 5),
     "RUBY DUST" : Item("MISC", "RUBY DUST", 20),
     "PAIR OF GOLEM EYES" : Item("MISC", "PAIR OF GOLEM EYES", 20),

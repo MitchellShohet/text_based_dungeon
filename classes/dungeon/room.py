@@ -8,11 +8,11 @@ class Room:
         self.exits = exits
         self.monster_spawning = monster_spawning
         self.monsters = []
+        self.interactables = interactables
         self.monster1_count = 0
         self.monster2_count = 0
         self.monster1_number = 1
         self.monster2_number = 1
-        self.interactables = interactables
 
     def set_exit_link(self, exit_number, room):
         self.exits[exit_number].set_link(room)
@@ -69,9 +69,9 @@ class Room:
             elif self.monster1_count == 0 and self.monster2_count == 0 and player_request == True: 
                 print(" No monsters are here.")
     
-    def room_interaction(self, player_action, player, room):
+    def room_interaction(self, player_action, player, room): #consider moving this to server.py and merging with select_sequence() for DRY
         if len(self.interactables) <= 0:
-            print(f"""\n {player_action} isn't an option here. iiiiiiiiiiiiiiiiiiiiiInput MENU for a list of current options.""") #edit after testing
+            print(f"""\n {player_action} isn't an option here. Input MENU for a list of current options.""")
         else:
             options = []
             for each_interactable in self.interactables:
@@ -81,7 +81,7 @@ class Room:
                             options.append(each_interactable)
                             break
             if len(options) == 0:
-                print(f"""\n {player_action} isn't an option here.2222222222222Input MENU for a list of current options.""") #edit after testing
+                print(f"""\n {player_action} isn't an option here. Input MENU for a list of current options.""")
             elif len(options) == 1:
                 options[0].run_interaction(player_action, player, room)
             else:
@@ -89,7 +89,7 @@ class Room:
                 while selection_loop == True:
                     print(f"""\n Which {options[0].type} would you like to {player_action}?""")
                     for each_option in options:
-                        print(f"""\n {each_option.type} {each_option.number}""")
+                        print(f""" {each_option.type} {each_option.number}""")
                     print("\n NEVERMIND")
                     selection = input("\n - ").upper()
                     if selection == "NEVERMIND":

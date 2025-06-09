@@ -14,23 +14,26 @@ class Monster(Combatant):
         self.can_investigate = True
         self.action_words = []
 
-    def display_stats(self):
-        print(f"""\n The {self.type}'S attack is {self.attack}.
-            \n The {self.type}'S defense is {self.defense}.
-            \n The {self.type}'S health is {self.health}.
-            \n The {self.type}'S weapon is {self.inventory["weapon"]["type"]}.
-            """)
+    def display_stats(self, investigation):
+        if investigation + random.randint(1,5) >= self.invest_requirement:
+            print(f"""\n You were able to OBSERVE {self.type} {self.number} and glean some info about it.""")
+            print(f"""\n {self.type} {self.number}'s attack is {self.attack}.""")
+            print(f""" {self.type} {self.number}'s defense is {self.defense}.""")
+            print(f""" {self.type} {self.number}'s health is {self.current_health}.""")
+            print(f""" {self.type} {self.number}'s weapon is {self.inventory.weapon["type"]}.""")
+        else:
+            print(f""" You weren't able to observe {self.type} {self.number}.""")
 
     def notice_player(self, stealth_check, player_request=False):
-        print(f"""\n stealth: {stealth_check}. Perception: {self.perception}.""")
+        print(f""" Your stealth is: {stealth_check}. {self.type} {self.number}'s perception is: {self.perception}.""")
         if stealth_check <= self.perception:
             self.is_aware = True
-            print(f"""\n {self.type} {self.number} noticed you!""")
+            print(f""" {self.type} {self.number} noticed you!""")
         elif stealth_check >= self.perception and player_request == True and self.is_aware == True:
             self.is_aware = False
-            print(f"""\n {self.type} {self.number} lost you!""")
+            print(f""" {self.type} {self.number} lost you!""")
         else:
-            print(f"""\n {self.type} {self.number} hasn't noticed you!""")
+            print(f""" {self.type} {self.number} hasn't noticed you!""")
         return self.is_aware
 
     def investigate(self, player, room):
