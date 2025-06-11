@@ -3,7 +3,7 @@ from line_spacer import line_spacer
 
 class Combatant:
 
-    def __init__(self, type, max_health, current_health, attack, defense, inventory, number=0, attack_buff=0, defense_buff=0):
+    def __init__(self, type, max_health, current_health, attack, defense, inventory, number="", attack_buff=0, defense_buff=0):
         self.type = type
         self.number = number
         self.max_health = max_health
@@ -42,7 +42,7 @@ class Combatant:
     def take_damage(self, incoming_damage, print_damage=False):
         self.current_health -= incoming_damage
         if self.current_health < 0 and self.type != "PLAYER":
-            if self.type == "GLOWING CRYSTAL":
+            if self.type == "GLOWING CRYSTAL" or self.type == "THE LOCK":
                 print(f""" {self.type} {self.number} has been destroyed.""")
             else:
                 print(f""" {self.type} {self.number} has died.""")

@@ -1,6 +1,6 @@
 class Inventory:
 
-    def __init__(self, weapon, armor=None, consumables=[], misc=[], dollar_bills=0):
+    def __init__(self, weapon=None, armor=None, consumables=[], misc=[], dollar_bills=0):
         self.weapon = weapon
         self.armor = armor
         self.consumables = consumables

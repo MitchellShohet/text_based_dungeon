@@ -38,6 +38,7 @@ misc_options = {
     "PAIR OF GOLEM EYES" : Item("MISC", "PAIR OF GOLEM EYES", 20),
     "MINOTAUR HORN" : Item("MISC", "MINOTAUR HORN", 30),
     "SHIELD" : Item("MISC", "SHIELD", 35),
+    "MAGIC BRIDGE": Item("MISC", "MAGIC BRIDGE", 50)
 }
 
 #-------------------

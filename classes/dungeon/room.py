@@ -76,10 +76,8 @@ class Room:
             options = []
             for each_interactable in self.interactables:
                 if len(each_interactable.action_words) > 0 :
-                    for each_action_word in each_interactable.action_words:
-                        if player_action == each_action_word:
-                            options.append(each_interactable)
-                            break
+                    if player_action in each_interactable.action_words:
+                        options.append(each_interactable)
             if len(options) == 0:
                 print(f"""\n {player_action} isn't an option here. Input MENU for a list of current options.""")
             elif len(options) == 1:
@@ -90,7 +88,7 @@ class Room:
                     print(f"""\n Which {options[0].type} would you like to {player_action}?""")
                     for each_option in options:
                         print(f""" {each_option.type} {each_option.number}""")
-                    print("\ NEVERMIND")
+                    print(" NEVERMIND")
                     selection = input("\n - ").upper()
                     if selection == "NEVERMIND":
                         selection_loop = False

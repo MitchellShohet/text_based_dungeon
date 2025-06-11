@@ -1,7 +1,7 @@
 from line_spacer import line_spacer
 from classes.combatants.combatant import Combatant
 from classes.inventory.inventory import Inventory
-from lists.items_lists import weapon_options, armor_options, SmokeBomb, HealthPotion, GreaterHealthPotion
+from lists.items_lists import weapon_options, misc_options, armor_options, SmokeBomb, HealthPotion, GreaterHealthPotion
 
 class PlayerCharacter(Combatant):
 
@@ -19,7 +19,7 @@ class PlayerCharacter(Combatant):
                 weapon=weapon_options["FIST"],
                 armor=armor_options["PLATE"],
                 consumables=[SmokeBomb(), HealthPotion(), GreaterHealthPotion()], #*** Update this once done testing
-                misc=[weapon_options["CLUB"], armor_options["GAMBESON"]] #*** Update this once done testing
+                misc=[misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["MAGIC BRIDGE"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], ] #*** Update this once done testing
                 )
             )
         self.hiding_score = 0

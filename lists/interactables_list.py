@@ -3,6 +3,7 @@ from classes.dungeon.room_components import Interactable
 from classes.combatants.combatant import Combatant
 from classes.dungeon.room import Room
 from classes.dungeon.room_components import Exit, MonsterSpawning
+from classes.inventory.inventory import Inventory
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
 
@@ -69,7 +70,7 @@ class GlowingCrystal(Interactable):
     def run_interaction(self, action_word, player, room):
         if action_word == "SHATTER": #maybe connect this with ATTACK command later
             if self.action1_avail == True:
-                crystal_def = Combatant("GLOWING CRYSTAL", 1, 1, 0, self.number*3+2, None, self.number)
+                crystal_def = Combatant("GLOWING CRYSTAL", 1, 1, 0, self.number*3+2, Inventory(), self.number)
                 player.make_attack(crystal_def)
                 if crystal_def.current_health <= 0:
                     if self.number == 1:
@@ -127,7 +128,7 @@ class MagmaRiver(Interactable):
                                     "A tunnel beyond the magma river opens to a chamber with a chest. The path forks into two exits onward.", 
                                     [Exit(0), Exit(1), Exit(2)], 
                                     MonsterSpawning(5, Goblin, 9, "twice"), 
-                                    [Chest(0, ["BREAK THE LOCK", "USE A KEY"],"with an image of a volcano etched onto its top.",contents=[weapon_options["LONGSWORD"], StatMedallion(), 40])]))
+                                    [Chest(0, ["BREAK THE LOCK", "USE A KEY"]," with an image of a volcano etched onto its top.",contents=[weapon_options["LONGSWORD"], StatMedallion(), 40])]))
         super().__init__(
             self.type, 
             number, 
@@ -157,31 +158,31 @@ class MagmaRiver(Interactable):
                 print(" With a running start, you successfully leap clear across the MAGMA RIVER!")
                 self.switch_sides(room)
         elif action_word == "BUILD BRIDGE" and "BUILD BRIDGE" in self.action_words:
-            if "MAGIC BRIDGE" in player.inventory.misc:
+            if misc_options["MAGIC BRIDGE"] in player.inventory.misc:
                 print(" You placed the MAGIC BRIDGE over the MAGMA RIVER!")
                 self.action_words.remove("BUILD BRIDGE")
                 self.action_words.remove("JUMP")
-                if room.exits[0].number == 0:
-                    room.exits.append(self.exit_hold)
-                else:
-                    room.exits.insert(0,self.exit_hold)
-            elif "WOOD" in player.inventory.misc:
+                player.inventory.misc.remove(misc_options["MAGIC BRIDGE"])
+                self.build_bridge(room)
+            elif misc_options["WOOD"] in player.inventory.misc:
                 wood_count = 0
                 for each_item in player.inventory.misc:
                     if each_item.name == "WOOD":
                         wood_count += 1
                 if wood_count >= 3:
-                    print(" You build a WOOD BRIDGE across the MAGMA RIVER!")
-                    self.action_words.append("CROSS")
+                    print(" You built a WOOD BRIDGE across the MAGMA RIVER!")
+                    self.action_words.append("CROSS THE BRIDGE")
                     self.action_words.remove("JUMP")
                     self.action_words.remove("BUILD BRIDGE")
+                    for x in range(3):
+                        player.inventory.misc.remove(misc_options["WOOD"])
             else:
                 print(" You don't have the materials to build a bridge.")
-        elif action_word == "CROSS" and "CROSS" in self.action_words:
-            print("You crossed the WOOD BRIDGE you built. As you reach the far side the bridge catches fire and incinerates. The way behind you is now blocked by the MAGMA RIVER.")
-            self.action_words.append("JUMP")
+        elif action_word == "CROSS THE BRIDGE" and "CROSS THE BRIDGE" in self.action_words:
+            print(" You crossed the WOOD BRIDGE you built. As you reach the far side the bridge catches fire and incinerates. The opposite side is blocked by the MAGMA RIVER again.")
             self.action_words.append("BUILD BRIDGE")
-            self.action_words.remove("CROSS")
+            self.action_words.append("JUMP")
+            self.action_words.remove("CROSS THE BRIDGE")
             self.switch_sides(room)
         elif action_word == "THROW ROCKS" and "THROW ROCKS" in self.action_words:
                 print(f""" You throw some rocks into the water, it makes a lot of noise. \n You skip one rock {random.randint(1,6)} times!""")
@@ -197,6 +198,12 @@ class MagmaRiver(Interactable):
             room.exits.append(self.exit_hold)
             self.exit_hold = room.exits[0]
             room.exits[0] = None
+    
+    def build_bridge(self, room):
+        try: room.exits[0].number == 0
+        except: room.exits[0] = self.exit_hold
+        else: room.exits.append(self.exit_hold)
+
 
 
 #---------------------------------------------------------
@@ -205,7 +212,7 @@ class Chest(Interactable):
 
     def __init__(self, number, action_words, descriptor, action1_avail=True, action2_avail=False, action3_avail=False, challenge=0, contents=10):
         self.type = "CHEST"
-        self.description = "A treasure chest " + descriptor
+        self.description = "A treasure chest" + descriptor
         self.invest_requirement = number
         self.stealth_mod = 0
         self.challenge = challenge
@@ -228,8 +235,6 @@ class Chest(Interactable):
                 while selection_loop == True:
                     print(" The CHEST is locked. How would you like to open it?")
                     for each_option in self.action_words:
-                        if each_option == "OPEN":
-                            continue
                         print(f"""{each_option}""")
                     print("NEVERMIND")
                     selection = input("- ").upper()
@@ -244,30 +249,28 @@ class Chest(Interactable):
             else:
                 print(" You opened the CHEST!")
                 try:
-                    player.inventory.dollar_bills += self.contents
-                except: 
                     reward_num = random.randint(1, len(self.contents))-1
                     if self.contents[reward_num].type == "CONSUMABLE":
                         player.inventory.consumables.append(self.contents[reward_num])
                     else:
                         player.inventory.misc.append(self.contents[reward_num])
                     print(f""" You found a {self.contents[reward_num].name}!""")
-                else:
+                except: 
+                    player.inventory.dollar_bills += self.contents
                     print(f""" You found {self.contents} dollar bills!""")
                 self.action_words.remove("OPEN")
         elif action_word == "BREAK THE LOCK" and "BREAK THE LOCK" in self.action_words:
-            chest_def = Combatant("CHEST", 1, 1, 0, self.challenge, None)
+            chest_def = Combatant("THE LOCK", 1, 1, 0, self.challenge, Inventory())
             player.make_attack(chest_def)
             if chest_def.current_health <= 0:
-                print(" You broke open the lock!!")
                 self.unlock_success(player, room)
             else:
                 print(" You jammed the lock into the closed position. You can try again but it'll be even more difficult now.")
                 self.challenge*=2
                 self.description += " It's lock has been jammed closed."
         elif action_word == "USE A KEY" and "USE A KEY" in self.action_words:
-            if "KEY" in player.inventory.misc:
-                player.inventory.misc.remove("KEY")
+            if misc_options["KEY"] in player.inventory.misc:
+                player.inventory.misc.remove(misc_options["KEY"])
                 print(" You used your key to open the lock. The key then dissintegrates, it's task in this world complete.")
                 self.unlock_success(player, room)
             else:
@@ -277,6 +280,7 @@ class Chest(Interactable):
         self.challenge = 0
         self.action_words.remove("BREAK THE LOCK")
         self.action_words.remove("USE A KEY")
+        self.action_words.append("OPEN")
         self.run_interaction("OPEN", player, room)
 
 

@@ -42,7 +42,6 @@ class Navigation:
             new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
         except : #later on this should trigger finding the next floor/ the idol/ the exit
             new_room = self.room_options[0][0]
-        print('jlksdfjkl')
         self.test_floor_elegibility(new_room)
         new_exits = self.check_for_new_exits(new_room)
         attempts = 1
