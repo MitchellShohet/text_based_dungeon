@@ -54,7 +54,7 @@ class PlayThrough:
         else: 
             move_function = None
         try:
-            self.navigation.current_room.exits[move_function()]
+            self.navigation.current_room.exits[move_function()].link
         except:
             print("There is no exit that direction.")
         else: 
@@ -151,6 +151,7 @@ class PlayThrough:
         while self.player_alive == True:
             print(" What would you like to do?")
             command = input("\n - ").upper()
+            #-------------------------------
             if command == "FORWARD" or command == "FF":
                 self.nav_sequence("FORWARD")
             elif command == "BACKWARD":
@@ -159,22 +160,26 @@ class PlayThrough:
                 self.nav_sequence("LEFT")
             elif command == "RIGHT":
                 self.nav_sequence("RIGHT")
+            #-----------------------------
             elif command == "USE" or command == "USE ITEM" or command == "ITEM":
                 if len(self.player_character.inventory.consumables) > 0:
                     self.select_sequence("USE", self.player_character.inventory.consumables)
                 else:
                     print("You have no consumables to use.")
+            #-------------------------------
             elif command == "EQUIP":
                 if self.player_character.inventory.has_equipables == True:
                     self.select_sequence("EQUIP", self.player_character.inventory.misc)
                 else:
                     print("You have nothing new to equip.")
+            #--------------------------------
             elif command == "INVESTIGATE": 
                 if len(self.navigation.current_room.interactables) > 0:
                     self.select_sequence("INVESTIGATE", self.navigation.current_room.interactables)
                 else:
                     print("\n There's nothing to INVESTIGATE here. Input MENU for a list of current options.")
                     return
+            #---------------------------------
             elif command == "HIDE":
                 if self.player_character.hiding == False:
                     if len(self.navigation.current_room.interactables) > 0:
@@ -190,6 +195,7 @@ class PlayThrough:
                         print("\n There's nowhere to hide here.")
                 else:
                     print("\n You are already hiding.")
+            #------------------------------------
             elif command == "ATTACK":
                 if len(self.navigation.current_room.monsters) > 0:
                     self.player_attacking = True
@@ -202,9 +208,11 @@ class PlayThrough:
                             each_monster.make_attack(self.player_character)
                 else:
                     print("\n There are no monsters here to attack.")
+            #------------------------------------
             elif command == "OBSERVE" or command == "WATCH":
                 if len(self.navigation.current_room.monsters) > 0:
                     self.select_sequence("OBSERVE", self.navigation.current_room.monsters)
+            #---------------------------------
             elif command == "VIEW STATS":
                 self.player_character.get_player_stats()
                 print(f"""\n Your current weapon is: {self.player_character.inventory.weapon.name}.""") 
@@ -218,16 +226,21 @@ class PlayThrough:
                 for each_misc in self.player_character.inventory.misc:
                     print(f""" {each_misc.name}""")
                 print(f"""\n DOLLAR BILLS: {self.player_character.inventory.dollar_bills}""")
+            #-------------------------------------
             elif command == "MENU":
                 options = []
-                try:self.navigation.current_room.exits[self.navigation.test_forward()]
+                try:self.navigation.current_room.exits[self.navigation.test_forward()].link
                 except: pass
                 else: options.append("FORWARD")
-                options.append("BACKWARD")
-                try:self.navigation.current_room.exits[self.navigation.test_left()]
+                try: self.navigation.current_room.exits[self.navigation.test_backward()].link
+                except: pass
+                else:
+                    if self.navigation.current_room.exits[self.navigation.test_backward()].link == self.navigation.previous_room:
+                        options.append("BACKWARD")
+                try:self.navigation.current_room.exits[self.navigation.test_left()].link
                 except: pass
                 else: options.append("LEFT")
-                try:self.navigation.current_room.exits[self.navigation.test_right()]
+                try:self.navigation.current_room.exits[self.navigation.test_right()].link
                 except: pass
                 else: options.append("RIGHT")
                 if len(self.navigation.current_room.monsters) > 0:
@@ -257,10 +270,12 @@ class PlayThrough:
                         j+=1
                     print(f""" {options[i]}""")
                     i+=1
-            elif command == "TEST ADD WEAPON": #might add some cheat codes for fun?
+            #-------------------------------------------------
+            elif command == "TEST ADD WEAPON": #cheat codes?
                 self.player_character.inventory.add_item(weapon_options["MAGIC SWORD"])
             elif command == "DIE":
                 self.player_character.take_damage(int(100))
+            #-------------------------------------------------
             else:
                 self.navigation.current_room.room_interaction(command, self.player_character, self.navigation.current_room) #
             if self.player_character.current_health <= 0:

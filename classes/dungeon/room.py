@@ -14,8 +14,8 @@ class Room:
         self.monster1_number = 1
         self.monster2_number = 1
 
-    def set_exit_link(self, exit_number, room):
-        self.exits[exit_number].set_link(room)
+    def set_exit_link(self, number, room):
+        self.exits[number].set_link(room)
 
     def spawn_monster(self):
         if self.monster_spawning is not None:            
@@ -90,7 +90,7 @@ class Room:
                     print(f"""\n Which {options[0].type} would you like to {player_action}?""")
                     for each_option in options:
                         print(f""" {each_option.type} {each_option.number}""")
-                    print("\n NEVERMIND")
+                    print("\ NEVERMIND")
                     selection = input("\n - ").upper()
                     if selection == "NEVERMIND":
                         selection_loop = False

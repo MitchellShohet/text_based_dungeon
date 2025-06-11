@@ -2,8 +2,8 @@ import random
 from abc import ABC, abstractmethod
 
 class Exit:
-    def __init__(self, exit_number, link=None):
-        self.exit_number = exit_number
+    def __init__(self, number, link=None):
+        self.number = number
         self.link = link
 
     def set_link(self, link):
@@ -42,7 +42,7 @@ class Interactable(ABC):
     def investigate(self, player, room):
         print(f"""\n {self.description}""")
         if len(self.action_words) > 0:
-            print("\n You could try to ")
+            print(" You could try to ")
             for each_action_word in self.action_words:
                 print(f""" {each_action_word}""")
         else:

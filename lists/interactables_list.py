@@ -1,6 +1,9 @@
 import random
 from classes.dungeon.room_components import Interactable
 from classes.combatants.combatant import Combatant
+from classes.dungeon.room import Room
+from classes.dungeon.room_components import Exit, MonsterSpawning
+from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
 
 class Pool(Interactable):
@@ -25,22 +28,22 @@ class Pool(Interactable):
         if action_word == "SWIM":
             if self.action1_avail == True:
                 if player.inventory.armor.rating == 3 or player.inventory.armor.rating == 4:
-                    print(f"""\n Your {player.inventory.armor.name} is too heavy to swim in!""")
-                    player.take_damage(2)
+                    print(f""" Your {player.inventory.armor.name} is too heavy to swim in!""")
+                    player.take_damage(2, True)
                     if player.current_health > 0:
-                        print("You make it back to solid ground. Swimming in heavy armor could lead to drowning.")
+                        print(" You make it back to solid ground. Swimming in heavy armor could lead to drowning.")
                 elif player.current_health == player.max_health:
-                    print("\n Your health is currently full. Come back later to regain some in the POOL.")
+                    print(" Your health is currently full. Come back later to regain some in the POOL.")
                 else:
-                    print("\n You took a quick dip in the refreshing water!")
+                    print(" You took a quick dip in the refreshing water!")
                     player.recover_health(4)
                     self.action1_avail == False
                     self.action_words.remove("SWIM")
             else:
-                print("You've already gone swimming here. Best not to get pruny.")
+                print(" You've already gone swimming here. Best not to get pruny.")
         elif action_word == "THROW ROCKS":
             if self.action2_avail == True:
-                print(f"""\n You throw some rocks into the water, it makes a lot of noise. \n You skip one rock {random.randint(1,6)} times!""")
+                print(f""" You throw some rocks into the water, it makes a lot of noise. \n You skip one rock {random.randint(1,6)} times!""")
                 room.spawn_monster()
 
 #---------------------------------------------------------
@@ -62,7 +65,7 @@ class GlowingCrystal(Interactable):
             action1_avail, 
             action2_avail, 
             action3_avail)
-
+        
     def run_interaction(self, action_word, player, room):
         if action_word == "SHATTER": #maybe connect this with ATTACK command later
             if self.action1_avail == True:
@@ -71,13 +74,13 @@ class GlowingCrystal(Interactable):
                 if crystal_def.current_health <= 0:
                     if self.number == 1:
                         player.inventory.add_item(misc_options["RUBY DUST"])
-                        print(f"""\n You found some RUBY DUST""")
+                        print(f""" You found some RUBY DUST""")
                     if self.number == 2:
                         player.inventory.add_item(DurabilityGem())
-                        print(f"""\n You found a DURABILITY GEM""")
+                        print(f""" You found a DURABILITY GEM""")
                     if self.number == 3:
                         player.inventory.add_item(StatMedallion())
-                        print(f"""\n You found a STAT MEDALLION""")
+                        print(f""" You found a STAT MEDALLION""")
                     self.action_words.remove("SHATTER")
                     if "INSPECT" in self.action_words:
                         self.action_words.remove("INSPECT")
@@ -85,28 +88,198 @@ class GlowingCrystal(Interactable):
                     self.description = "The shattered remains of what used to by a GLOWING CRYSTAL"
                     self.stealth_mod-=1
                 else:
-                    print(f"""\n You couldn't break GLOWING CRYSTAL {self.number}.""")
+                    print(f""" You couldn't break GLOWING CRYSTAL {self.number}.""")
                 self.action1_avail = False
             elif self.type == "DESTROYED CRYSTAL PILE":
-                print(f"""\n You've already destroyed GLOWING CRYSTAL {self.number}.""")
+                print(f""" You've already destroyed GLOWING CRYSTAL {self.number}.""")
             else:
-                print(f"""\n You've already tried breaking GLOWING CRYSTAL {self.number}.""")
+                print(f""" You've already tried breaking GLOWING CRYSTAL {self.number}.""")
         elif action_word == "INSPECT":
             if self.action2_avail == True and self.action1_avail == True:
                 if player.investigation + random.randint(1,5) >= self.invest_requirement:
                     self.invest_requirement = 0
-                    print("\n After some time you start to understand the secrets of the GLOWING CRYSTAL. \n You're able to extract the magic and recover some health.")
+                    print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
                     if player.current_health == player.max_health:
-                        print("\n Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
+                        print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
                     else:
                         player.recover_health(self.number*3)
                         self.action2_avail == False
                         self.action_words.remove("INSPECT")
                 else:
-                    print(f"""\n The secrets of GLOWING CRYSTAL {self.number} elude you.""")
+                    print(f""" The secrets of GLOWING CRYSTAL {self.number} elude you.""")
                     self.action2_avail = False
                     self.action_words.remove("INSPECT")
             elif self.type == "DESTROYED CRYSTAL PILE":
-                print(f"""\n You've already destroyed GLOWING CRYSTAL {self.number}.""")
+                print(f""" You've already destroyed GLOWING CRYSTAL {self.number}.""")
             else:
-                print(f"""\n You've already investigated GLOWING CRYSTAL {self.number} further.""")
+                print(f""" You've already investigated GLOWING CRYSTAL {self.number} further.""")
+                
+#---------------------------------------------------------
+
+class MagmaRiver(Interactable):
+
+    def __init__(self, number, action_words, descriptor, action1_avail=True, action2_avail=False, action3_avail=False):
+        self.type = "MAGMA RIVER"
+        self.description = "A 10ft wide river of flowing lava."
+        self.invest_requirement = 0
+        self.stealth_mod = 0
+        self.exit_hold = Exit(1, Room("Magma River Passage", 
+                                    "A tunnel beyond the magma river opens to a chamber with a chest. The path forks into two exits onward.", 
+                                    [Exit(0), Exit(1), Exit(2)], 
+                                    MonsterSpawning(5, Goblin, 9, "twice"), 
+                                    [Chest(0, ["BREAK THE LOCK", "USE A KEY"],"with an image of a volcano etched onto its top.",contents=[weapon_options["LONGSWORD"], StatMedallion(), 40])]))
+        super().__init__(
+            self.type, 
+            number, 
+            action_words, 
+            self.description, 
+            self.invest_requirement, 
+            self.stealth_mod, 
+            action1_avail, 
+            action2_avail, 
+            action3_avail)
+
+    def run_interaction(self, action_word, player, room):
+        if action_word == "JUMP" and "JUMP" in self.action_words:
+            jump_score = random.randint(1,8)
+            if jump_score == 1:
+                print(" The ash in the room choking you, you attempt to leap across the MAGMA RIVER and land less than halfway across.")
+                player.take_damage(random.randint(7,11), True)
+                if player.current_health > 0:
+                    print(" You make it back onto land. You weren't able to cross, but you did survive jumping into lava.")
+            elif jump_score > 1 and jump_score < 7:
+                print(" With a running start you successfully leap most of the way accross MAGMA RIVER! You land just short of the opposite bank.")
+                player.take_damage(random.randint(2,4), True)
+                if player.current_health > 0:
+                    print(" You made it to the opposite bank with minimal burns considering you jumped a MAGMA RIVER. However the way behind you is now blocked.")
+                    self.switch_sides(room)
+            else:
+                print(" With a running start, you successfully leap clear across the MAGMA RIVER!")
+                self.switch_sides(room)
+        elif action_word == "BUILD BRIDGE" and "BUILD BRIDGE" in self.action_words:
+            if "MAGIC BRIDGE" in player.inventory.misc:
+                print(" You placed the MAGIC BRIDGE over the MAGMA RIVER!")
+                self.action_words.remove("BUILD BRIDGE")
+                self.action_words.remove("JUMP")
+                if room.exits[0].number == 0:
+                    room.exits.append(self.exit_hold)
+                else:
+                    room.exits.insert(0,self.exit_hold)
+            elif "WOOD" in player.inventory.misc:
+                wood_count = 0
+                for each_item in player.inventory.misc:
+                    if each_item.name == "WOOD":
+                        wood_count += 1
+                if wood_count >= 3:
+                    print(" You build a WOOD BRIDGE across the MAGMA RIVER!")
+                    self.action_words.append("CROSS")
+                    self.action_words.remove("JUMP")
+                    self.action_words.remove("BUILD BRIDGE")
+            else:
+                print(" You don't have the materials to build a bridge.")
+        elif action_word == "CROSS" and "CROSS" in self.action_words:
+            print("You crossed the WOOD BRIDGE you built. As you reach the far side the bridge catches fire and incinerates. The way behind you is now blocked by the MAGMA RIVER.")
+            self.action_words.append("JUMP")
+            self.action_words.append("BUILD BRIDGE")
+            self.action_words.remove("CROSS")
+            self.switch_sides(room)
+        elif action_word == "THROW ROCKS" and "THROW ROCKS" in self.action_words:
+                print(f""" You throw some rocks into the water, it makes a lot of noise. \n You skip one rock {random.randint(1,6)} times!""")
+                room.spawn_monster()
+
+    def switch_sides(self, room):
+        try: room.exits[0].number
+        except: 
+            room.exits[0] = self.exit_hold
+            self.exit_hold = room.exits[1]
+            room.exits.pop(1)
+        else: 
+            room.exits.append(self.exit_hold)
+            self.exit_hold = room.exits[0]
+            room.exits[0] = None
+
+
+#---------------------------------------------------------
+
+class Chest(Interactable):
+
+    def __init__(self, number, action_words, descriptor, action1_avail=True, action2_avail=False, action3_avail=False, challenge=0, contents=10):
+        self.type = "CHEST"
+        self.description = "A treasure chest " + descriptor
+        self.invest_requirement = number
+        self.stealth_mod = 0
+        self.challenge = challenge
+        self.contents = contents
+        super().__init__(
+            self.type, 
+            number, 
+            action_words, 
+            self.description, 
+            self.invest_requirement, 
+            self.stealth_mod, 
+            action1_avail, 
+            action2_avail, 
+            action3_avail)
+
+    def run_interaction(self, action_word, player, room):
+        if action_word == "OPEN" and "OPEN" in self.action_words:
+            if self.challenge > 0:
+                selection_loop = True
+                while selection_loop == True:
+                    print(" The CHEST is locked. How would you like to open it?")
+                    for each_option in self.action_words:
+                        if each_option == "OPEN":
+                            continue
+                        print(f"""{each_option}""")
+                    print("NEVERMIND")
+                    selection = input("- ").upper()
+                    if selection == "NEVERMIND":
+                        selection_loop = False
+                    for each_option in self.action_words:
+                        if selection == each_option:
+                            self.run_interaction(selection, player, room)
+                            selection_loop = False
+                    if selection_loop == True:
+                        print(" That's not an option here.")
+            else:
+                print(" You opened the CHEST!")
+                try:
+                    player.inventory.dollar_bills += self.contents
+                except: 
+                    reward_num = random.randint(1, len(self.contents))-1
+                    if self.contents[reward_num].type == "CONSUMABLE":
+                        player.inventory.consumables.append(self.contents[reward_num])
+                    else:
+                        player.inventory.misc.append(self.contents[reward_num])
+                    print(f""" You found a {self.contents[reward_num].name}!""")
+                else:
+                    print(f""" You found {self.contents} dollar bills!""")
+                self.action_words.remove("OPEN")
+        elif action_word == "BREAK THE LOCK" and "BREAK THE LOCK" in self.action_words:
+            chest_def = Combatant("CHEST", 1, 1, 0, self.challenge, None)
+            player.make_attack(chest_def)
+            if chest_def.current_health <= 0:
+                print(" You broke open the lock!!")
+                self.unlock_success(player, room)
+            else:
+                print(" You jammed the lock into the closed position. You can try again but it'll be even more difficult now.")
+                self.challenge*=2
+                self.description += " It's lock has been jammed closed."
+        elif action_word == "USE A KEY" and "USE A KEY" in self.action_words:
+            if "KEY" in player.inventory.misc:
+                player.inventory.misc.remove("KEY")
+                print(" You used your key to open the lock. The key then dissintegrates, it's task in this world complete.")
+                self.unlock_success(player, room)
+            else:
+                print(" You don't have a key to use.")
+
+    def unlock_success(self, player, room):
+        self.challenge = 0
+        self.action_words.remove("BREAK THE LOCK")
+        self.action_words.remove("USE A KEY")
+        self.run_interaction("OPEN", player, room)
+
+
+
+
+#---------------------------------------------------------

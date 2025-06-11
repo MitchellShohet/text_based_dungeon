@@ -1,7 +1,7 @@
 from classes.dungeon.room_components import Exit, MonsterSpawning
 from classes.dungeon.room import Room
-from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, Avatar
-from lists.interactables_list import Pool, GlowingCrystal
+from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, Avatar, MagmaGoblin
+from lists.interactables_list import Pool, GlowingCrystal, Chest, MagmaRiver
 
 room_list = [ 
     [
@@ -23,14 +23,18 @@ room_list = [
             [GlowingCrystal(1, ["SHATTER", "INSPECT"], " human baby.", action1_avail=True, action2_avail=True), 
                 GlowingCrystal(2, ["SHATTER", "INSPECT"], " chair.", action1_avail=True, action2_avail=True), 
                 GlowingCrystal(3, ["SHATTER", "INSPECT"], "n adult horse.", action1_avail=True, action2_avail=True)]),
-        Room("Hastily abandoned kitchen", "This room has a large cauldron suspended over a recently extinguished fire pit", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, Skeleton)),
+        Room("Magma River", 
+            "A 10ft wide river of magma flows in your path, blocking the exit opposite from you,", 
+            [Exit(0)], 
+            MonsterSpawning(5, MagmaGoblin, 8, "twice"),
+            [MagmaRiver(0, ["JUMP", "BUILD BRIDGE"], "")]),
+        #Room("Hastily abandoned kitchen", "This room has a large cauldron suspended over a recently extinguished fire pit", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, Skeleton)),
         #Room("Autumnal Forrest Room", "A small grove of maple trees, the leaves have changed color for the fall.", [Exit(0), Exit(1), Exit(2), Exit(3)], MonsterSpawning(5, Goblin, 8, Skeleton)),
         #Room("Sleeping Quarters", "A small room with a bedroll, an extinguished firepit, and some small trinkets on a raw wood table.", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, "twice")),
-        #Room("Magma River", "A 5ft wide river of magma flows in your path. You could travel up to the source of the magma, or down to see where it leads, or cross it to continue onward.", [Exit(0), Exit(1), Exit(2), Exit(3)], MonsterSpawning(5, Goblin, 8, "twice")),
         #Room("Trader's Camp", "A canvas tent opened in the front reveals a pleasent interior. Currently empty shelves as a woman in her 60's appears to be packing up.", [Exit(0), Exit(1), Exit(2)], MonsterSpawning(5, Goblin, 8, "twice")),
-        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "twice")),
-        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "twice")),
-        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "twice")),
+        #Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "twice")),
+        #Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "twice")),
+        #Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "twice")),
         # Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "twice")),
         # Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "twice")),
         # Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "twice")),

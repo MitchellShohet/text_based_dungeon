@@ -4,21 +4,21 @@ from classes.combatants.monster import Monster
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, SmokeBomb, DurabilityGem, PowerBerry, GreaterHealthPotion, MagicWand
 
 class Goblin(Monster):
-    def __init__(self):
+    def __init__(self, type="GOBLIN", descriptor=""):
         self.difficulty = random.randint(3,5)
         if self.difficulty == 3:
             self.attack = 0
         else:
             self.attack = 1 
         super().__init__(
-            type="GOBLIN", 
+            type=type, 
             max_health=self.difficulty,
             current_health=self.difficulty,
             attack=self.attack,
             defense=self.difficulty, 
             perception=self.difficulty+self.attack,
             stealth_mod=1,
-            description="Lil gross potato",
+            description="Lil gross potato" + descriptor,
             inventory=Inventory(weapon=weapon_options["CLUB"],
                 consumables=[HealthPotion(), StatMedallion(), SmokeBomb(), DurabilityGem(), PowerBerry(), GreaterHealthPotion(), MagicWand()], #*** Update when done testing
                 misc=[misc_options["GOBLIN HORN"], misc_options["BLADE OF GRASS"]],
@@ -138,4 +138,13 @@ class  Avatar(Monster):
                 misc=[armor_options["MAGIC PLATE"]],
                 dollar_bills=self.difficulty+5
                 )
+            )
+
+#----------------------------------------------------------------
+
+class MagmaGoblin(Goblin):
+    def __init__(self):
+        super().__init__(
+            type="MAGMA GOBLIN", 
+            descriptor="- magma variety."
             )

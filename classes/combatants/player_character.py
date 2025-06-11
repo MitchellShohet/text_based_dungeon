@@ -11,13 +11,13 @@ class PlayerCharacter(Combatant):
         self.stat_points = 0 #baseline for normal mode is 8
         super().__init__(
             type="PLAYER", 
-            max_health=20, #baseline for normal mode is 10
+            max_health=50, #baseline for normal mode is 10
             current_health=50, #baseline for normal mode is 10
             attack=10, #baseline for normal mode is 0
             defense=3, 
             inventory=Inventory(
                 weapon=weapon_options["FIST"],
-                armor=armor_options["CLOTHES"],
+                armor=armor_options["PLATE"],
                 consumables=[SmokeBomb(), HealthPotion(), GreaterHealthPotion()], #*** Update this once done testing
                 misc=[weapon_options["CLUB"], armor_options["GAMBESON"]] #*** Update this once done testing
                 )
@@ -127,20 +127,10 @@ class PlayerCharacter(Combatant):
             self.inventory.misc.remove(new_item)
             self.inventory.armor = new_item
             self.defense = new_item.defense
-            for each_misc in self.inventory.misc:
-                if each_misc.name == "SHIELD":
-                    self.defense += 1
-                    break
         elif new_item.type == "WEAPON":
             print(f"""\n equiping {new_item.name}""")
             self.inventory.misc.append(self.inventory.weapon)
             self.inventory.misc.remove(new_item)
             self.inventory.weapon = new_item
-            for each_misc in self.inventory.misc:
-                if each_misc.name == "SHIELD":
-                    self.defense = self.inventory.armor.defense
-                    self.defense += 1
-                    break
         elif new_item.name == "SHIELD":
-            self.defense = self.inventory.armor.defense + 1
             print("\n A SHIELD has been equipped")
