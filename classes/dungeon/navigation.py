@@ -39,9 +39,10 @@ class Navigation:
 
     def find_unexplored_room(self):
         try : #checks if every possible room has already been added to the dungeon
-            new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor]))]
+            new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
         except : #later on this should trigger finding the next floor/ the idol/ the exit
             new_room = self.room_options[0][0]
+        print('jlksdfjkl')
         self.test_floor_elegibility(new_room)
         new_exits = self.check_for_new_exits(new_room)
         attempts = 1
@@ -50,15 +51,19 @@ class Navigation:
             if attempts > 30:
                 new_room = self.room_options[0]
                 break
-            new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor]))]
+            new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
             new_room = self.test_floor_elegibility(new_room)
             new_exits = self.check_for_new_exits(new_room)
         self.unlinked_exits += new_exits
         return new_room
     
     def test_floor_elegibility(self, new_room): #alter numbers for game difficulty settings?
-        while new_room.name == "Second Floor Tunnel" and len(self.rooms_visited["1"]) < 4 or new_room.name == "Final Floor Tunnel" and len(self.rooms_visited["2"]) < 4:
-            new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor]))] #prevents dungeon from spawning next floor before the player explores at least 4 rooms on the current one
+        while new_room.name == "Second Floor Tunnel" or new_room.name == "Final Floor Tunnel":
+            try: self.rooms_visited[str(self.floor)][0].name #prevents dungeon from spawning next floor before a single room has been added to the current floor list
+            except: 
+                new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
+            if len(self.rooms_visited[str(self.floor)]) < 4: #prevents dungeon from spawning next floor before the player explores at least 4 rooms on the current one
+                new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
         if self.floor == 1 and len(self.rooms_visited["1"]) > 12 and self.room_options[1][len(self.room_options[1])-1].name == "Second Floor Tunnel": #prevents dungeon from taking too long to spawn the second floor tunnel
             new_room = self.room_options[1][len(self.room_options[1]-1)]
         elif self.floor == 2 and len(self.rooms_visited["2"]) > 12 and self.room_options[2][len(self.room_options[2])-1].name == "Final Floor Tunnel": #prevents dungeon from taking too long to spawn the final floor tunnel
