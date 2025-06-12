@@ -232,17 +232,17 @@ class PlayThrough:
                 try:self.navigation.current_room.exits[self.navigation.test_forward()].link
                 except: pass
                 else: options.append("FORWARD")
-                try: self.navigation.current_room.exits[self.navigation.test_backward()].link
-                except: pass
-                else:
-                    if self.navigation.current_room.exits[self.navigation.test_backward()].link == self.navigation.previous_room:
-                        options.append("BACKWARD")
                 try:self.navigation.current_room.exits[self.navigation.test_left()].link
                 except: pass
                 else: options.append("LEFT")
                 try:self.navigation.current_room.exits[self.navigation.test_right()].link
                 except: pass
                 else: options.append("RIGHT")
+                try: self.navigation.current_room.exits[self.navigation.test_backward()].link
+                except: pass
+                else:
+                    if self.navigation.current_room.exits[self.navigation.test_backward()].link == self.navigation.previous_room:
+                        options.append("BACKWARD")
                 if len(self.navigation.current_room.monsters) > 0:
                     options.append("ATTACK")
                     options.append("OBSERVE")

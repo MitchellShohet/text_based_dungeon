@@ -9,41 +9,38 @@ from lists.items_lists import weapon_options, armor_options, misc_options, Healt
 
 class Pool(Interactable):
 
-    def __init__(self, number, action_words, descriptor, action1_avail=True, action2_avail=False, action3_avail=False):
+    def __init__(self, number, action_words, descriptor):
         self.type = "POOL"
         self.description = "A pool of water " + descriptor
         self.invest_requirement = 0
         self.stealth_mod = 0
+        self.healing_available = True
         super().__init__(
             self.type, 
             number, 
             action_words, 
             self.description, 
             self.invest_requirement, 
-            self.stealth_mod, 
-            action1_avail, 
-            action2_avail, 
-            action3_avail)
+            self.stealth_mod
+            )
 
     def run_interaction(self, action_word, player, room):
-        if action_word == "SWIM":
-            if self.action1_avail == True:
-                if player.inventory.armor.rating == 3 or player.inventory.armor.rating == 4:
-                    print(f""" Your {player.inventory.armor.name} is too heavy to swim in!""")
-                    player.take_damage(2, True)
-                    if player.current_health > 0:
-                        print(" You make it back to solid ground. Swimming in heavy armor could lead to drowning.")
-                elif player.current_health == player.max_health:
+        if action_word == "SWIM" and "SWIM" in self.action_words:
+            if player.inventory.armor.rating == 3 or player.inventory.armor.rating == 4:
+                print(f""" Your {player.inventory.armor.name} is too heavy to swim in!""")
+                player.take_damage(2, True)
+                if player.current_health > 0:
+                    print(" You make it back to solid ground. Swimming in heavy armor could lead to drowning.")
+            elif self.healing_available == True:
+                if player.current_health == player.max_health:
                     print(" Your health is currently full. Come back later to regain some in the POOL.")
                 else:
                     print(" You took a quick dip in the refreshing water!")
                     player.recover_health(4)
-                    self.action1_avail == False
-                    self.action_words.remove("SWIM")
+                    self.healing_available == False
             else:
-                print(" You've already gone swimming here. Best not to get pruny.")
-        elif action_word == "THROW ROCKS":
-            if self.action2_avail == True:
+                print("You took another swim in the water! You're gonna get pruny if you keep this up!")
+        elif action_word == "THROW ROCKS" and "THROW ROCKS" in self.action_words:
                 print(f""" You throw some rocks into the water, it makes a lot of noise. \n You skip one rock {random.randint(1,6)} times!""")
                 room.spawn_monster()
 
@@ -51,7 +48,7 @@ class Pool(Interactable):
 
 class GlowingCrystal(Interactable):
 
-    def __init__(self, number, action_words, descriptor, action1_avail=True, action2_avail=False, action3_avail=False):
+    def __init__(self, number, action_words, descriptor):
         self.type = "GLOWING CRYSTAL"
         self.description = "A large cluster of gems with a mysterious light sourced from within. Roughly the size of a" + descriptor
         self.invest_requirement = number*3
@@ -62,14 +59,11 @@ class GlowingCrystal(Interactable):
             action_words, 
             self.description, 
             self.invest_requirement, 
-            self.stealth_mod, 
-            action1_avail, 
-            action2_avail, 
-            action3_avail)
+            self.stealth_mod
+            )
         
     def run_interaction(self, action_word, player, room):
-        if action_word == "SHATTER": #maybe connect this with ATTACK command later
-            if self.action1_avail == True:
+        if action_word == "SHATTER" and "SHATTER" in self.action_words:
                 crystal_def = Combatant("GLOWING CRYSTAL", 1, 1, 0, self.number*3+2, Inventory(), self.number)
                 player.make_attack(crystal_def)
                 if crystal_def.current_health <= 0:
@@ -90,13 +84,8 @@ class GlowingCrystal(Interactable):
                     self.stealth_mod-=1
                 else:
                     print(f""" You couldn't break GLOWING CRYSTAL {self.number}.""")
-                self.action1_avail = False
-            elif self.type == "DESTROYED CRYSTAL PILE":
-                print(f""" You've already destroyed GLOWING CRYSTAL {self.number}.""")
-            else:
-                print(f""" You've already tried breaking GLOWING CRYSTAL {self.number}.""")
-        elif action_word == "INSPECT":
-            if self.action2_avail == True and self.action1_avail == True:
+                    self.action_words.remove("SHATTER")
+        elif action_word == "INSPECT" and "INSPECT" in self.action_words and "SHATTER" in self.action_words:
                 if player.investigation + random.randint(1,5) >= self.invest_requirement:
                     self.invest_requirement = 0
                     print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
@@ -104,24 +93,18 @@ class GlowingCrystal(Interactable):
                         print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
                     else:
                         player.recover_health(self.number*3)
-                        self.action2_avail == False
                         self.action_words.remove("INSPECT")
                 else:
                     print(f""" The secrets of GLOWING CRYSTAL {self.number} elude you.""")
-                    self.action2_avail = False
                     self.action_words.remove("INSPECT")
-            elif self.type == "DESTROYED CRYSTAL PILE":
-                print(f""" You've already destroyed GLOWING CRYSTAL {self.number}.""")
-            else:
-                print(f""" You've already investigated GLOWING CRYSTAL {self.number} further.""")
                 
 #---------------------------------------------------------
 
 class MagmaRiver(Interactable):
 
-    def __init__(self, number, action_words, descriptor, action1_avail=True, action2_avail=False, action3_avail=False):
+    def __init__(self, number, action_words, descriptor):
         self.type = "MAGMA RIVER"
-        self.description = "A 10ft wide river of flowing lava."
+        self.description = "A 10ft wide river of flowing lava." + descriptor
         self.invest_requirement = 0
         self.stealth_mod = 0
         self.exit_hold = Exit(1, Room("Magma River Passage", 
@@ -135,10 +118,8 @@ class MagmaRiver(Interactable):
             action_words, 
             self.description, 
             self.invest_requirement, 
-            self.stealth_mod, 
-            action1_avail, 
-            action2_avail, 
-            action3_avail)
+            self.stealth_mod
+            )
 
     def run_interaction(self, action_word, player, room):
         if action_word == "JUMP" and "JUMP" in self.action_words:
@@ -185,7 +166,7 @@ class MagmaRiver(Interactable):
             self.action_words.remove("CROSS THE BRIDGE")
             self.switch_sides(room)
         elif action_word == "THROW ROCKS" and "THROW ROCKS" in self.action_words:
-                print(f""" You throw some rocks into the water, it makes a lot of noise. \n You skip one rock {random.randint(1,6)} times!""")
+                print(f""" You throw some rocks into the lava, it sinks immediately.""")
                 room.spawn_monster()
 
     def switch_sides(self, room):
@@ -210,7 +191,7 @@ class MagmaRiver(Interactable):
 
 class Chest(Interactable):
 
-    def __init__(self, number, action_words, descriptor, action1_avail=True, action2_avail=False, action3_avail=False, challenge=0, contents=10):
+    def __init__(self, number, action_words, descriptor, challenge=0, contents=10):
         self.type = "CHEST"
         self.description = "A treasure chest" + descriptor
         self.invest_requirement = number
@@ -223,10 +204,8 @@ class Chest(Interactable):
             action_words, 
             self.description, 
             self.invest_requirement, 
-            self.stealth_mod, 
-            action1_avail, 
-            action2_avail, 
-            action3_avail)
+            self.stealth_mod
+            )
 
     def run_interaction(self, action_word, player, room):
         if action_word == "OPEN" and "OPEN" in self.action_words:
@@ -282,8 +261,5 @@ class Chest(Interactable):
         self.action_words.remove("USE A KEY")
         self.action_words.append("OPEN")
         self.run_interaction("OPEN", player, room)
-
-
-
 
 #---------------------------------------------------------
