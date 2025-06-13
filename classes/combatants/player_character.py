@@ -11,13 +11,13 @@ class PlayerCharacter(Combatant):
         self.stat_points = 0 #baseline for normal mode is 8
         super().__init__(
             type="PLAYER", 
-            max_health=50, #baseline for normal mode is 10
+            max_health=100, #baseline for normal mode is 10
             current_health=50, #baseline for normal mode is 10
             attack=10, #baseline for normal mode is 0
             defense=3, 
             inventory=Inventory(
                 weapon=weapon_options["FIST"],
-                armor=armor_options["PLATE"],
+                armor=armor_options["MAGIC PLATE"],
                 consumables=[SmokeBomb(), HealthPotion(), GreaterHealthPotion()], #*** Update this once done testing
                 misc=[misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["MAGIC BRIDGE"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], ] #*** Update this once done testing
                 )

@@ -10,9 +10,10 @@ weapon_options = {
     "CLUB" : Weapon(2, "WEAPON", "CLUB", 1, 5, 1, 3, 1),
     "GOLEM FIST" : Weapon(3, "WEAPON", "GOLEM FIST", 2, 6, 1, 3, 25),
     "SHORTSWORD" : Weapon(4, "WEAPON", "SHORTSWORD", 2, 6, 1, 4, 7),
-    "LONGSWORD" : Weapon(5, "WEAPON", "LONGSWORD", 2, 8, 2, 4, 30),
-    "BATTLE AXE" : Weapon(6, "WEAPON", "BATTLE AXE", 3, 9, 3, 6, 80),
-    "MAGIC SWORD" : Weapon(7, "WEAPON", "MAGIC SWORD", 4, 11, 3, 9, 120),
+    "TRIDENT" : Weapon(5, "WEAPON", "TRIDENT", 2, 7, 2, 4, 24),
+    "LONGSWORD" : Weapon(6, "WEAPON", "LONGSWORD", 2, 8, 2, 4, 30),
+    "BATTLE AXE" : Weapon(7, "WEAPON", "BATTLE AXE", 3, 9, 3, 6, 80),
+    "MAGIC SWORD" : Weapon(8, "WEAPON", "MAGIC SWORD", 4, 11, 3, 9, 120),
     "MAGIC WAND" : Weapon(0, "WEAPON", "MAGIC WAND", 1, 6, 1, 4, 0)
 }
 
@@ -33,6 +34,7 @@ misc_options = {
     "WOOD" : Item("MISC", "WOOD", 1),
     "GOBLIN HORN" : Item("MISC", "GOBLIN HORN", 3),
     "JAW BONE" : Item("MISC", "JAW BONE", 5),
+    "SEA CREATURE MEAT" : Item("MISC", "SEA CREATURE MEAT", 12),
     "KEY" : Item("MISC", "KEY", 20),
     "RUBY DUST" : Item("MISC", "RUBY DUST", 20),
     "PAIR OF GOLEM EYES" : Item("MISC", "PAIR OF GOLEM EYES", 20),

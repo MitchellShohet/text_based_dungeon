@@ -144,6 +144,7 @@ class PlayThrough:
                 if action_word == "OBSERVE": 
                     if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number):
                         each_thing.display_stats(self.player_character.investigation)
+                        selection_loop = False
             if selection_loop == True:
                 print(f"""\n {selection} is not an option (include the number if it has one).""")
 
@@ -278,6 +279,9 @@ class PlayThrough:
             #-------------------------------------------------
             else:
                 self.navigation.current_room.room_interaction(command, self.player_character, self.navigation.current_room) #
+            try: self.navigation.current_room.adjustments[1]
+            except: pass
+            else: self.navigation.current_room.adjustments[1](self.navigation.current_room)
             if self.player_character.current_health <= 0:
                 self.player_alive = False
             if self.navigation.current_room.name == "Go Home":

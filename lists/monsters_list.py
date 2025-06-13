@@ -148,3 +148,24 @@ class MagmaGoblin(Goblin):
             type="MAGMA GOBLIN", 
             descriptor="- magma variety."
             )
+        
+#----------------------------------------------------------------
+
+class SeaCreature(Monster):
+    def __init__(self):
+        self.difficulty = 7
+        super().__init__(
+            type="SEA CREATURE", 
+            max_health=self.difficulty+4,
+            current_health=self.difficulty+4,
+            attack=3,
+            defense=self.difficulty, 
+            perception=self.difficulty,
+            stealth_mod=2,
+            description="An sea creature of some sort. It's hard to make out the details underwater.",
+            inventory=Inventory(
+                weapon=weapon_options["TRIDENT"],
+                misc=[misc_options["SEA CREATURE MEAT"], misc_options["SEA CREATURE MEAT"], misc_options["SEA CREATURE MEAT"], misc_options["SEA CREATURE MEAT"]],
+                dollar_bills=0
+                )
+            )

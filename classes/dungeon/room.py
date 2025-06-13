@@ -2,7 +2,7 @@ import random
 from classes.dungeon.room_components import Exit
 
 class Room:
-    def __init__(self, name, description, exits=[Exit(0)], monster_spawning=None, interactables=[]):
+    def __init__(self, name, description, exits=[Exit(0)], monster_spawning=None, interactables=[], adjustments=None):
         self.name = name
         self.description = description
         self.exits = exits
@@ -13,40 +13,62 @@ class Room:
         self.monster2_count = 0
         self.monster1_number = 1
         self.monster2_number = 1
+        self.visits = 0
+        self.adjustments=adjustments
 
     def set_exit_link(self, number, room):
         self.exits[number].set_link(room)
 
-    def spawn_monster(self):
-        if self.monster_spawning is not None:            
-            monster_chance = random.randint(1, 10)
-            if self.monster_spawning.threshold2 is not None:
-                if monster_chance >= self.monster_spawning.threshold2:
-                    if self.monster_spawning.monster2 == "twice":
-                        print(f""" Two new {self.monster_spawning.monster1().type}S have appeared!""")
-                        first_monster1 = self.monster_spawning.monster1()
-                        second_monster1 = self.monster_spawning.monster1()
-                        first_monster1.number = self.monster1_number
-                        second_monster1.number = self.monster1_number + 1
-                        self.monsters.append(first_monster1)
-                        self.monsters.append(second_monster1)
-                        self.monster1_count += 2
-                        self.monster1_number += 2
-                    else: 
-                        print(f""" A new {self.monster_spawning.monster2().type} has appeared!""")
-                        monster = self.monster_spawning.monster2()
-                        monster.number = self.monster2_number
-                        self.monsters.append(monster)
-                        self.monster2_count += 1
-                        self.monster2_number += 1
-                    monster_chance = 0
-            if monster_chance >= self.monster_spawning.threshold1:
-                print(f""" A new {self.monster_spawning.monster1().type} has appeared!""")
+    def spawn_monster(self, monster_given=False): #this can be cleaned up to be more DRY
+        if monster_given == False:
+            if self.monster_spawning is not None:            
+                monster_chance = random.randint(1, 10)
+                if self.monster_spawning.threshold2 is not None:
+                    if monster_chance >= self.monster_spawning.threshold2:
+                        if self.monster_spawning.monster2 == "twice":
+                            print(f""" Two new {self.monster_spawning.monster1().type}S have appeared!""")
+                            first_monster1 = self.monster_spawning.monster1()
+                            second_monster1 = self.monster_spawning.monster1()
+                            first_monster1.number = self.monster1_number
+                            second_monster1.number = self.monster1_number + 1
+                            self.monsters.append(first_monster1)
+                            self.monsters.append(second_monster1)
+                            self.monster1_count += 2
+                            self.monster1_number += 2
+                        else: 
+                            print(f""" A new {self.monster_spawning.monster2().type} has appeared!""")
+                            monster = self.monster_spawning.monster2()
+                            monster.number = self.monster2_number
+                            self.monsters.append(monster)
+                            self.monster2_count += 1
+                            self.monster2_number += 1
+                        monster_chance = 0
+                if monster_chance >= self.monster_spawning.threshold1:
+                    print(f""" A new {self.monster_spawning.monster1().type} has appeared!""")
+                    monster = self.monster_spawning.monster1()
+                    monster.number = self.monster1_number
+                    self.monsters.append(monster)
+                    self.monster1_count += 1
+                    self.monster1_number += 1
+        else:
+            print(f""" A new {monster_given().type} has appeared!""")
+            if monster_given().type == self.monster_spawning.monster1().type:
                 monster = self.monster_spawning.monster1()
                 monster.number = self.monster1_number
                 self.monsters.append(monster)
                 self.monster1_count += 1
                 self.monster1_number += 1
+            elif monster_given().type == self.monster_spawning.monster2().type:
+                monster = self.monster_spawning.monster2()
+                monster.number = self.monster2_number
+                self.monsters.append(monster)
+                self.monster2_count += 1
+                self.monster2_number += 1
+            else:
+                monster = monster_given()
+                monster.number = 1
+                self.monsters.append(monster)
+
 
     def view_monster_count(self, player_request=False):
         if self.monster_spawning is not None: 

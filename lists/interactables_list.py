@@ -4,7 +4,7 @@ from classes.combatants.combatant import Combatant
 from classes.dungeon.room import Room
 from classes.dungeon.room_components import Exit, MonsterSpawning
 from classes.inventory.inventory import Inventory
-from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur
+from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
 
 class Pool(Interactable):
@@ -15,6 +15,8 @@ class Pool(Interactable):
         self.invest_requirement = 0
         self.stealth_mod = 0
         self.healing_available = True
+        self.event_num = random.randint(1,2)
+        self.exit_hold = None
         super().__init__(
             self.type, 
             number, 
@@ -29,8 +31,28 @@ class Pool(Interactable):
             if player.inventory.armor.rating == 3 or player.inventory.armor.rating == 4:
                 print(f""" Your {player.inventory.armor.name} is too heavy to swim in!""")
                 player.take_damage(2, True)
-                if player.current_health > 0:
-                    print(" You make it back to solid ground. Swimming in heavy armor could lead to drowning.")
+                self.action_words.append("DROWNING")
+            if "INSPECT SHADOW" in self.action_words and self.event_num == 1:
+                print(" You feel something wrap around your leg and pull you under the water!")
+                room.spawn_monster(SeaCreature)
+                self.action_words.append("SKIP")
+                self.action_words.remove("INSPECT SHADOW")
+                self.action_words.remove("SWIM")
+                self.action_words.remove("THROW ROCKS")
+                if "DROWNING" in self.action_words:
+                    self.action_words.remove("DROWNING")
+                self.exit_hold = room.exits
+                room.exits = None
+            if "DROWNING" in self.action_words and player.current_health > 0:
+                print(" You make it back to solid ground. Swimming in heavy armor could lead to drowning.")
+                self.action_words.remove("DROWNING")
+            elif "SKIP" in self.action_words:
+                self.action_words.remove("SKIP")
+            elif "INSPECT SHADOW" in self.action_words and self.event_num == 2:
+                self.action_words.remove("INSPECT SHADOW")
+                print(" You found a chest!")
+                room.description = "A room with a small pond."
+                room.interactables.append(Chest(2, ["BREAK THE LOCK", "USE A KEY"]," with a rusted lock.", contents=[HealthPotion(), DurabilityGem(), 15]))
             elif self.healing_available == True:
                 if player.current_health == player.max_health:
                     print(" Your health is currently full. Come back later to regain some in the POOL.")
@@ -41,8 +63,11 @@ class Pool(Interactable):
             else:
                 print("You took another swim in the water! You're gonna get pruny if you keep this up!")
         elif action_word == "THROW ROCKS" and "THROW ROCKS" in self.action_words:
-                print(f""" You throw some rocks into the water, it makes a lot of noise. \n You skip one rock {random.randint(1,6)} times!""")
-                room.spawn_monster()
+            print(f""" You throw some rocks into the water, it makes a lot of noise. \n You skip one rock {random.randint(1,6)} times!""")
+            room.spawn_monster()
+        elif action_word == "INSPECT SHADOW" and "INSPECT SHADOW" in self.action_words:
+            print(" You can't inspect the SHADOW from outside the pool.")
+
 
 #---------------------------------------------------------
 
@@ -111,7 +136,7 @@ class MagmaRiver(Interactable):
                                     "A tunnel beyond the magma river opens to a chamber with a chest. The path forks into two exits onward.", 
                                     [Exit(0), Exit(1), Exit(2)], 
                                     MonsterSpawning(5, Goblin, 9, "twice"), 
-                                    [Chest(0, ["BREAK THE LOCK", "USE A KEY"]," with an image of a volcano etched onto its top.",contents=[weapon_options["LONGSWORD"], StatMedallion(), 40])]))
+                                    [Chest(3, ["BREAK THE LOCK", "USE A KEY"]," with an image of a volcano etched onto its top.",contents=[weapon_options["LONGSWORD"], StatMedallion(), 40])]))
         super().__init__(
             self.type, 
             number, 
@@ -191,7 +216,7 @@ class MagmaRiver(Interactable):
 
 class Chest(Interactable):
 
-    def __init__(self, number, action_words, descriptor, challenge=0, contents=10):
+    def __init__(self, number, action_words, descriptor, challenge=0, contents=[10]):
         self.type = "CHEST"
         self.description = "A treasure chest" + descriptor
         self.invest_requirement = number
@@ -227,16 +252,16 @@ class Chest(Interactable):
                         print(" That's not an option here.")
             else:
                 print(" You opened the CHEST!")
+                reward_num = random.randint(1, len(self.contents))-1
                 try:
-                    reward_num = random.randint(1, len(self.contents))-1
                     if self.contents[reward_num].type == "CONSUMABLE":
                         player.inventory.consumables.append(self.contents[reward_num])
                     else:
                         player.inventory.misc.append(self.contents[reward_num])
                     print(f""" You found a {self.contents[reward_num].name}!""")
                 except: 
-                    player.inventory.dollar_bills += self.contents
-                    print(f""" You found {self.contents} dollar bills!""")
+                    player.inventory.dollar_bills += self.contents[reward_num]
+                    print(f""" You found {self.contents[reward_num]} dollar bills!""")
                 self.action_words.remove("OPEN")
         elif action_word == "BREAK THE LOCK" and "BREAK THE LOCK" in self.action_words:
             chest_def = Combatant("THE LOCK", 1, 1, 0, self.challenge, Inventory())

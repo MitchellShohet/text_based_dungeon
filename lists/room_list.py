@@ -3,6 +3,7 @@ from classes.dungeon.room import Room
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, Avatar, MagmaGoblin
 from lists.interactables_list import Pool, GlowingCrystal, Chest, MagmaRiver
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, PowerBerry, DurabilityGem, MagicWand, SmokeBomb, GreaterHealthPotion
+from lists.adjustments_list import add_shadow_to_pool, sea_creature_defeated
 
 room_list = [ 
     [
@@ -16,7 +17,8 @@ room_list = [
             "A room with a small pond.", 
             [Exit(0), Exit(1), Exit(2)], 
             MonsterSpawning(5, Goblin, 8, Skeleton), 
-            [Pool(0, ["SWIM", "THROW ROCKS"], "that doesn't look too deep.")]),
+            [Pool(0, ["SWIM", "THROW ROCKS"], "that doesn't look too deep.")],
+            [add_shadow_to_pool, sea_creature_defeated]),
         Room("Glowing Crystals Room", 
             "A room with some glowing crystals.", 
             [Exit(0), Exit(1), Exit(2), Exit(3)], 
@@ -24,11 +26,11 @@ room_list = [
             [GlowingCrystal(1, ["SHATTER", "INSPECT"], " human baby."), 
                 GlowingCrystal(2, ["SHATTER", "INSPECT"], " chair."), 
                 GlowingCrystal(3, ["SHATTER", "INSPECT"], "n adult horse.")]),
-        Room("Magma River", 
-            "A 10ft wide river of magma flows in your path, blocking the exit opposite from you,", 
-            [Exit(0)], 
-            MonsterSpawning(5, MagmaGoblin, 8, "twice"),
-            [MagmaRiver(0, ["JUMP", "BUILD BRIDGE", "THROW ROCKS"], "")]),
+        #Room("Magma River", 
+        #    "A 10ft wide river of magma flows in your path, blocking the exit opposite from you,", 
+        #    [Exit(0)], 
+        #    MonsterSpawning(5, MagmaGoblin, 8, "twice"),
+        #    [MagmaRiver(0, ["JUMP", "BUILD BRIDGE", "THROW ROCKS"], "")]),
         Room("Hastily abandoned kitchen", 
             "This room has a large cauldron suspended over a recently extinguished fire pit", 
             [Exit(0), Exit(1), Exit(2)], 
@@ -37,13 +39,13 @@ room_list = [
                 Chest(2, ["BREAK THE LOCK", "USE A KEY"], " that looks kinda tough.", challenge=6, contents=[40, StatMedallion(), misc_options["SHIELD"]]),
                 Chest(3, ["BREAK THE LOCK", "USE A KEY"], " that looks real tough.", challenge=10, contents=[armor_options["MAGIC PLATE"], weapon_options["BATTLE AXE"]]),
                 Chest(4, ["BREAK THE LOCK", "USE A KEY"], " it looks pretty weak.", challenge=2, contents=[misc_options["KEY"]])]),
-        Room("Autumnal Forrest Room", 
-            "A small grove of maple trees, the leaves have changed color for the fall.", 
-            [Exit(0), Exit(1), Exit(2), Exit(3)], 
-            MonsterSpawning(5, Goblin, 8, Skeleton)),
-        Room("Sleeping Quarters", 
-            "A small room with a bedroll, an extinguished firepit, and some small trinkets on a raw wood table.", 
-            [Exit(0), Exit(1), Exit(2)]),
+        #Room("Autumnal Forrest Room", 
+        #    "A small grove of maple trees, the leaves have changed color for the fall.", 
+        #    [Exit(0), Exit(1), Exit(2), Exit(3)], 
+        #    MonsterSpawning(5, Goblin, 8, Skeleton)),
+        #Room("Sleeping Quarters", 
+        #    "A small room with a bedroll, an extinguished firepit, and some small trinkets on a raw wood table.", 
+        #    [Exit(0), Exit(1), Exit(2)]),
         Room("Trader's Camp", 
             "A canvas tent opened in the front reveals a pleasent interior. Currently empty shelves as a woman in her 60's appears to be packing up.", 
             [Exit(0), Exit(1), Exit(2)]),

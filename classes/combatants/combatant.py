@@ -41,7 +41,7 @@ class Combatant:
 
     def take_damage(self, incoming_damage, print_damage=False):
         self.current_health -= incoming_damage
-        if self.current_health < 0 and self.type != "PLAYER":
+        if self.current_health <= 0 and self.type != "PLAYER":
             if self.type == "GLOWING CRYSTAL" or self.type == "THE LOCK":
                 print(f""" {self.type} {self.number} has been destroyed.""")
             else:

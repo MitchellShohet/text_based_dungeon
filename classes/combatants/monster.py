@@ -20,7 +20,7 @@ class Monster(Combatant):
             print(f"""\n {self.type} {self.number}'s attack is {self.attack}.""")
             print(f""" {self.type} {self.number}'s defense is {self.defense}.""")
             print(f""" {self.type} {self.number}'s health is {self.current_health}.""")
-            print(f""" {self.type} {self.number}'s weapon is {self.inventory.weapon["type"]}.""")
+            print(f""" {self.type} {self.number}'s weapon is {self.inventory.weapon.type}.""")
         else:
             print(f""" You weren't able to observe {self.type} {self.number}.""")
 

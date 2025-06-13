@@ -33,6 +33,10 @@ class Navigation:
         else:
             if self.current_room.exits[0].link == None: #catches cases where an exit is prelinked to another room, links the second room to the previous one
                 self.current_room.exits[0].link = self.previous_room
+        self.current_room.visits += 1
+        try: self.current_room.adjustments[0] #checks to see if there's an adjustment to the room and runs it if there is
+        except: pass
+        else: self.current_room.adjustments[0](self.current_room)
         print(f""" {self.current_room.description} """)
         self.current_room.spawn_monster()
         self.current_room.view_monster_count()
