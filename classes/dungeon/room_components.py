@@ -23,16 +23,13 @@ class MonsterSpawning:
 
 class Interactable(ABC):
 
-    def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, action1_avail=True, action2_avail=False, action3_avail=False):
+    def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod):
         self.type = type
         self.number = number
         self.action_words = action_words
         self.description = description
         self.invest_requirement = invest_requirement
         self.stealth_mod = stealth_mod
-        self.action1_avail=action1_avail
-        self.action2_avail=action2_avail
-        self.action3_avail=action3_avail
         self.can_investigate = True
 
     @abstractmethod
@@ -46,4 +43,4 @@ class Interactable(ABC):
             for each_action_word in self.action_words:
                 print(f""" {each_action_word}""")
         else:
-            print("There's not much to do.")
+            print(" There's not much to do.")

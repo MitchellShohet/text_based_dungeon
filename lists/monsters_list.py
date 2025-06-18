@@ -42,7 +42,7 @@ class Skeleton(Monster):
             description="Walkin', talkin', weapon-swingin' jumble of bones. Minus the talkin'.",
             inventory=Inventory(
                 weapon=weapon_options["SHORTSWORD"],
-                misc=[misc_options["JAW BONE"]],
+                misc=[misc_options["JAW BONE"], misc_options["SHIELD"]],
                 dollar_bills=self.difficulty-1
                 )
             )
@@ -122,14 +122,13 @@ class  Minotaur(Monster):
 
 class  Avatar(Monster):
     def __init__(self):
-        self.difficulty = 12
         super().__init__(
             type="AVATAR OF DYNAE", 
             max_health=80,
             current_health=80,
             attack=4,
-            defense=self.difficulty, 
-            perception=self.difficulty+6,
+            defense=12, 
+            perception=18,
             stealth_mod=7,
             description="An monsterous abomination. A snake creature with 7 heads, waves of electrical energy surge around its form.",
             inventory=Inventory(

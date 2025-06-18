@@ -1,5 +1,6 @@
 import random
 from classes.inventory.items import Item, Weapon, Armor, Consumable
+from abc import ABC
 
 #---------------------------------------------
 
@@ -23,7 +24,7 @@ armor_options = {
     "CLOTHES" : Armor(1, "ARMOR", "CLOTHES", 3, 1),
     "GAMBESON" : Armor(2, "ARMOR", "GAMBESON", 5, 12),
     "CHAINMAIL" : Armor(3, "ARMOR", "CHAINMAIL", 7, 35),
-    "PLATE" : Armor(4, "ARMOR", "PLATE", 9, 100),
+    "PLATEMAIL" : Armor(4, "ARMOR", "PLATEMAIL", 9, 100),
     "MAGIC PLATE" : Armor(5, "ARMOR", "MAGIC PLATE", 12, 250)
 }
 
@@ -47,33 +48,56 @@ misc_options = {
 #CONSUMABLE OPTIONS
 #-------------------
 
-class HealthPotion(Consumable):
-    def __init__(self):
-        self.name = "HEALTH POTION"
-        self.description = "A small vial with a red liquid; it smells of cherries. Using will heal between 5-7 health."
-        self.value = 14
-        super().__init__(
-            name=self.name,
-            description=self.description,
-            value=self.value
-        )
+class HealingItem(Consumable, ABC):
+    def __init__(self, name, description, value, healing):
+        self.healing = healing
+        super().__init__(name, description, value=value, is_healing=True)
 
     def effect(self, player_character):
         print(f"""\n You used the {self.name}!""")
-        amount_healed = random.randint(5,7)
-        player_character.recover_health(amount_healed)
+        player_character.recover_health(self.healing)
+
+#------------------------------------------------------------------------------------
+
+class HealthPotion(HealingItem):
+    def __init__(self):
+        super().__init__(
+            name="HEALTH POTION",
+            description="A small vial with a red liquid; it smells of cherries. Using will heal between 5-7 health.",
+            value=14,
+            healing=random.randint(5,7)
+        )
+
+#------------------------------------------------------------------------------------
+
+class GreaterHealthPotion(HealingItem):
+    def __init__(self):
+        super().__init__(
+            name="GREATER HEALTH POTION",
+            description="A small vial with a pink liquid; it smells of fresh sourdough. Using will heal between 10-15 health.",
+            value=26,
+            healing=random.randint(10,15)
+        )
+
+#------------------------------------------------------------------------------------
+
+class CookedSeaCreature(HealingItem):
+    def __init__(self):
+        super().__init__(
+            name="COOKED SEA CREATURE",
+            description="A nicely seared fillet of fish. Using will heal between 7-10 health.",
+            value=26,
+            healing=random.randint(7,10)
+        )
 
 #------------------------------------------------------------------------------------
 
 class StatMedallion(Consumable):
     def __init__(self):
-        self.name = "STAT MEDALLION"
-        self.description = "A lime-green coin that's warm to the touch. Using will allow you to increase your stats by 2 points."
-        self.value = 40
         super().__init__(
-            name=self.name,
-            description=self.description,
-            value=self.value
+            name="STAT MEDALLION",
+            description="A lime-green coin that's warm to the touch. Using will allow you to increase your stats by 2 points.",
+            value=40
         )
 
     def effect(self, player_character):
@@ -85,13 +109,10 @@ class StatMedallion(Consumable):
 
 class PowerBerry(Consumable):
     def __init__(self):
-        self.name = "POWER BERRY"
-        self.description = "A massive berry the size of a fist; yet light, like eating a cloud. Using will give a bonus +3 to your next attack and the damage if that attack hits (does not stack)."
-        self.value = 9
         super().__init__(
-            name=self.name,
-            description=self.description,
-            value=self.value
+            name="POWER BERRY",
+            description="A massive berry the size of a fist; yet light, like eating a cloud. Using will give a bonus +3 to your next attack and the damage if that attack hits (does not stack).",
+            value=9
         )
 
     def effect(self, player_character):
@@ -103,13 +124,10 @@ class PowerBerry(Consumable):
 
 class DurabilityGem(Consumable):
     def __init__(self):
-        self.name = "DURABILITY GEM"
-        self.description = "A small, sharp, ceramic gemestone. Using will give a bonus +3 to your defense against the next attack against you (does not stack)."
-        self.value = 13
         super().__init__(
-            name=self.name,
-            description=self.description,
-            value=self.value
+            name="DURABILITY GEM",
+            description="A small, sharp, ceramic gemestone. Using will give a bonus +3 to your defense against the next attack against you (does not stack).",
+            value=13
         )
 
     def effect(self, player_character):
@@ -121,13 +139,10 @@ class DurabilityGem(Consumable):
 
 class SmokeBomb(Consumable):
     def __init__(self):
-        self.name = "SMOKE BOMB"
-        self.description = "A round clump of a charcoal-like substance. Using will give a bonus +3 to your stealth until you leave the current room."
-        self.value = 13
         super().__init__(
-            name=self.name,
-            description=self.description,
-            value=self.value
+            name = "SMOKE BOMB",
+            description = "A round clump of a charcoal-like substance. Using will give a bonus +3 to your stealth until you leave the current room.",
+            value = 13
         )
 
     def effect(self, player_character):
@@ -138,33 +153,12 @@ class SmokeBomb(Consumable):
 
 #------------------------------------------------------------------------------------
 
-class GreaterHealthPotion(Consumable):
-    def __init__(self):
-        self.name = "GREATER HEALTH POTION"
-        self.description = "A small vial with a pink liquid; it smells of fresh sourdough. Using will heal between 10-15 health."
-        self.value = 26
-        super().__init__(
-            name=self.name,
-            description=self.description,
-            value=self.value
-        )
-
-    def effect(self, player_character):
-        print(f"""\n You used the {self.name}!""")
-        amount_healed = random.randint(10,15)
-        player_character.recover_health(amount_healed)
-
-#------------------------------------------------------------------------------------
-
 class MagicWand(Consumable):
     def __init__(self):
-        self.name = "MAGIC WAND"
-        self.description = "A Stick made out of wood- no wait, metal? Clay? It's hard to tell but using will give a bonus +2 to your next attack, the damage if that attack hits, and your defense for the next attack against you (These do not stack with other items with similar effects)."
-        self.value = 18
         super().__init__(
-            name=self.name,
-            description=self.description,
-            value=self.value
+            name="MAGIC WAND",
+            description="A Stick made out of wood- no wait, metal? Clay? It's hard to tell but using will give a bonus +2 to your next attack, the damage if that attack hits, and your defense for the next attack against you (These do not stack with other items with similar effects).",
+            value=18
         )
 
     def effect(self, player_character):

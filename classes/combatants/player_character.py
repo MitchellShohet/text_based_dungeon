@@ -1,24 +1,24 @@
 from line_spacer import line_spacer
 from classes.combatants.combatant import Combatant
 from classes.inventory.inventory import Inventory
-from lists.items_lists import weapon_options, misc_options, armor_options, SmokeBomb, HealthPotion, GreaterHealthPotion
+from lists.items_lists import weapon_options, misc_options,DurabilityGem, armor_options, SmokeBomb, HealthPotion, GreaterHealthPotion
 
 class PlayerCharacter(Combatant):
 
     def __init__(self):
         self.stealth = 5 #baseline for normal mode is 3
-        self.investigation = 3 #baseline for normal mode is 1
+        self.investigation = 15 #baseline for normal mode is 1
         self.stat_points = 0 #baseline for normal mode is 8
         super().__init__(
             type="PLAYER", 
             max_health=100, #baseline for normal mode is 10
-            current_health=50, #baseline for normal mode is 10
-            attack=10, #baseline for normal mode is 0
+            current_health=100, #baseline for normal mode is 10
+            attack=5, #baseline for normal mode is 0
             defense=3, 
             inventory=Inventory(
                 weapon=weapon_options["FIST"],
                 armor=armor_options["MAGIC PLATE"],
-                consumables=[SmokeBomb(), HealthPotion(), GreaterHealthPotion()], #*** Update this once done testing
+                consumables=[DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem()], #*** Update this once done testing
                 misc=[misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["MAGIC BRIDGE"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], ] #*** Update this once done testing
                 )
             )
@@ -122,15 +122,16 @@ class PlayerCharacter(Combatant):
     
     def equip(self, new_item):
         if new_item.type == "ARMOR":
-            print(f"""\n equiping {new_item.name}""")
+            print(f""" equiping {new_item.name}""")
             self.inventory.misc.append(self.inventory.armor)
             self.inventory.misc.remove(new_item)
             self.inventory.armor = new_item
             self.defense = new_item.defense
         elif new_item.type == "WEAPON":
-            print(f"""\n equiping {new_item.name}""")
+            print(f""" equiping {new_item.name}""")
             self.inventory.misc.append(self.inventory.weapon)
             self.inventory.misc.remove(new_item)
             self.inventory.weapon = new_item
         elif new_item.name == "SHIELD":
-            print("\n A SHIELD has been equipped")
+            print(" A SHIELD has been equipped")
+    

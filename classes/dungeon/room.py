@@ -69,7 +69,6 @@ class Room:
                 monster.number = 1
                 self.monsters.append(monster)
 
-
     def view_monster_count(self, player_request=False):
         if self.monster_spawning is not None: 
             if self.monster1_count == 1 and self.monster2_count == 0:

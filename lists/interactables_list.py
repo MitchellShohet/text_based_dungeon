@@ -4,26 +4,23 @@ from classes.combatants.combatant import Combatant
 from classes.dungeon.room import Room
 from classes.dungeon.room_components import Exit, MonsterSpawning
 from classes.inventory.inventory import Inventory
+from classes.inventory.items import Weapon
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
 
 class Pool(Interactable):
 
     def __init__(self, number, action_words, descriptor):
-        self.type = "POOL"
-        self.description = "A pool of water " + descriptor
-        self.invest_requirement = 0
-        self.stealth_mod = 0
         self.healing_available = True
-        self.event_num = random.randint(1,2)
+        self.event_num = random.randint(1,2) #add the third for the body
         self.exit_hold = None
         super().__init__(
-            self.type, 
-            number, 
-            action_words, 
-            self.description, 
-            self.invest_requirement, 
-            self.stealth_mod
+            type="POOL", 
+            number=number, 
+            action_words=action_words, 
+            description="A pool of water " + descriptor, 
+            invest_requirement=0, 
+            stealth_mod=0
             )
 
     def run_interaction(self, action_word, player, room):
@@ -74,17 +71,13 @@ class Pool(Interactable):
 class GlowingCrystal(Interactable):
 
     def __init__(self, number, action_words, descriptor):
-        self.type = "GLOWING CRYSTAL"
-        self.description = "A large cluster of gems with a mysterious light sourced from within. Roughly the size of a" + descriptor
-        self.invest_requirement = number*3
-        self.stealth_mod = number
         super().__init__(
-            self.type, 
-            number, 
-            action_words, 
-            self.description, 
-            self.invest_requirement, 
-            self.stealth_mod
+            type="GLOWING CRYSTAL", 
+            number=number, 
+            action_words=action_words, 
+            description="A large cluster of gems with a mysterious light sourced from within. Roughly the size of a" + descriptor, 
+            invest_requirement=number*3, 
+            stealth_mod=number
             )
         
     def run_interaction(self, action_word, player, room):
@@ -101,7 +94,6 @@ class GlowingCrystal(Interactable):
                     if self.number == 3:
                         player.inventory.add_item(StatMedallion())
                         print(f""" You found a STAT MEDALLION""")
-                    self.action_words.remove("SHATTER")
                     if "INSPECT" in self.action_words:
                         self.action_words.remove("INSPECT")
                     self.type = "DESTROYED CRYSTAL PILE"
@@ -109,8 +101,8 @@ class GlowingCrystal(Interactable):
                     self.stealth_mod-=1
                 else:
                     print(f""" You couldn't break GLOWING CRYSTAL {self.number}.""")
-                    self.action_words.remove("SHATTER")
-        elif action_word == "INSPECT" and "INSPECT" in self.action_words and "SHATTER" in self.action_words:
+                self.action_words.remove("SHATTER")
+        elif action_word == "INSPECT" and "INSPECT" in self.action_words:
                 if player.investigation + random.randint(1,5) >= self.invest_requirement:
                     self.invest_requirement = 0
                     print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
@@ -128,22 +120,18 @@ class GlowingCrystal(Interactable):
 class MagmaRiver(Interactable):
 
     def __init__(self, number, action_words, descriptor):
-        self.type = "MAGMA RIVER"
-        self.description = "A 10ft wide river of flowing lava." + descriptor
-        self.invest_requirement = 0
-        self.stealth_mod = 0
         self.exit_hold = Exit(1, Room("Magma River Passage", 
                                     "A tunnel beyond the magma river opens to a chamber with a chest. The path forks into two exits onward.", 
                                     [Exit(0), Exit(1), Exit(2)], 
                                     MonsterSpawning(5, Goblin, 9, "twice"), 
                                     [Chest(3, ["BREAK THE LOCK", "USE A KEY"]," with an image of a volcano etched onto its top.",contents=[weapon_options["LONGSWORD"], StatMedallion(), 40])]))
         super().__init__(
-            self.type, 
-            number, 
-            action_words, 
-            self.description, 
-            self.invest_requirement, 
-            self.stealth_mod
+            type="MAGMA RIVER", 
+            number=number, 
+            action_words=action_words, 
+            description="A 10ft wide river of flowing lava." + descriptor, 
+            invest_requirement=0, 
+            stealth_mod=0
             )
 
     def run_interaction(self, action_word, player, room):
@@ -191,7 +179,7 @@ class MagmaRiver(Interactable):
             self.action_words.remove("CROSS THE BRIDGE")
             self.switch_sides(room)
         elif action_word == "THROW ROCKS" and "THROW ROCKS" in self.action_words:
-                print(f""" You throw some rocks into the lava, it sinks immediately.""")
+                print(f""" You throw some rocks into the lava, they sink immediately.""")
                 room.spawn_monster()
 
     def switch_sides(self, room):
@@ -210,26 +198,20 @@ class MagmaRiver(Interactable):
         except: room.exits[0] = self.exit_hold
         else: room.exits.append(self.exit_hold)
 
-
-
 #---------------------------------------------------------
 
 class Chest(Interactable):
 
     def __init__(self, number, action_words, descriptor, challenge=0, contents=[10]):
-        self.type = "CHEST"
-        self.description = "A treasure chest" + descriptor
-        self.invest_requirement = number
-        self.stealth_mod = 0
         self.challenge = challenge
         self.contents = contents
         super().__init__(
-            self.type, 
-            number, 
-            action_words, 
-            self.description, 
-            self.invest_requirement, 
-            self.stealth_mod
+            type="CHEST", 
+            number=number, 
+            action_words=action_words, 
+            description="A treasure chest" + descriptor, 
+            invest_requirement=number, 
+            stealth_mod=1
             )
 
     def run_interaction(self, action_word, player, room):
@@ -254,10 +236,8 @@ class Chest(Interactable):
                 print(" You opened the CHEST!")
                 reward_num = random.randint(1, len(self.contents))-1
                 try:
-                    if self.contents[reward_num].type == "CONSUMABLE":
-                        player.inventory.consumables.append(self.contents[reward_num])
-                    else:
-                        player.inventory.misc.append(self.contents[reward_num])
+                    self.contents[reward_num].type
+                    player.inventory.add_item(self.contents[reward_num])
                     print(f""" You found a {self.contents[reward_num].name}!""")
                 except: 
                     player.inventory.dollar_bills += self.contents[reward_num]
@@ -288,3 +268,61 @@ class Chest(Interactable):
         self.run_interaction("OPEN", player, room)
 
 #---------------------------------------------------------
+
+class Tree(Interactable):
+
+    def __init__(self, number, action_words, descriptor, stealth_mod=1, challenge=0):
+        self.challenge = challenge
+        self.gift_given = False
+        super().__init__(
+            type="TREE", 
+            number=number, 
+            action_words=action_words, 
+            description="A" + descriptor + " tree.", 
+            invest_requirement=challenge, 
+            stealth_mod=stealth_mod
+            )
+
+    def run_interaction(self, action_word, player, room):
+        if action_word == "CHOP" and "CHOP" in self.action_words:
+            tree_def = Combatant("TREE", 1, 1, 3, self.challenge, Inventory(weapon=Weapon(0, "WEAPON", "", self.challenge/5, self.challenge, self.challenge, self.challenge, 0)), self.number)
+            if self.challenge >= 5 and self.gift_given == True:
+                print(" Betrayed, the GLOWING TREE attacks you with it's magic!")
+                tree_def.make_attack(player)
+            player.make_attack(tree_def)
+            if tree_def.current_health <= 0:
+                print(" You got 1 WOOD!")
+                player.inventory.add_item(misc_options["WOOD"])
+                self.type = "CHOPPED TREE"
+                for each_interactable in room.interactables:
+                    if each_interactable.type == "CHOPPED TREE":
+                        room.interactables.remove(each_interactable)
+            elif self.challenge >= 5:
+                print(" The GLOWING TREE hardened itself with magic. It will be impossible to CHOP now.")
+                self.action_words.remove("CHOP")
+        if action_word == "INSPECT" and "INSPECT" in self.action_words:
+            if player.investigation + random.randint(1,5) >= self.invest_requirement:
+                self.invest_requirement = 0
+                print(" After some time you start to understand the secrets of the GLOWING TREE. The tree feels seen and offers you a gift from its branches.")
+                if self.challenge == 6:
+                    reward = StatMedallion()
+                    monster = Wizard()
+                    monster.number = self.number
+                elif self.challenge == 10:
+                    reward = armor_options["PLATEMAIL"]
+                    monster = MudGolem()
+                    monster.number = self.number
+                elif self.challenge == 15:
+                    reward = weapon_options["MAGIC SWORD"]
+                    monster = Minotaur()
+                    monster.number = room.monster1_number
+                    room.monster1_number += 1
+                    room.monster1_count += 1
+                print(f""" The GLOWING TREE gifted you a {reward.name}!""")
+                player.inventory.add_item(reward)
+                self.gift_given = True
+                print(f""" A {monster.type} has come to test you.""")
+                room.monsters.append(monster)
+            else:
+                print(f""" The secrets of the GLOWING TREE elude you. It will allow you to try again later.""") #add the adjustment function for this upon returning
+            self.action_words.remove("INSPECT")

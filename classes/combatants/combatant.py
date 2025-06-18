@@ -1,5 +1,6 @@
 import random
 from line_spacer import line_spacer
+from lists.items_lists import misc_options
 
 class Combatant:
 
@@ -16,7 +17,7 @@ class Combatant:
 
     def make_attack(self, defender):
         attack_roll = random.randint(int(self.inventory.weapon.attack_odds1), int(self.inventory.weapon.attack_odds2)) + self.attack + self.attack_buff
-        if "SHIELD" in defender.inventory.misc:
+        if misc_options["SHIELD"] in defender.inventory.misc:
             print(f""" {defender.type} has a shield!""") #remove after testing
             print(f""" defender defense: {defender.defense}. defender defense buff: {defender.defense_buff}""") #remove after testing
             defender.defense_buff += 1
@@ -31,8 +32,8 @@ class Combatant:
             damage = random.randint(int(self.inventory.weapon.damage_odds1), int(self.inventory.weapon.damage_odds2)) + self.attack + self.attack_buff
             print(f""" The attack deals {damage} damage!""")
         else:
-            if self.defense_buff == 5:
-                print(f""" {self.type} {self.number} casts SHIELD!""")
+            if defender.defense_buff == 5:
+                print(f""" {defender.type} {defender.number} casts SHIELD SPELL!""")
             print(" The attack misses!")
             damage = 0
         defender.take_damage(damage)
@@ -42,7 +43,7 @@ class Combatant:
     def take_damage(self, incoming_damage, print_damage=False):
         self.current_health -= incoming_damage
         if self.current_health <= 0 and self.type != "PLAYER":
-            if self.type == "GLOWING CRYSTAL" or self.type == "THE LOCK":
+            if self.type == "GLOWING CRYSTAL" or self.type == "THE LOCK" or self.type == "TREE":
                 print(f""" {self.type} {self.number} has been destroyed.""")
             else:
                 print(f""" {self.type} {self.number} has died.""")

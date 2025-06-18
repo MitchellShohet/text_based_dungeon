@@ -32,9 +32,10 @@ class Weapon(Item):
 
 class Consumable(Item, ABC):
 
-    def __init__(self, name, description, value):
+    def __init__(self, name, description, value, is_healing=False):
         self.type = "CONSUMABLE"
         self.description = description
+        self.is_healing = is_healing
         super().__init__(
             type=self.type,
             name=name, 
