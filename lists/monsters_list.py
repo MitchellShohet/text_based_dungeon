@@ -136,7 +136,8 @@ class  Avatar(Monster):
                 consumables=[GreaterHealthPotion(), PowerBerry(), StatMedallion()],
                 misc=[armor_options["MAGIC PLATE"]],
                 dollar_bills=self.difficulty+5
-                )
+                ),
+            number=0
             )
 
 #----------------------------------------------------------------

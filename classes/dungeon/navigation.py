@@ -1,5 +1,6 @@
 import random
 from lists.room_list import room_list
+from lists.monsters_list import Avatar
 
 class Navigation:
     def __init__(self):
@@ -13,33 +14,43 @@ class Navigation:
         self.unlinked_exits = 2 #counts the total number of unexplored exits currently in the dungeon
         self.has_idol = False
 
-    def enter_room(self, number):
-        self.determine_floor(number)
-        if self.current_room.exits[number].link == None: #determines if the exit being taken already has a room linked to it
+    def enter_room(self, exit_number):
+        self.determine_floor(exit_number)
+        self.determine_next_room(exit_number)
+        self.test_link_issues()
+        self.run_adjustments()
+        self.run_idol_state()
+        print(f""" {self.current_room.description} """)
+        self.current_room.spawn_monster()
+        self.current_room.view_monster_count()
+    
+    def determine_floor(self, exit_number):
+        if self.current_room.name == "Second Floor Tunnel" and exit_number == 1 or self.current_room.name == "Final Floor Tunnel" and exit_number == 1:
+            self.floor+=1
+        elif self.current_room.name == "Second Floor Landing" and exit_number == 0 or self.current_room.name == "Final Floor Landing" and exit_number == 0:
+            self.floor-=1
+    
+    def determine_next_room(self, exit_number):
+        if self.current_room.exits[exit_number].link == None: #determines if the exit being taken already has a room linked to it
             self.unlinked_exits -= 1
             new_room = self.find_unexplored_room()
-            self.current_room.set_exit_link(number, new_room)
+            self.current_room.set_exit_link(exit_number, new_room)
             self.rooms_visited[str(self.floor)].append(new_room)
-            if new_room.name != "Placeholder Rooms Maxed" :
+            if new_room.name != "Placeholder Rooms Maxed" : #**this can be removed post testing**
                 self.room_options[self.floor].remove(new_room)
-            self.previous_room = self.current_room
-            self.current_room = self.current_room.exits[number].link
+            self.previous_room = self.current_room #before leaving the current room, establishes it as the previous room
+            self.current_room = self.current_room.exits[exit_number].link #sets the current room to the new one attached to the link
             self.current_room.exits[0].link = self.previous_room
         else:
             self.previous_room = self.current_room
-            self.current_room = self.current_room.exits[number].link
+            self.current_room = self.current_room.exits[exit_number].link
+
+    def test_link_issues(self):
         try: self.current_room.exits[0].link #catches cases where a player reenters a room with an exit that's been blocked.
         except: pass
         else:
             if self.current_room.exits[0].link == None: #catches cases where an exit is prelinked to another room, links the second room to the previous one
                 self.current_room.exits[0].link = self.previous_room
-        self.current_room.visits += 1
-        try: self.current_room.adjustments[0] #checks to see if there's an adjustment to the room and runs it if there is
-        except: pass
-        else: self.current_room.adjustments[0](self.current_room)
-        print(f""" {self.current_room.description} """)
-        self.current_room.spawn_monster()
-        self.current_room.view_monster_count()
 
     def find_unexplored_room(self):
         try : #checks if every possible room has already been added to the dungeon
@@ -51,7 +62,7 @@ class Navigation:
         attempts = 1
         while new_exits + self.unlinked_exits <= 1: #prevents the dungeon from populating every exit with a dead end
             attempts +=1
-            if attempts > 30:
+            if attempts > 80:
                 new_room = self.room_options[0]
                 break
             new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
@@ -72,12 +83,6 @@ class Navigation:
         elif self.floor == 2 and len(self.rooms_visited["2"]) > 12 and self.room_options[2][len(self.room_options[2])-1].name == "Final Floor Tunnel": #prevents dungeon from taking too long to spawn the final floor tunnel
             new_room = self.room_options[2][len(self.room_options[2])-1]
         return new_room
-    
-    def determine_floor(self, number):
-        if self.current_room.name == "Second Floor Tunnel" and number == 1 or self.current_room.name == "Final Floor Tunnel" and number == 1:
-            self.floor+=1
-        elif self.current_room.name == "Second Floor Landing" and number == 0 or self.current_room.name == "Final Floor Landing" and number == 0:
-            self.floor-=1
 
     def check_for_new_exits(self, room):
         new_exits = 0
@@ -85,6 +90,27 @@ class Navigation:
                 if each_exit.number != 0:
                     new_exits += 1
         return new_exits
+    
+    def run_adjustments(self):
+        self.current_room.visits += 1
+        try: self.current_room.adjustments[0] #checks to see if there are adjustments to the room and runs them if so
+        except: pass
+        else: 
+            for each_adjustment in self.current_room.adjustments[0]:
+                each_adjustment(self.current_room)
+    
+    def run_idol_state(self):
+        if self.has_idol == False: self.determine_idol_taken
+        else:
+            if Avatar() in self.current_room.monsters: 
+                self.current_room.monsters.remove(Avatar())
+                print(" The AVATAR OF DYNAE in this room has been fully healed!")
+            else: print(" A new AVATAR OF DYNAE has appeared!")
+            self.current_room.monsters.append(Avatar())
+    
+    def determine_idol_taken(self):
+        if self.current_room.name == "Idol Taken":
+            self.has_idol = True
     
     def test_backward(self): #returns the exit that is backward from the player's perspective
         for each_exit in self.current_room.exits:

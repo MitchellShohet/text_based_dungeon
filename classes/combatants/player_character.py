@@ -19,7 +19,7 @@ class PlayerCharacter(Combatant):
                 weapon=weapon_options["FIST"],
                 armor=armor_options["MAGIC PLATE"],
                 consumables=[DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem()], #*** Update this once done testing
-                misc=[misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["MAGIC BRIDGE"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], ] #*** Update this once done testing
+                misc=[misc_options["WOOD"], misc_options["SEA CREATURE MEAT"], misc_options["GLOWING FRUIT"], misc_options["APPLES"], misc_options["APPLES"], misc_options["APPLES"], misc_options["APPLES"]] #*** Update this once done testing
                 )
             )
         self.hiding_score = 0

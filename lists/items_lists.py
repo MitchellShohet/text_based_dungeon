@@ -34,7 +34,10 @@ misc_options = {
     "BLADE OF GRASS": Item("MISC", "BLADE OF GRASS", 0),
     "WOOD" : Item("MISC", "WOOD", 1),
     "GOBLIN HORN" : Item("MISC", "GOBLIN HORN", 3),
+    "NOT ENOUGH APPLES" : Item("MISC", "NOT ENOUGH APPLES", 0),
+    "APPLES": Item("MISC", "APPLES", 3),
     "JAW BONE" : Item("MISC", "JAW BONE", 5),
+    "GLOWING FRUIT" : Item("MISC", "GLOWING FRUIT", 12),
     "SEA CREATURE MEAT" : Item("MISC", "SEA CREATURE MEAT", 12),
     "KEY" : Item("MISC", "KEY", 20),
     "RUBY DUST" : Item("MISC", "RUBY DUST", 20),
@@ -81,11 +84,11 @@ class GreaterHealthPotion(HealingItem):
 
 #------------------------------------------------------------------------------------
 
-class CookedSeaCreature(HealingItem):
+class Pie(HealingItem):
     def __init__(self):
         super().__init__(
-            name="COOKED SEA CREATURE",
-            description="A nicely seared fillet of fish. Using will heal between 7-10 health.",
+            name="PIE",
+            description="A nicely baked pie, can be made from a variety of ingredients. Using will heal between 7-10 health.",
             value=26,
             healing=random.randint(7,10)
         )

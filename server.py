@@ -141,6 +141,9 @@ class PlayThrough:
                                 self.navigation.current_room.monster1_count -= 1
                             else:
                                 self.navigation.current_room.monster2_count -= 1
+                        elif each_thing.is_aware == False:
+                            print(f""" {each_thing.type} noticed you!""")
+                            each_thing.is_aware = True
                         selection_loop = False
             if selection_loop == True:
                 print(f"""\n {selection} is not an option (include the number if it has one).""")
@@ -208,7 +211,7 @@ class PlayThrough:
                 else:
                     print(" There are no monsters here to attack. Input MENU for a list of current options.")
             #---------------------------------
-            elif command == "VIEW STATS":
+            elif command == "STATS":
                 self.player_character.get_player_stats()
                 print(f"""\n Your current weapon is: {self.player_character.inventory.weapon.name}.""") 
                 print(f""" Your current armor is: {self.player_character.inventory.armor.name}.""")
@@ -240,7 +243,7 @@ class PlayThrough:
                         options.append("BACKWARD")
                 if len(self.navigation.current_room.monsters) > 0:
                     options.append("ATTACK")
-                if len(self.navigation.current_room.interactables) > 0 or self.navigation.current_room.monsters > 0:
+                if len(self.navigation.current_room.interactables) > 0 or len(self.navigation.current_room.monsters) > 0:
                     options.append("INVESTIGATE")
                 if self.player_character.hiding == False and self.player_character.hiding == False:
                     options.append("HIDE")
@@ -248,7 +251,7 @@ class PlayThrough:
                     options.append("USE ITEM")
                 if self.player_character.inventory.has_equipables == True:
                     options.append("EQUIP")
-                options.append("VIEW STATS")
+                options.append("STATS")
                 if len(self.navigation.current_room.interactables) > 0:
                     for each_interactable in self.navigation.current_room.interactables:
                         if len(each_interactable.action_words) > 0:
@@ -274,7 +277,9 @@ class PlayThrough:
                 self.navigation.current_room.room_interaction(command, self.player_character, self.navigation.current_room) #
             try: self.navigation.current_room.adjustments[1]
             except: pass
-            else: self.navigation.current_room.adjustments[1](self.navigation.current_room)
+            else: 
+                for each_adjustment in self.navigation.current_room.adjustments[1]:
+                    each_adjustment(self.navigation.current_room)
             if self.player_character.current_health <= 0:
                 self.player_alive = False
             if self.navigation.current_room.name == "Go Home":

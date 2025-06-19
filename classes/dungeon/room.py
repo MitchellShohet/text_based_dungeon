@@ -9,7 +9,7 @@ class Room:
         self.monster_spawning = monster_spawning
         self.monsters = []
         self.interactables = interactables
-        self.monster1_count = 0
+        self.monster1_count = 0 # **get rid of this and replace with count() 
         self.monster2_count = 0
         self.monster1_number = 1
         self.monster2_number = 1
@@ -25,7 +25,7 @@ class Room:
                 monster_chance = random.randint(1, 10)
                 if self.monster_spawning.threshold2 is not None:
                     if monster_chance >= self.monster_spawning.threshold2:
-                        if self.monster_spawning.monster2 == "twice":
+                        if self.monster_spawning.monster2 == "TWICE":
                             print(f""" Two new {self.monster_spawning.monster1().type}S have appeared!""")
                             first_monster1 = self.monster_spawning.monster1()
                             second_monster1 = self.monster_spawning.monster1()

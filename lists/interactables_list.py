@@ -6,13 +6,13 @@ from classes.dungeon.room_components import Exit, MonsterSpawning
 from classes.inventory.inventory import Inventory
 from classes.inventory.items import Weapon
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature
-from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
+from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, Pie, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
 
 class Pool(Interactable):
 
     def __init__(self, number, action_words, descriptor):
         self.healing_available = True
-        self.event_num = random.randint(1,2) #add the third for the body
+        self.event_num = random.randint(1,2) #add the third for the body?
         self.exit_hold = None
         super().__init__(
             type="POOL", 
@@ -64,7 +64,6 @@ class Pool(Interactable):
             room.spawn_monster()
         elif action_word == "INSPECT SHADOW" and "INSPECT SHADOW" in self.action_words:
             print(" You can't inspect the SHADOW from outside the pool.")
-
 
 #---------------------------------------------------------
 
@@ -284,7 +283,15 @@ class Tree(Interactable):
             )
 
     def run_interaction(self, action_word, player, room):
-        if action_word == "CHOP" and "CHOP" in self.action_words:
+        if action_word == "PICK FRUIT" and "PICK FRUIT" in self.action_words:
+            if self.challenge >= 6:
+                print(" You picked some of the tree's GLOWING FRUIT!")
+                player.inventory.add_item(misc_options["GLOWING FRUIT"])
+            else:
+                print(" You picked some of the tree's APPLES!")
+                player.inventory.add_item(misc_options["APPLES"])
+            self.action_words.remove("PICK FRUIT")
+        elif action_word == "CHOP" and "CHOP" in self.action_words:
             tree_def = Combatant("TREE", 1, 1, 3, self.challenge, Inventory(weapon=Weapon(0, "WEAPON", "", self.challenge/5, self.challenge, self.challenge, self.challenge, 0)), self.number)
             if self.challenge >= 5 and self.gift_given == True:
                 print(" Betrayed, the GLOWING TREE attacks you with it's magic!")
@@ -297,13 +304,13 @@ class Tree(Interactable):
                 for each_interactable in room.interactables:
                     if each_interactable.type == "CHOPPED TREE":
                         room.interactables.remove(each_interactable)
-            elif self.challenge >= 5:
+            elif self.challenge >= 6:
                 print(" The GLOWING TREE hardened itself with magic. You can no longer CHOP or INSPECT it.")
                 self.action_words.remove("CHOP")
                 if "INSPECT" in self.action_words:
                     self.action_words.remove("INSPECT")
                 self.action_words.append("APOLOGIZE")
-        if action_word == "INSPECT" and "INSPECT" in self.action_words:
+        elif action_word == "INSPECT" and "INSPECT" in self.action_words:
             if player.investigation + random.randint(1,5) >= self.invest_requirement:
                 self.invest_requirement = 0
                 print(" After some time you start to understand the secrets of the GLOWING TREE. The tree feels seen and offers you a gift from its branches.")
@@ -329,5 +336,72 @@ class Tree(Interactable):
             else:
                 print(f""" The secrets of the GLOWING TREE elude you. It will allow you to try again later.""") #add the adjustment function for this upon returning
             self.action_words.remove("INSPECT")
-        if action_word == "APOLOGIZE" and "APOLOGIZE" in self.action_words:
+        elif action_word == "APOLOGIZE" and "APOLOGIZE" in self.action_words:
             print(" The GLOWING TREE does not accept your apology.")
+
+#---------------------------------------------------------
+
+class Cauldron(Interactable):
+
+    def __init__(self, number, action_words, descriptor):
+        self.fire_lit = False
+        super().__init__(
+            type="CAULDRON", 
+            number=number, 
+            action_words=action_words, 
+            description="A large cauldron" + descriptor, 
+            invest_requirement=0, 
+            stealth_mod=2
+            )
+        
+    def run_interaction(self, action_word, player, room):
+        if action_word == "RELIGHT FIRE" and "RELIGHT FIRE" in self.action_words:
+            if misc_options["WOOD"] in player.inventory.misc:
+                print(" You used some WOOD to relight the fire under the CAULDRON!")
+                player.inventory.misc.remove(misc_options["WOOD"])
+                self.fire_lit = True
+                self.action_words.remove("RELIGHT FIRE")
+            else:
+                print(" You don't have any WOOD to light a new fire.")
+        if action_word == "COOK" and "COOK" in self.action_words:
+            if self.fire_lit == True:
+                ingredient_options = []
+                if misc_options["SEA CREATURE MEAT"] in player.inventory.misc:
+                    ingredient_options.append(misc_options["SEA CREATURE MEAT"])
+                if misc_options["GLOWING FRUIT"] in player.inventory.misc:
+                    ingredient_options.append(misc_options["GLOWING FRUIT"])
+                if player.inventory.misc.count(misc_options["APPLES"]) >= 4:
+                    ingredient_options.append(misc_options["APPLES"])
+                elif misc_options["APPLES"] in player.inventory.misc:
+                    ingredient_options.append(misc_options["NOT ENOUGH APPLES"])
+                if len(ingredient_options) > 0:
+                    ingredient = None
+                    selection_loop = True
+                    while selection_loop == True:
+                        print(" What would you like to cook with?")
+                        for each_option in ingredient_options:
+                            print(f""" {each_option.name}""")
+                        print(" NEVERMIND")
+                        selection = input("\n - ").upper()
+                        if selection == "NEVERMIND":
+                            selection_loop = False
+                        for each_option in ingredient_options:
+                            if each_option.name == selection:
+                                ingredient = each_option
+                                selection_loop = False
+                        if selection_loop == True:
+                            print(f"""\n {selection} is not an option.""")
+                    if ingredient is not None:
+                        if ingredient.name == "NOT ENOUGH APPLES":
+                            print(" You can't cook with apples when you don't have enough.")
+                        else:
+                            print(f""" Good thing you always carry some spare flour! You cooked some of the {ingredient.name} into a PIE!""")
+                            player.inventory.misc.remove(ingredient)
+                            player.inventory.add_item(Pie())
+                            if ingredient == misc_options["APPLES"]:
+                                for x in range(0, 3):
+                                    player.inventory.misc.remove(ingredient)
+                else:
+                    print(" You don't have any ingredients to cook.")
+            else:
+                print(" You need to light the fire if you're going to cook in the cauldron.")
