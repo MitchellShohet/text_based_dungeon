@@ -3,7 +3,7 @@ from classes.dungeon.room import Room
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, Avatar, MagmaGoblin
 from lists.interactables_list import Pool, GlowingCrystal, Chest, MagmaRiver, Tree, Cauldron
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, PowerBerry, DurabilityGem, MagicWand, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import add_to_interactable_and_description, add_monsters, skip_adjustable, sea_creature_defeated, tree_inspect_renew
+from lists.adjustments_list import add_to_interactable_and_description, add_monsters, sea_creature_defeated, tree_inspect_renew, change_monster_spawning
 
 room_list = [ 
     [
@@ -59,19 +59,19 @@ room_list = [
             [Tree(1, ["PICK FRUIT", "CHOP", "INSPECT"], " glowing birch", challenge=6),
                 Tree(2, ["PICK FRUIT", "CHOP", "INSPECT"], " glowing birch", challenge=6),
                 Tree(3, ["CHOP"], " glowing birch sapling", challenge=3)],
-            [[tree_inspect_renew]]),
+            [[tree_inspect_renew], []]),
         #Room("Medium Magic Tree",
         #    "A large chamber with a glowing elm tree, a sourceless breeze is gentle blowing here.",
         #    [Exit(0), Exit(1), Exit(2)],
         #    MonsterSpawning(1, Skeleton, 2, "TWICE"),
         #    [Tree(1, ["PICK FRUIT", "CHOP", "INSPECT"], " glowing elm", challenge=10)],
-        #    [tree_inspect_renew]),
+        #    [tree_inspect_renew], []),
         #Room("Giant Sequioa Magic Tree",
         #    "A massively expansive cavern with a glowing, giant sequoia tree in its center. A sourceless breeze is gentle blowing here.",
         #    [Exit(0), Exit(1), Exit(2)],
         #    MonsterSpawning(4, Minotaur),
         #    [Tree(1, ["PICK FRUIT", "CHOP", "INSPECT"], " glowing giant sequoia", challenge=15)],
-        #    [tree_inspect_renew]),
+        #    [tree_inspect_renew], []),
         #Room("Sleeping Quarters", 
         #    "A small room with a bedroll, an extinguished firepit, and some small trinkets on a raw wood table.", 
         #    [Exit(0), Exit(1), Exit(2)]),
@@ -81,8 +81,8 @@ room_list = [
         Room("Goblin Swarm Room",
             "An open room with a huge stretch towards the exit, it smells of GOBLIN.",
             [Exit(0), Exit(1)],
-            MonsterSpawning(1, Goblin, 5, "TWICE"),
-            adjustments=[[add_monsters],[skip_adjustable], 1, 6, Goblin]),
+            MonsterSpawning(100, Goblin),
+            adjustments=[[add_monsters, change_monster_spawning], [], 1, 7, Goblin, 2, MonsterSpawning(1, Goblin, 3, "TWICE")]),
         #Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(1, Wizard, 2, "TWICE")), #CHANGE AFTER TESTING!
         #Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "TWICE")),
         #Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "TWICE")),

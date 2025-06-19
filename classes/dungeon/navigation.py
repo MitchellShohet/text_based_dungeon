@@ -93,11 +93,8 @@ class Navigation:
     
     def run_adjustments(self):
         self.current_room.visits += 1
-        try: self.current_room.adjustments[0] #checks to see if there are adjustments to the room and runs them if so
-        except: pass
-        else: 
-            for each_adjustment in self.current_room.adjustments[0]:
-                each_adjustment(self.current_room)
+        for each_adjustment in self.current_room.adjustments[0]:
+            each_adjustment(self.current_room)
     
     def run_idol_state(self):
         if self.has_idol == False: self.determine_idol_taken

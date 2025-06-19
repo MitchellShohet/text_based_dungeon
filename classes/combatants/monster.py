@@ -15,7 +15,7 @@ class Monster(Combatant):
         self.can_investigate = True
 
     def notice_player(self, stealth_check, player_request=False):
-        print(f""" Your stealth is: {stealth_check}. {self.type} {self.number}'s perception is: {self.perception}.""")
+        print(f"""\n Your stealth is: {stealth_check}. {self.type} {self.number}'s perception is: {self.perception}.""")
         if stealth_check <= self.perception:
             self.is_aware = True
             print(f""" {self.type} {self.number} noticed you!""")

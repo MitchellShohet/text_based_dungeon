@@ -2,7 +2,7 @@ import random
 from line_spacer import line_spacer
 from classes.combatants.player_character import PlayerCharacter
 from classes.dungeon.navigation import Navigation
-from lists.items_lists import weapon_options, HealthPotion, StatMedallion, SmokeBomb, DurabilityGem, PowerBerry
+from lists.items_lists import weapon_options, armor_options, HealthPotion, StatMedallion, SmokeBomb, DurabilityGem, PowerBerry
 
 class PlayThrough:
     def __init__(self):
@@ -42,15 +42,15 @@ class PlayThrough:
         if direction == "FORWARD":
             def move_function():
                 return self.navigation.test_forward()
-        elif direction == "BACKWARD":
-            def move_function():
-                return self.navigation.test_backward()
         elif direction == "LEFT":
             def move_function():
                 return self.navigation.test_left()
         elif direction == "RIGHT":
             def move_function():
                 return self.navigation.test_right()
+        elif direction == "BACKWARD":
+            def move_function():
+                return self.navigation.test_backward()
         else: 
             move_function = None
         try:
@@ -142,11 +142,11 @@ class PlayThrough:
                             else:
                                 self.navigation.current_room.monster2_count -= 1
                         elif each_thing.is_aware == False:
-                            print(f""" {each_thing.type} noticed you!""")
+                            print(f"""\n {each_thing.type} noticed you!""")
                             each_thing.is_aware = True
                         selection_loop = False
             if selection_loop == True:
-                print(f"""\n {selection} is not an option (include the number if it has one).""")
+                print(f""" {selection} is not an option (include the number if it has one).""")
 
     def game_loop(self):
         while self.player_alive == True:
@@ -155,12 +155,12 @@ class PlayThrough:
             #-------------------------------
             if command == "FORWARD" or command == "FF":
                 self.nav_sequence("FORWARD")
-            elif command == "BACKWARD":
-                self.nav_sequence("BACKWARD")
             elif command == "LEFT":
                 self.nav_sequence("LEFT")
             elif command == "RIGHT":
                 self.nav_sequence("RIGHT")
+            elif command == "BACKWARD":
+                self.nav_sequence("BACKWARD")
             #-----------------------------
             elif command == "USE" or command == "USE ITEM" or command == "ITEM":
                 if len(self.player_character.inventory.consumables) > 0:
@@ -205,8 +205,10 @@ class PlayThrough:
                         self.player_character.hiding = False
                         for each_monster in self.navigation.current_room.monsters:
                             if each_monster.is_aware == False:
-                                print(f""" {each_monster.type} {each_monster.number} noticed you!""")
+                                print(f"""\n {each_monster.type} {each_monster.number} noticed you!""")
                                 each_monster.is_aware = True
+                            else:
+                                print(f"""\n {each_monster.type} {each_monster.number} is aware of you!""")
                             each_monster.make_attack(self.player_character)
                 else:
                     print(" There are no monsters here to attack. Input MENU for a list of current options.")
@@ -268,18 +270,19 @@ class PlayThrough:
                     print(f""" {options[i]}""")
                     i+=1
             #-------------------------------------------------
-            elif command == "TEST ADD WEAPON": #cheat codes?
+            elif command == "MCS ADD ITEMS--": #cheat codes
                 self.player_character.inventory.add_item(weapon_options["MAGIC SWORD"])
+                self.player_character.inventory.add_item(armor_options["MAGIC PLATE"])
+            elif command == "MCS BIG LEVEL UP--":
+                self.player_character.stat_points += 30
+                self.player_character.set_player_stats()
             elif command == "DIE":
-                self.player_character.take_damage(int(100))
+                self.player_character.take_damage(int(1000))
             #-------------------------------------------------
             else:
                 self.navigation.current_room.room_interaction(command, self.player_character, self.navigation.current_room) #
-            try: self.navigation.current_room.adjustments[1]
-            except: pass
-            else: 
-                for each_adjustment in self.navigation.current_room.adjustments[1]:
-                    each_adjustment(self.navigation.current_room)
+            for each_adjustment in self.navigation.current_room.adjustments[1]:
+                each_adjustment(self.navigation.current_room)
             if self.player_character.current_health <= 0:
                 self.player_alive = False
             if self.navigation.current_room.name == "Go Home":

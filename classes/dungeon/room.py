@@ -2,7 +2,7 @@ import random
 from classes.dungeon.room_components import Exit
 
 class Room:
-    def __init__(self, name, description, exits=[Exit(0)], monster_spawning=None, interactables=[], adjustments=None):
+    def __init__(self, name, description, exits=[Exit(0)], monster_spawning=None, interactables=[], adjustments=[[],[]]):
         self.name = name
         self.description = description
         self.exits = exits
@@ -51,7 +51,6 @@ class Room:
                     self.monster1_count += 1
                     self.monster1_number += 1
         else:
-            print(f""" A new {monster_given().type} has appeared!""")
             if monster_given().type == self.monster_spawning.monster1().type:
                 monster = self.monster_spawning.monster1()
                 monster.number = self.monster1_number

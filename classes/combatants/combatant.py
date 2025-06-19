@@ -22,11 +22,11 @@ class Combatant:
             print(f""" defender defense: {defender.defense}. defender defense buff: {defender.defense_buff}""") #remove after testing
             defender.defense_buff += 1
         if self.type == "PLAYER":
-            print(f"""\n You attacked the {defender.type} with {attack_roll} attack!""")
+            print(f""" You attacked the {defender.type} with {attack_roll} attack!""")
         else:
             if self.attack_buff == 5:
-                print(f"""\n {self.type} {self.number} casts FIREBALL!""")
-            print(f"""\n {self.type} {self.number} attacked with {attack_roll} attack!""")
+                print(f""" {self.type} {self.number} casts FIREBALL!""")
+            print(f""" {self.type} {self.number} attacked with {attack_roll} attack!""")
         if attack_roll >= defender.defense + defender.defense_buff:
             print(f""" THE ATTACK HITS!""")
             damage = random.randint(int(self.inventory.weapon.damage_odds1), int(self.inventory.weapon.damage_odds2)) + self.attack + self.attack_buff

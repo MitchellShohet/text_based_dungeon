@@ -1,8 +1,5 @@
 import random
 
-def skip_adjustable(room):
-    pass
-
 def add_to_interactable_and_description(room):
     if room.visits == room.adjustments[2]:
         room.interactables[0].action_words.append(room.adjustments[3])
@@ -27,4 +24,8 @@ def tree_inspect_renew(room):
 def add_monsters(room):
     if room.visits == room.adjustments[2]:
         for x in range(0, room.adjustments[3]):
-            room.monsters.append(room.adjustments[4]())
+            room.spawn_monster(room.adjustments[4])
+
+def change_monster_spawning(room): # **lets find another way to input these arguements
+    if room.visits == room.adjustments[5]:
+        room.monster_spawning = room.adjustments[6]
