@@ -298,8 +298,11 @@ class Tree(Interactable):
                     if each_interactable.type == "CHOPPED TREE":
                         room.interactables.remove(each_interactable)
             elif self.challenge >= 5:
-                print(" The GLOWING TREE hardened itself with magic. It will be impossible to CHOP now.")
+                print(" The GLOWING TREE hardened itself with magic. You can no longer CHOP or INSPECT it.")
                 self.action_words.remove("CHOP")
+                if "INSPECT" in self.action_words:
+                    self.action_words.remove("INSPECT")
+                self.action_words.append("APOLOGIZE")
         if action_word == "INSPECT" and "INSPECT" in self.action_words:
             if player.investigation + random.randint(1,5) >= self.invest_requirement:
                 self.invest_requirement = 0
@@ -326,3 +329,5 @@ class Tree(Interactable):
             else:
                 print(f""" The secrets of the GLOWING TREE elude you. It will allow you to try again later.""") #add the adjustment function for this upon returning
             self.action_words.remove("INSPECT")
+        if action_word == "APOLOGIZE" and "APOLOGIZE" in self.action_words:
+            print(" The GLOWING TREE does not accept your apology.")

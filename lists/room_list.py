@@ -3,7 +3,7 @@ from classes.dungeon.room import Room
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, Avatar, MagmaGoblin
 from lists.interactables_list import Pool, GlowingCrystal, Chest, MagmaRiver, Tree
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, PowerBerry, DurabilityGem, MagicWand, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import add_shadow_to_pool, sea_creature_defeated
+from lists.adjustments_list import add_shadow_to_pool, sea_creature_defeated, tree_inspect_renew
 
 room_list = [ 
     [
@@ -49,23 +49,26 @@ room_list = [
                 Tree(4, ["CHOP"], " maple"),
                 Tree(5, ["CHOP"], " maple"),
                 Tree(6, ["CHOP"], " maple")]),
-        #Room("Magic Tree Grove",
-        #    "A small grove of three glowing birch trees, a sourceless breeze is gentle blowing here.",
-        #    [Exit(0), Exit(1), Exit(2)],
-        #    MonsterSpawning(4, Skeleton, 8, "twice"),
-        #    [Tree(1, ["CHOP", "INSPECT"], " glowing birch", challenge=6),
-        #    Tree(2, ["CHOP", "INSPECT"], " glowing birch", challenge=6),
-        #    Tree(3, ["CHOP"], " glowing birch sapling", challenge=3)]),
+        Room("Magic Tree Grove",
+            "A small grove of three glowing birch trees, a sourceless breeze is gentle blowing here.",
+            [Exit(0), Exit(1), Exit(2)],
+            MonsterSpawning(4, Skeleton, 8, "twice"),
+            [Tree(1, ["CHOP", "INSPECT"], " glowing birch", challenge=6),
+                Tree(2, ["CHOP", "INSPECT"], " glowing birch", challenge=6),
+                Tree(3, ["CHOP"], " glowing birch sapling", challenge=3)],
+            [tree_inspect_renew]),
         Room("Medium Magic Tree",
             "A large chamber with a glowing elm tree, a sourceless breeze is gentle blowing here.",
             [Exit(0), Exit(1), Exit(2)],
             MonsterSpawning(1, Skeleton, 2, "twice"),
-            [Tree(1, ["CHOP", "INSPECT"], " glowing elm", challenge=10)]),
-        #Room("Giant Sequioa Magic Tree",
-        #    "A massively expansive cavern with a glowing, giant sequoia tree in its center. A sourceless breeze is gentle blowing here.",
-        #    [Exit(0), Exit(1), Exit(2)],
-        #    MonsterSpawning(4, Minotaur),
-        #    [Tree(1, ["CHOP", "INSPECT"], " glowing giant sequoia", challenge=15)]),
+            [Tree(1, ["CHOP", "INSPECT"], " glowing elm", challenge=10)],
+            [tree_inspect_renew]),
+        Room("Giant Sequioa Magic Tree",
+            "A massively expansive cavern with a glowing, giant sequoia tree in its center. A sourceless breeze is gentle blowing here.",
+            [Exit(0), Exit(1), Exit(2)],
+            MonsterSpawning(4, Minotaur),
+            [Tree(1, ["CHOP", "INSPECT"], " glowing giant sequoia", challenge=15)],
+            [tree_inspect_renew]),
         #Room("Sleeping Quarters", 
         #    "A small room with a bedroll, an extinguished firepit, and some small trinkets on a raw wood table.", 
         #    [Exit(0), Exit(1), Exit(2)]),

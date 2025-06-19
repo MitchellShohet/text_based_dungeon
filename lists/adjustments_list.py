@@ -14,3 +14,9 @@ def sea_creature_defeated(room):
             room.exits = room.interactables[0].exit_hold
             room.description = "A room with a small pond, the corpse of a sea creature is floating in the water."
             room.adjustments.pop()
+
+def tree_inspect_renew(room):
+    for each_interactable in room.interactables:
+        if each_interactable.type == "TREE":
+            if each_interactable.challenge >= 5 and each_interactable.gift_given == False and "INSPECT" not in each_interactable.action_words and "APOLOGIZE" not in each_interactable.action_words:
+                each_interactable.action_words.append("INSPECT")

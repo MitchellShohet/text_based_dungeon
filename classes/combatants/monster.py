@@ -39,16 +39,15 @@ class Monster(Combatant):
             else:
                 print(f"""\n You searched {self.type} {self.number} and found a {self.inventory.weapon.name}, """)
                 if self.inventory.weapon.name == "MAGIC WAND":
-                    player.inventory.consumables.append(MagicWand())
+                    player.inventory.add_item(MagicWand())
                 else:
                     player.inventory.add_item(self.inventory.weapon)
                 for each_misc in self.inventory.misc:
                     print(f""" a {each_misc.name}, """)
                     player.inventory.add_item(each_misc)
-                if len(self.inventory.consumables) > 0:
-                    for each_consumable in self.inventory.consumables:
-                        print(f""" a {each_consumable.name}, """)
-                        player.inventory.add_item(each_consumable)
+                for each_consumable in self.inventory.consumables:
+                    print(f""" a {each_consumable.name}, """)
+                    player.inventory.add_item(each_consumable)
                 print(f""" and {self.inventory.dollar_bills} dollar bills.""")
                 player.inventory.dollar_bills += self.inventory.dollar_bills
                 self.can_investigate = False
