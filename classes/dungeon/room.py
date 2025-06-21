@@ -9,85 +9,45 @@ class Room:
         self.monster_spawning = monster_spawning
         self.monsters = []
         self.interactables = interactables
-        self.monster1_count = 0 # **get rid of this and replace with count() 
-        self.monster2_count = 0
-        self.monster1_number = 1
-        self.monster2_number = 1
         self.visits = 0
         self.adjustments=adjustments
 
     def set_exit_link(self, number, room):
         self.exits[number].set_link(room)
 
-    def spawn_monster(self, monster_given=False): #this can be cleaned up to be more DRY
-        if monster_given == False:
-            if self.monster_spawning is not None:            
-                monster_chance = random.randint(1, 10)
-                if self.monster_spawning.threshold2 is not None:
-                    if monster_chance >= self.monster_spawning.threshold2:
-                        if self.monster_spawning.monster2 == "TWICE":
-                            print(f""" Two new {self.monster_spawning.monster1().type}S have appeared!""")
-                            first_monster1 = self.monster_spawning.monster1()
-                            second_monster1 = self.monster_spawning.monster1()
-                            first_monster1.number = self.monster1_number
-                            second_monster1.number = self.monster1_number + 1
-                            self.monsters.append(first_monster1)
-                            self.monsters.append(second_monster1)
-                            self.monster1_count += 2
-                            self.monster1_number += 2
-                        else: 
-                            print(f""" A new {self.monster_spawning.monster2().type} has appeared!""")
-                            monster = self.monster_spawning.monster2()
-                            monster.number = self.monster2_number
-                            self.monsters.append(monster)
-                            self.monster2_count += 1
-                            self.monster2_number += 1
-                        monster_chance = 0
-                if monster_chance >= self.monster_spawning.threshold1:
-                    print(f""" A new {self.monster_spawning.monster1().type} has appeared!""")
-                    monster = self.monster_spawning.monster1()
-                    monster.number = self.monster1_number
-                    self.monsters.append(monster)
-                    self.monster1_count += 1
-                    self.monster1_number += 1
-        else:
-            if monster_given().type == self.monster_spawning.monster1().type:
-                monster = self.monster_spawning.monster1()
-                monster.number = self.monster1_number
-                self.monsters.append(monster)
-                self.monster1_count += 1
-                self.monster1_number += 1
-            elif monster_given().type == self.monster_spawning.monster2().type:
-                monster = self.monster_spawning.monster2()
-                monster.number = self.monster2_number
-                self.monsters.append(monster)
-                self.monster2_count += 1
-                self.monster2_number += 1
-            else:
-                monster = monster_given()
-                monster.number = 1
-                self.monsters.append(monster)
+    def spawn_monster(self, monster_given=False):
+        new_monsters = []
+        if monster_given == False and self.monster_spawning is not None:
+            monster_chance = random.randint(1, 10)
+            if self.monster_spawning.threshold2 is not None and monster_chance >= self.monster_spawning.threshold2:
+                if self.monster_spawning.monster2 == "TWICE":
+                    print(f""" Two new {self.monster_spawning.monster1().type}S have appeared!""")
+                    new_monsters[0] = self.monster_spawning.monster1()
+                    new_monsters[1] = self.monster_spawning.monster1()
+                else: 
+                    print(f""" A new {self.monster_spawning.monster2().type} has appeared!""")
+                    new_monsters[0] = self.monster_spawning.monster2()
+            elif monster_chance >= self.monster_spawning.threshold1:
+                print(f""" A new {self.monster_spawning.monster2().type} has appeared!""")
+                new_monsters[0] = self.monster_spawning.monster1()
+        elif monster_given == True:
+            new_monsters[0] = monster_given
+        for each_monster in new_monsters:
+            each_monster.number = self.monsters.count(each_monster) + 1
 
     def view_monster_count(self, player_request=False):
-        if self.monster_spawning is not None: 
-            if self.monster1_count == 1 and self.monster2_count == 0:
-                print(f""" A {self.monster_spawning.monster1().type} is here.""")
-            elif self.monster1_count > 1 and self.monster2_count ==0:
-                print(f""" {self.monster1_count} {self.monster_spawning.monster1().type}S are here.""")
-            elif self.monster1_count == 0 and self.monster2_count == 1:
-                print(f""" A {self.monster_spawning.monster2().type} is here.""")
-            elif self.monster1_count == 0 and self.monster2_count > 1:
-                print(f""" {self.monster2_count} {self.monster_spawning.monster2().type}S are here.""")
-            elif self.monster1_count == 1 and self.monster2_count == 1:
-                print(f""" A {self.monster_spawning.monster1().type} and a {self.monster_spawning.monster2().type} are here.""")
-            elif self.monster1_count == 1 and self.monster2_count > 1:
-                print(f""" A {self.monster_spawning.monster1().type} and {self.monster2_count} {self.monster_spawning.monster2().type}S are here.""")
-            elif self.monster1_count > 1 and self.monster2_count == 1:
-                print(f""" {self.monster1_count} {self.monster_spawning.monster1().type}S and a {self.monster_spawning.monster2().type} are here.""")
-            elif self.monster1_count > 1 and self.monster2_count > 1:
-                print(f""" {self.monster1_count} {self.monster_spawning.monster1().type}S and {self.monster2_count} {self.monster_spawning.monster2().type}S are here.""")
-            elif self.monster1_count == 0 and self.monster2_count == 0 and player_request == True: 
-                print(" No monsters are here.")
+        if len(self.monsters) == 0 and player_request == True:
+            print(" No monsters are here.")
+        else: 
+            monster_list = []
+            for each_monster in range(0, len(self.monsters)):
+                if each_monster not in monster_list:
+                    monster_list.append(each_monster)
+            for each_monster in monster_list:
+                if self.monsters.count(each_monster) == 1:
+                    print(f""" A {each_monster.type} is here.""")
+                else:
+                    print(f""" {self.monsters.count(each_monster)} {each_monster.type}s are here.""")
     
     def room_interaction(self, player_action, player, room): #consider moving this to server.py and merging with select_sequence() for DRY
         if len(self.interactables) <= 0:
