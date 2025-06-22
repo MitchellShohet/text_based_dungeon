@@ -17,7 +17,7 @@ class PlayerCharacter(Combatant):
             defense=3, 
             inventory=Inventory(
                 weapon=weapon_options["FIST"],
-                armor=armor_options["MAGIC PLATE"],
+                armor=armor_options["PLATEMAIL"],
                 consumables=[DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem()], #*** Update this once done testing
                 misc=[misc_options["WOOD"], misc_options["SEA CREATURE MEAT"], misc_options["GLOWING FRUIT"], misc_options["APPLES"], misc_options["APPLES"], misc_options["APPLES"], misc_options["APPLES"]] #*** Update this once done testing
                 )

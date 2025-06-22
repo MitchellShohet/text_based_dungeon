@@ -7,6 +7,7 @@ from classes.inventory.inventory import Inventory
 from classes.inventory.items import Weapon
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, Pie, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
+from lists.adjustments_list import damage_player
 
 class Pool(Interactable):
 
@@ -25,26 +26,18 @@ class Pool(Interactable):
 
     def run_interaction(self, action_word, player, room):
         if action_word == "SWIM" and "SWIM" in self.action_words:
-            if player.inventory.armor.rating == 3 or player.inventory.armor.rating == 4:
-                print(f""" Your {player.inventory.armor.name} is too heavy to swim in!""")
-                player.take_damage(2, True)
-                self.action_words.append("DROWNING")
             if "INSPECT SHADOW" in self.action_words and self.event_num == 1:
                 print(" You feel something wrap around your leg and pull you under the water!")
                 room.spawn_monster(SeaCreature)
-                self.action_words.append("SKIP")
-                self.action_words.remove("INSPECT SHADOW")
-                self.action_words.remove("SWIM")
-                self.action_words.remove("THROW ROCKS")
-                if "DROWNING" in self.action_words:
-                    self.action_words.remove("DROWNING")
+                self.action_words.clear()
                 self.exit_hold = room.exits
                 room.exits = None
-            if "DROWNING" in self.action_words and player.current_health > 0:
+                if player.inventory.armor.rating == 3 or player.inventory.armor.rating == 4:
+                    room.adjustables[1].append(damage_player)
+            elif player.inventory.armor.rating == 3 or player.inventory.armor.rating == 4:
+                print(f""" Your {player.inventory.armor.name} is too heavy to swim in!""")
+                player.take_damage(2, True)
                 print(" You make it back to solid ground. Swimming in heavy armor could lead to drowning.")
-                self.action_words.remove("DROWNING")
-            elif "SKIP" in self.action_words:
-                self.action_words.remove("SKIP")
             elif "INSPECT SHADOW" in self.action_words and self.event_num == 2:
                 self.action_words.remove("INSPECT SHADOW")
                 print(" You found a chest!")

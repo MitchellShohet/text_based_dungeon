@@ -18,8 +18,6 @@ class Combatant:
     def make_attack(self, defender):
         attack_roll = random.randint(int(self.inventory.weapon.attack_odds1), int(self.inventory.weapon.attack_odds2)) + self.attack + self.attack_buff
         if misc_options["SHIELD"] in defender.inventory.misc:
-            print(f""" {defender.type} has a shield!""") #remove after testing
-            print(f""" defender defense: {defender.defense}. defender defense buff: {defender.defense_buff}""") #remove after testing
             defender.defense_buff += 1
         if self.type == "PLAYER":
             print(f""" You attacked the {defender.type} with {attack_roll} attack!""")

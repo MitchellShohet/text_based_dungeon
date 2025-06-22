@@ -137,10 +137,6 @@ class PlayThrough:
                         if each_thing.current_health <= 0:
                             self.navigation.current_room.interactables.append(each_thing)
                             self.navigation.current_room.monsters.remove(each_thing)
-                            if self.navigation.current_room.monster_spawning.monster1().type == each_thing.type:
-                                self.navigation.current_room.monster1_count -= 1
-                            else:
-                                self.navigation.current_room.monster2_count -= 1
                         elif each_thing.is_aware == False:
                             print(f"""\n {each_thing.type} noticed you!""")
                             each_thing.is_aware = True
@@ -282,7 +278,7 @@ class PlayThrough:
             else:
                 self.navigation.current_room.room_interaction(command, self.player_character, self.navigation.current_room) #
             for each_adjustment in self.navigation.current_room.adjustments[1]:
-                each_adjustment(self.navigation.current_room)
+                each_adjustment(self.navigation.current_room, self.player_character)
             if self.player_character.current_health <= 0:
                 self.player_alive = False
             if self.navigation.current_room.name == "Go Home":
