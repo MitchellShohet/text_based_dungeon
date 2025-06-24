@@ -159,10 +159,10 @@ class PlayThrough:
                 self.nav_sequence("BACKWARD")
             #-----------------------------
             elif command == "USE" or command == "USE ITEM" or command == "ITEM":
-                if len(self.player_character.inventory.consumables) > 0:
-                    self.select_sequence("USE", self.player_character.inventory.consumables)
+                if len(self.player_character.inventory.consumables_names) > 0:
+                    self.select_sequence("USE", self.player_character.inventory.consumables_names)
                 else:
-                    print(" You have no consumables to use. Input MENU for a list of current options.")
+                    print(" You have no consumables_names to use. Input MENU for a list of current options.")
             #-------------------------------
             elif command == "EQUIP":
                 if self.player_character.inventory.has_equipables == True:
@@ -215,12 +215,26 @@ class PlayThrough:
                 print(f""" Your current armor is: {self.player_character.inventory.armor.name}.""")
                 if "SHIELD" in self.player_character.inventory.misc:
                     print(" You are using a shield.")
+            #---------------------------------
+            elif command == "INVENTORY":
+                print(f"""\n Your current weapon is: {self.player_character.inventory.weapon.name}.""") 
+                print(f""" Your current armor is: {self.player_character.inventory.armor.name}.""")
+                if "SHIELD" in self.player_character.inventory.misc:
+                    print(" You are using a shield.")
                 print("\n CONSUMABLES:")
+                consumables_names = []
                 for each_consumable in self.player_character.inventory.consumables:
-                    print(f""" {each_consumable.name}""")
+                    if each_consumable.name not in consumables_names:
+                        consumables_names.append(each_consumable.name)
+                for each_consumable_name in consumables_names:
+                    print(f""" {sum(1 for each_consumable in self.player_character.inventory.consumables if each_consumable.name == each_consumable_name)} {each_consumable_name}S""")
                 print("\n MISC:")
+                misc_names = []
                 for each_misc in self.player_character.inventory.misc:
-                    print(f""" {each_misc.name}""")
+                    if each_misc.name not in misc_names:
+                        misc_names.append(each_misc.name)
+                for each_misc_name in misc_names:
+                    print(f""" {sum(1 for each_misc in self.player_character.inventory.misc if each_misc.name == each_misc_name)} {each_misc_name}""")
                 print(f"""\n DOLLAR BILLS: {self.player_character.inventory.dollar_bills}""")
             #-------------------------------------
             elif command == "MENU":
@@ -250,6 +264,7 @@ class PlayThrough:
                 if self.player_character.inventory.has_equipables == True:
                     options.append("EQUIP")
                 options.append("STATS")
+                options.append("INVENTORY")
                 if len(self.navigation.current_room.interactables) > 0:
                     for each_interactable in self.navigation.current_room.interactables:
                         if len(each_interactable.action_words) > 0:

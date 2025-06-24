@@ -7,7 +7,7 @@ from classes.inventory.inventory import Inventory
 from classes.inventory.items import Weapon
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, Pie, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import damage_player
+from lists.adjustments_list import check_for_heavy_armor
 
 class Pool(Interactable):
 
@@ -29,11 +29,15 @@ class Pool(Interactable):
             if "INSPECT SHADOW" in self.action_words and self.event_num == 1:
                 print(" You feel something wrap around your leg and pull you under the water!")
                 room.spawn_monster(SeaCreature)
+                for each_monster in room.monsters: 
+                    if each_monster.type == "SEA CREATURE":
+                        each_monster.is_aware = True
                 self.action_words.clear()
                 self.exit_hold = room.exits
                 room.exits = None
+                player.hiding = True
                 if player.inventory.armor.rating == 3 or player.inventory.armor.rating == 4:
-                    room.adjustables[1].append(damage_player)
+                    room.adjustments[1].append(check_for_heavy_armor)
             elif player.inventory.armor.rating == 3 or player.inventory.armor.rating == 4:
                 print(f""" Your {player.inventory.armor.name} is too heavy to swim in!""")
                 player.take_damage(2, True)

@@ -24,7 +24,7 @@ room_list = [
                 [sea_creature_defeated], 
                 {"add_to_interactable" : [2, "INSPECT SHADOW"],
                 "add_to_description" : [2, ".. Wait- there's a shadow in the water that wasn't there before."],
-                "damage_player" : [" You make it back to solid ground. Swimming in heavy armor could lead to drowning.", 2]}]),
+                "damage_player" : ["Your armor is too heavy to swim in!", 2]}]),
         #Room("Glowing Crystals Room", 
         #    "A room with some glowing crystals.", 
         #    [Exit(0), Exit(1), Exit(2), Exit(3)], 

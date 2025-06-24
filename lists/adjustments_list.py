@@ -27,6 +27,10 @@ def tree_inspect_renew(room):
             if each_interactable.challenge >= 6 and each_interactable.gift_given == False and "INSPECT" not in each_interactable.action_words and "APOLOGIZE" not in each_interactable.action_words:
                 each_interactable.action_words.append("INSPECT")
 
+def check_for_heavy_armor(room, player):
+    if player.inventory.armor.rating == 3 or player.inventory.armor.rating==4:
+        damage_player(room, player)
+
 def damage_player(room, player):
     print(f""" {room.adjustments[2]["damage_player"][0]}""")
     player.take_damage(room.adjustments[2]["damage_player"][1], True)
@@ -40,3 +44,4 @@ def sea_creature_defeated(room, player):
             room.exits = room.interactables[0].exit_hold
             room.description = "A room with a small pond, the corpse of a sea creature is floating in the water."
             room.adjustments[1].clear()
+            player.hiding = False
