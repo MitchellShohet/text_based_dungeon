@@ -72,7 +72,6 @@ class PlayThrough:
                 self.navigation.enter_room(move_function()) #uses the move function determined by the direction earlier, as an argument to move rooms
                 self.player_character.hiding_score = random.randint(1,5) #this is the luck component of hiding for each room as the player enters it
                 self.player_character.hiding = False
-                print(f""" current hiding luck: {self.player_character.hiding_score}.""")
 
     def select_sequence(self, action_word, list):
         selection_loop = True
@@ -159,10 +158,10 @@ class PlayThrough:
                 self.nav_sequence("BACKWARD")
             #-----------------------------
             elif command == "USE" or command == "USE ITEM" or command == "ITEM":
-                if len(self.player_character.inventory.consumables_names) > 0:
-                    self.select_sequence("USE", self.player_character.inventory.consumables_names)
+                if len(self.player_character.inventory.consumables) > 0:
+                    self.select_sequence("USE", self.player_character.inventory.consumables)
                 else:
-                    print(" You have no consumables_names to use. Input MENU for a list of current options.")
+                    print(" You have no consumables to use. Input MENU for a list of current options.")
             #-------------------------------
             elif command == "EQUIP":
                 if self.player_character.inventory.has_equipables == True:

@@ -1,4 +1,4 @@
-import random
+import random, math
 from classes.dungeon.room_components import Interactable
 from classes.combatants.combatant import Combatant
 from classes.dungeon.room import Room
@@ -78,39 +78,39 @@ class GlowingCrystal(Interactable):
         
     def run_interaction(self, action_word, player, room):
         if action_word == "SHATTER" and "SHATTER" in self.action_words:
-                crystal_def = Combatant("GLOWING CRYSTAL", 1, 1, 0, self.number*3+2, Inventory(), self.number)
-                player.make_attack(crystal_def)
-                if crystal_def.current_health <= 0:
-                    if self.number == 1:
-                        player.inventory.add_item(misc_options["RUBY DUST"])
-                        print(f""" You found some RUBY DUST""")
-                    if self.number == 2:
-                        player.inventory.add_item(DurabilityGem())
-                        print(f""" You found a DURABILITY GEM""")
-                    if self.number == 3:
-                        player.inventory.add_item(StatMedallion())
-                        print(f""" You found a STAT MEDALLION""")
-                    if "INSPECT" in self.action_words:
-                        self.action_words.remove("INSPECT")
-                    self.type = "DESTROYED CRYSTAL PILE"
-                    self.description = "The shattered remains of what used to by a GLOWING CRYSTAL"
-                    self.stealth_mod-=1
-                else:
-                    print(f""" You couldn't break GLOWING CRYSTAL {self.number}.""")
-                self.action_words.remove("SHATTER")
-        elif action_word == "INSPECT" and "INSPECT" in self.action_words:
-                if player.investigation + random.randint(1,5) >= self.invest_requirement:
-                    self.invest_requirement = 0
-                    print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
-                    if player.current_health == player.max_health:
-                        print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
-                    else:
-                        player.recover_health(self.number*3)
-                        self.action_words.remove("INSPECT")
-                else:
-                    print(f""" The secrets of GLOWING CRYSTAL {self.number} elude you.""")
+            crystal_def = Combatant("GLOWING CRYSTAL", 1, 1, 0, self.number*3+2, Inventory(), self.number)
+            player.make_attack(crystal_def)
+            if crystal_def.current_health <= 0:
+                if self.number == 1:
+                    player.inventory.add_item(misc_options["RUBY DUST"])
+                    print(f""" You found some RUBY DUST""")
+                if self.number == 2:
+                    player.inventory.add_item(DurabilityGem())
+                    print(f""" You found a DURABILITY GEM""")
+                if self.number == 3:
+                    player.inventory.add_item(StatMedallion())
+                    print(f""" You found a STAT MEDALLION""")
+                if "INSPECT" in self.action_words:
                     self.action_words.remove("INSPECT")
-                
+                self.type = "DESTROYED CRYSTAL PILE"
+                self.description = "The shattered remains of what used to by a GLOWING CRYSTAL"
+                self.stealth_mod-=1
+            else:
+                print(f""" You couldn't break GLOWING CRYSTAL {self.number}.""")
+            self.action_words.remove("SHATTER")
+        elif action_word == "INSPECT" and "INSPECT" in self.action_words:
+            if player.investigation + random.randint(1,5) >= self.invest_requirement:
+                self.invest_requirement = 0
+                print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
+                if player.current_health == player.max_health:
+                    print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
+                else:
+                    player.recover_health(self.number*3)
+                    self.action_words.remove("INSPECT")
+            else:
+                print(f""" The secrets of GLOWING CRYSTAL {self.number} elude you.""")
+                self.action_words.remove("INSPECT")
+
 #---------------------------------------------------------
 
 class MagmaRiver(Interactable):
@@ -402,3 +402,96 @@ class Cauldron(Interactable):
                     print(" You don't have any ingredients to cook.")
             else:
                 print(" You need to light the fire if you're going to cook in the cauldron.")
+
+#---------------------------------------------------------
+
+class NPC(Interactable):
+
+    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, inventory, dollar_bills):
+        self.name = name
+        self.pronouns = pronouns
+        self.convo = convo
+        self.inventory = inventory
+        self.dollar_bills = dollar_bills
+        self.restock_requirement = 0
+        super().__init__(
+            type=name, 
+            number=number, 
+            action_words=action_words, 
+            description=descriptor, 
+            invest_requirement=invest_requirement, 
+            stealth_mod=-1
+            )
+        
+    def run_interaction(self, action_word, player, room):
+        if action_word == "TALK" and "TALK" in self.action_words:
+            if self.restock_requirement == -1: print(f""" {self.name}: {self.convo[2]} """)
+            else: print(f""" {self.name}: {self.convo[0]} """)
+        elif action_word == "ROB" and "ROB" in self.action_words:
+            if player.hiding_score >= self.invest_requirement:
+                self.invest_requirement = 0
+                print(f""" You successfully robbed {self.name} without {self.pronouns[1]} noticing!""")
+                new_items = []
+                for each_item in self.inventory:
+                    player.inventory.add_item(each_item)
+                    if each_item.name not in new_items:
+                        new_items.append(each_item.name)
+                for each_new_item_name in new_items:
+                    print(f""" You got {sum(1 for each_item in self.inventory if each_item.name == each_new_item_name)} {each_new_item_name}!""")
+                print(f""" You got {self.dollar_bills} dollar bills!""")
+                player.inventory.dollar_bills += math.ceil(self.dollar_bills)
+                self.inventory.clear()
+                self.dollar_bills = 0
+            else:
+                print(f""" {self.name}: {self.convo[1]}""")
+                print(f""" {self.name} caught you trying to rob {self.pronouns[1]}""")
+                print(f""" You still managed to swipe a {self.inventory[0].name}""")
+                player.inventory.add_item(self.inventory[0])
+                self.inventory.pop(0)
+                self.restock_requirement = -1
+            self.action_words.remove("ROB")
+        elif action_word == "BUY" and "BUY" in self.action_words:
+            if self.restock_requirement == -1: print(f""" {self.name}: {self.convo[2]} """)
+            elif len(self.inventory) <= 0: print(f""" {self.name}: {self.convo[5]}""")
+            else: 
+                products = []
+                for each_item in self.inventory:
+                    if each_item.name not in products: products.append(each_item.name)
+                for each_item in self.inventory:
+                    if each_item.name in products:
+                        products[products.index(each_item.name)] = each_item
+                selection_loop = True
+                while selection_loop == True:
+                    print(f"""\n {self.name}: {self.convo[3]} """)
+                    print(" PRODUCT | PRICE | STOCK")
+                    for each_product in products:
+                        print(f""" {math.ceil(each_product.value * 1.5)} {each_product.name} {sum(1 for each_item in self.inventory if each_item.name == each_product.name)}""")
+                    print(" NEVERMIND")
+                    selection = input(" - ").upper()
+                    if selection == "NEVERMIND":
+                        selection_loop = False
+                    for each_product in products:
+                        if selection == each_product.name:
+                            if player.inventory.dollar_bills >= math.ceil(each_product.value * 1.5):
+                                print(f""" {self.name}: {self.convo[4]}""")
+                                print(f""" You bought {self.name}'s {each_product.name}!""")
+                                player.inventory.add_item(each_product)
+                                player.inventory.dollar_bills -= math.ceil(each_product.value * 1.5)
+                                self.dollar_bills += math.ceil(each_product.value * 1.5)
+                                self.inventory.remove(each_product)
+                                selection_loop = False
+                            else: 
+                                print(" You don't have enough dollar bills though!")
+                    if selection_loop == True:
+                        print(f" Sorry, no can do. Buy something else?")
+        elif action_word == "SELL" and "SELL" in self.action_words:
+            if self.restock_requirement == -1: print(f""" {self.convo[2]} """)
+            elif len(player.inventory.misc + player.inventory.consumables) <= 0: print(f""" {self.name}: {self.convo[7]}""")
+            else:
+                print(f""" {self.name}: {self.convo[6]}""")
+
+
+
+
+#---------------------------------------------------------
+

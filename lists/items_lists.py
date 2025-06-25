@@ -4,8 +4,6 @@ from abc import ABC
 
 #---------------------------------------------
 
-#These all *should* be fine as dictionary elements. If problems with multiples arise, each might need to be it's own class.
-
 weapon_options = {
     "FIST" : Weapon(1, "WEAPON", "FIST", 1, 2, 1, 1, 0),
     "CLUB" : Weapon(2, "WEAPON", "CLUB", 1, 5, 1, 3, 1),
@@ -37,7 +35,7 @@ misc_options = {
     "NOT ENOUGH APPLES" : Item("MISC", "NOT ENOUGH APPLES", 0),
     "APPLES": Item("MISC", "APPLES", 3),
     "JAW BONE" : Item("MISC", "JAW BONE", 5),
-    "GLOWING FRUIT" : Item("MISC", "GLOWING FRUIT", 12),
+    "GLOWING FRUIT" : Item("MISC", "GLOWING FRUIT", 10),
     "SEA CREATURE MEAT" : Item("MISC", "SEA CREATURE MEAT", 12),
     "KEY" : Item("MISC", "KEY", 20),
     "RUBY DUST" : Item("MISC", "RUBY DUST", 20),
@@ -67,7 +65,7 @@ class HealthPotion(HealingItem):
         super().__init__(
             name="HEALTH POTION",
             description="A small vial with a red liquid; it smells of cherries. Using will heal between 5-7 health.",
-            value=14,
+            value=10,
             healing=random.randint(5,7)
         )
 
@@ -78,7 +76,7 @@ class GreaterHealthPotion(HealingItem):
         super().__init__(
             name="GREATER HEALTH POTION",
             description="A small vial with a pink liquid; it smells of fresh sourdough. Using will heal between 10-15 health.",
-            value=26,
+            value=20,
             healing=random.randint(10,15)
         )
 
@@ -115,7 +113,7 @@ class PowerBerry(Consumable):
         super().__init__(
             name="POWER BERRY",
             description="A massive berry the size of a fist; yet light, like eating a cloud. Using will give a bonus +3 to your next attack and the damage if that attack hits (does not stack).",
-            value=9
+            value=7
         )
 
     def effect(self, player_character):
@@ -130,7 +128,7 @@ class DurabilityGem(Consumable):
         super().__init__(
             name="DURABILITY GEM",
             description="A small, sharp, ceramic gemestone. Using will give a bonus +3 to your defense against the next attack against you (does not stack).",
-            value=13
+            value=10
         )
 
     def effect(self, player_character):
@@ -145,7 +143,7 @@ class SmokeBomb(Consumable):
         super().__init__(
             name = "SMOKE BOMB",
             description = "A round clump of a charcoal-like substance. Using will give a bonus +3 to your stealth until you leave the current room.",
-            value = 13
+            value = 11
         )
 
     def effect(self, player_character):
@@ -161,7 +159,7 @@ class MagicWand(Consumable):
         super().__init__(
             name="MAGIC WAND",
             description="A Stick made out of wood- no wait, metal? Clay? It's hard to tell but using will give a bonus +2 to your next attack, the damage if that attack hits, and your defense for the next attack against you (These do not stack with other items with similar effects).",
-            value=18
+            value=17
         )
 
     def effect(self, player_character):
