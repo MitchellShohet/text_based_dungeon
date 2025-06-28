@@ -3,7 +3,7 @@ from classes.dungeon.room import Room
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, Avatar, MagmaGoblin
 from lists.interactables_list import Pool, GlowingCrystal, Chest, MagmaRiver, Tree, Cauldron, NPC
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, PowerBerry, DurabilityGem, MagicWand, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import add_to_interactable, add_to_description, add_monsters, change_monster_spawning, sea_creature_defeated, tree_inspect_renew
+from lists.adjustments_list import add_to_interactable, add_to_description, add_monsters, change_monster_spawning, shop_restock, sea_creature_defeated, tree_inspect_renew
 
 room_list = [ 
     [
@@ -89,7 +89,11 @@ room_list = [
                             ["she", "her"], 
                             ["Hey there friend, let me know if you have any questions about my wares!", "Hey I saw that! Drop it and get out of my shop!", "I'm not doing business with someone who tried to rob me. Scram!", "What's catching your eye?", "Pleasure doing buisiness with you!", "Afraid I'm all out of stock friend! I'll get some new items soon!", "Ooh what do ya got?", "Mmm you don't really have anything to sell. Come back later, I'd love to see what you find!"], 
                             10, 
-                            [misc_options["GLOWING FRUIT"], misc_options["KEY"], misc_options["KEY"], HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem(), SmokeBomb(), SmokeBomb(), SmokeBomb(), SmokeBomb(), GreaterHealthPotion(), GreaterHealthPotion(), GreaterHealthPotion(), GreaterHealthPotion(), StatMedallion(), StatMedallion(), StatMedallion(), armor_options["CHAINMAIL"], weapon_options["LONGSWORD"]], 36)]),
+                            [misc_options["GLOWING FRUIT"], misc_options["KEY"], misc_options["KEY"], HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem(), SmokeBomb(), SmokeBomb(), SmokeBomb(), SmokeBomb(), GreaterHealthPotion(), GreaterHealthPotion(), GreaterHealthPotion(), GreaterHealthPotion(), StatMedallion(), StatMedallion(), StatMedallion(), armor_options["CHAINMAIL"], weapon_options["LONGSWORD"]], 
+                            36)],
+            adjustments=[[shop_restock], 
+                        [], 
+                        {"shop_restock" : [2, [misc_options["GLOWING FRUIT"], misc_options["KEY"], misc_options["KEY"], HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem(), SmokeBomb(), SmokeBomb(), SmokeBomb(), SmokeBomb(), GreaterHealthPotion(), GreaterHealthPotion(), GreaterHealthPotion(), GreaterHealthPotion(), StatMedallion(), StatMedallion(), StatMedallion(), armor_options["CHAINMAIL"], weapon_options["LONGSWORD"]]]}]),
         #Room("Goblin Swarm Room",
         #    "An open room with a huge stretch towards the exit, it smells of GOBLIN.",
         #    [Exit(0), Exit(1)],
@@ -98,13 +102,13 @@ room_list = [
         #                [], 
         #                {"add_monsters" : [1, 7, Goblin],
         #                "change_monster_spawning" : [2, MonsterSpawning(1, Goblin, 3, "TWICE")]}]),
-        #Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(1, Wizard, 2, "TWICE")), #CHANGE AFTER TESTING!
-        #Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "TWICE")),
-        #Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "TWICE")),
-        # Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "TWICE")),
-        # Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "TWICE")),
-        # Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "TWICE")),
-        # Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(1, Wizard, 2, "TWICE")), #CHANGE AFTER TESTING!
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 8, "TWICE")),
         # Room("Deadend", "Placeholder for a deadend", [Exit(0)], MonsterSpawning(5, Goblin, 8, Skeleton)),
         # Room("Deadend", "Placeholder for a deadend", [Exit(0)], MonsterSpawning(5, Goblin, 8, Skeleton)),
         # Room("Deadend", "Placeholder for a deadend", [Exit(0)], MonsterSpawning(5, Goblin, 8, Skeleton)),

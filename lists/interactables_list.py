@@ -425,7 +425,7 @@ class NPC(Interactable):
         
     def run_interaction(self, action_word, player, room):
         if action_word == "TALK" and "TALK" in self.action_words:
-            if self.restock_requirement == -1: print(f""" {self.name}: {self.convo[2]} """)
+            if self.restock_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
             else: print(f""" {self.name}: {self.convo[0]} """)
         elif action_word == "ROB" and "ROB" in self.action_words:
             if player.hiding_score >= self.invest_requirement:
@@ -448,10 +448,10 @@ class NPC(Interactable):
                 print(f""" You still managed to swipe a {self.inventory[0].name}""")
                 player.inventory.add_item(self.inventory[0])
                 self.inventory.pop(0)
-                self.restock_requirement = -1
+                self.restock_requirement = 100000
             self.action_words.remove("ROB")
         elif action_word == "BUY" and "BUY" in self.action_words:
-            if self.restock_requirement == -1: print(f""" {self.name}: {self.convo[2]} """)
+            if self.restock_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
             elif len(self.inventory) <= 0: print(f""" {self.name}: {self.convo[5]}""")
             else: 
                 products = []
@@ -467,13 +467,13 @@ class NPC(Interactable):
                     for each_product in products:
                         print(f""" {math.ceil(each_product.value * 1.5)} {each_product.name} {sum(1 for each_item in self.inventory if each_item.name == each_product.name)}""")
                     print(" NEVERMIND")
-                    selection = input(" - ").upper()
+                    selection = input("\n - ").upper()
                     if selection == "NEVERMIND":
                         selection_loop = False
                     for each_product in products:
                         if selection == each_product.name:
                             if player.inventory.dollar_bills >= math.ceil(each_product.value * 1.5):
-                                print(f""" {self.name}: {self.convo[4]}""")
+                                print(f"""\n {self.name}: {self.convo[4]}""")
                                 print(f""" You bought {self.name}'s {each_product.name}!""")
                                 player.inventory.add_item(each_product)
                                 player.inventory.dollar_bills -= math.ceil(each_product.value * 1.5)
@@ -485,7 +485,7 @@ class NPC(Interactable):
                     if selection_loop == True:
                         print(f" Sorry, no can do. Buy something else?")
         elif action_word == "SELL" and "SELL" in self.action_words:
-            if self.restock_requirement == -1: print(f""" {self.convo[2]} """)
+            if self.restock_requirement == 100000: print(f""" {self.convo[2]} """)
             elif len(player.inventory.misc + player.inventory.consumables) <= 0: print(f""" {self.name}: {self.convo[7]}""")
             else:
                 print(f""" {self.name}: {self.convo[6]}""")

@@ -11,7 +11,7 @@ class PlayerCharacter(Combatant):
         self.stat_points = 0 #baseline for normal mode is 8
         super().__init__(
             type="PLAYER", 
-            max_health=1000, #baseline for normal mode is 10
+            max_health=10000000, #baseline for normal mode is 10
             current_health=100, #baseline for normal mode is 10
             attack=5, #baseline for normal mode is 0
             defense=3, 
