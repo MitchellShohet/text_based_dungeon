@@ -27,18 +27,17 @@ def tree_inspect_renew(room, dungeon):
             if each_interactable.challenge >= 6 and each_interactable.gift_given == False and "INSPECT" not in each_interactable.action_words and "APOLOGIZE" not in each_interactable.action_words:
                 each_interactable.action_words.append("INSPECT")
 
-def shop_restock(room, dungeon):
+def shop_refresh(room, dungeon):
     dungeon_length = len(dungeon["1"]) + len(dungeon["2"]) + len(dungeon["3"])
     for each_interactable in room.interactables:
         if "BUY" in each_interactable.action_words:
-            if room.visits == 1:
-                print("yaya")
-                each_interactable.restock_requirement = dungeon_length
-            elif dungeon_length >= each_interactable.restock_requirement + room.adjustments[2]["shop_restock"][0]:
-                print("ohoh")
-                each_interactable.inventory = room.adjustments[2]["shop_restock"][1]
-                room.adjustments[2]["shop_restock"][0] += 1
-                each_interactable.restock_requirement = dungeon_length
+            if room.visits == 1: each_interactable.refresh_requirement = dungeon_length
+            elif dungeon_length >= each_interactable.refresh_requirement + room.adjustments[2]["shop_refresh"][0]:
+                each_interactable.inventory = room.adjustments[2]["shop_refresh"][1]
+                room.adjustments[2]["shop_refresh"][0] += 1
+                each_interactable.refresh_requirement = dungeon_length
+                each_interactable.convo[0] = room.adjustments[2]["shop_refresh"][2]
+            else: each_interactable.convo[0] = room.adjustments[2]["shop_refresh"][3]
 
 
 def check_for_heavy_armor(room, player):

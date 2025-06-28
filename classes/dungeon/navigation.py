@@ -25,9 +25,9 @@ class Navigation:
         self.current_room.view_monster_count()
     
     def determine_floor(self, exit_number):
-        if self.current_room.name == "Second Floor Tunnel" and exit_number == 1 or self.current_room.name == "Final Floor Tunnel" and exit_number == 1:
+        if self.current_room.name == "Second Floor Tunnel" and exit_number == 1 or self.current_room.name == "Final Floor Tunnel" and exit_number == 1: 
             self.floor+=1
-        elif self.current_room.name == "Second Floor Landing" and exit_number == 0 or self.current_room.name == "Final Floor Landing" and exit_number == 0:
+        elif self.current_room.name == "Second Floor Landing" and exit_number == 0 or self.current_room.name == "Final Floor Landing" and exit_number == 0: 
             self.floor-=1
     
     def determine_next_room(self, exit_number):
@@ -36,8 +36,7 @@ class Navigation:
             new_room = self.find_unexplored_room()
             self.current_room.set_exit_link(exit_number, new_room)
             self.rooms_visited[str(self.floor)].append(new_room)
-            if new_room.name != "Placeholder Rooms Maxed" : #**this can be removed post testing**
-                self.room_options[self.floor].remove(new_room)
+            if new_room.name != "Placeholder Rooms Maxed" : self.room_options[self.floor].remove(new_room) #**REMOVE AFTER TESTING**
             self.previous_room = self.current_room #before leaving the current room, establishes it as the previous room
             self.current_room = self.current_room.exits[exit_number].link #sets the current room to the new one attached to the link
             self.current_room.exits[0].link = self.previous_room
@@ -48,15 +47,12 @@ class Navigation:
     def test_link_issues(self):
         try: self.current_room.exits[0].link #catches cases where a player reenters a room with an exit that's been blocked.
         except: pass
-        else:
-            if self.current_room.exits[0].link == None: #catches cases where an exit is prelinked to another room, links the second room to the previous one
-                self.current_room.exits[0].link = self.previous_room
+        else: 
+            if self.current_room.exits[0].link == None: self.current_room.exits[0].link = self.previous_room #catches cases where an exit is prelinked to another room, links the second room to the previous one
 
     def find_unexplored_room(self):
-        try : #checks if every possible room has already been added to the dungeon
-            new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
-        except : #later on this should trigger finding the next floor/ the idol/ the exit
-            new_room = self.room_options[0][0]
+        try: new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)] #checks if every possible room has already been added to the dungeon
+        except: new_room = self.room_options[0][0] #later on this should trigger finding the next floor/ the idol/ the exit
         self.test_floor_elegibility(new_room)
         new_exits = self.check_for_new_exits(new_room)
         attempts = 1
@@ -74,8 +70,7 @@ class Navigation:
     def test_floor_elegibility(self, new_room): #alter numbers for game difficulty settings?
         while new_room.name == "Second Floor Tunnel" or new_room.name == "Final Floor Tunnel":
             try: self.rooms_visited[str(self.floor)][0].name #prevents dungeon from spawning next floor before a single room has been added to the current floor list
-            except: 
-                new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
+            except: new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
             if len(self.rooms_visited[str(self.floor)]) < 4: #prevents dungeon from spawning next floor before the player explores at least 4 rooms on the current one
                 new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
         if self.floor == 1 and len(self.rooms_visited["1"]) > 12 and self.room_options[1][len(self.room_options[1])-1].name == "Second Floor Tunnel": #prevents dungeon from taking too long to spawn the second floor tunnel
@@ -87,8 +82,7 @@ class Navigation:
     def check_for_new_exits(self, room):
         new_exits = 0
         for each_exit in room.exits:
-                if each_exit.number != 0:
-                    new_exits += 1
+                if each_exit.number != 0: new_exits += 1
         return new_exits
     
     def run_adjustments(self):
@@ -106,44 +100,32 @@ class Navigation:
             self.current_room.monsters.append(Avatar())
     
     def determine_idol_taken(self):
-        if self.current_room.name == "Idol Taken":
-            self.has_idol = True
+        if self.current_room.name == "Idol Taken": self.has_idol = True
     
     def test_backward(self): #returns the exit that is backward from the player's perspective
         for each_exit in self.current_room.exits:
             try: each_exit.link
             except: continue
-            if each_exit.link == self.previous_room:
-                return each_exit.number
+            if each_exit.link == self.previous_room: return each_exit.number
         return self.current_room.interactables[0].exit_hold.number #in the rare case that an exit behind the player is removed, this holds that exit information.
     
     def test_forward(self): #returns the exit that is forward from the player's perspective
         backward = self.test_backward()
-        if backward % 2 == 0:
-            return backward + 1
-        else:
-            return backward - 1
+        if backward % 2 == 0: return backward + 1
+        else: return backward - 1
     
     def test_left(self): #returns the exit that is left from the player's perspective
         backward = self.test_backward()
-        if backward == 0:
-            return 2
-        if backward == 1:
-            return 3
-        if backward == 2:
-            return 1
-        if backward == 3:
-            return 0
+        if backward == 0: return 2
+        if backward == 1: return 3
+        if backward == 2: return 1
+        if backward == 3: return 0
         
     def test_right(self): #returns the exit that is right from the player's perspective
         backward = self.test_backward()
-        if backward == 0:
-            return 3
-        if backward == 1:
-            return 2
-        if backward == 2:
-            return 0
-        if backward == 3:
-            return 1
+        if backward == 0: return 3
+        if backward == 1: return 2
+        if backward == 2: return 0
+        if backward == 3: return 1
         
 

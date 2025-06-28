@@ -9,18 +9,13 @@ class Inventory:
         self.has_equipables = False
 
     def add_item(self, item):
-        if item.type == "WEAPON" or item.type == "ARMOR" or item.name == "SHIELD":
-            self.has_equipables = True
-        if item.type == "CONSUMABLE":
-            self.consumables.append(item)
-        else:
-            self.misc.append(item)
+        if item.type == "WEAPON" or item.type == "ARMOR" or item.name == "SHIELD": self.has_equipables = True
+        if item.type == "CONSUMABLE": self.consumables.append(item)
+        else: self.misc.append(item)
     
     def remove_item(self, item):
-        if item.type == "CONSUMABLE":
-            self.consumables.remove(item)
-        else:
-            self.misc.remove(item)
+        if item.type == "CONSUMABLE": self.consumables.remove(item)
+        else: self.misc.remove(item)
         if item.type == "WEAPON" or item.type == "ARMOR":
             self.has_equipables = False
             for each_item in self.misc:

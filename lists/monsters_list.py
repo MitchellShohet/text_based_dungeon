@@ -6,10 +6,8 @@ from lists.items_lists import weapon_options, armor_options, misc_options, Healt
 class Goblin(Monster):
     def __init__(self, type="GOBLIN", descriptor=""):
         self.difficulty = random.randint(3,5)
-        if self.difficulty == 3:
-            self.attack = 0
-        else:
-            self.attack = 1 
+        if self.difficulty == 3: self.attack = 0
+        else: self.attack = 1 
         super().__init__(
             type=type, 
             max_health=self.difficulty,
@@ -52,10 +50,8 @@ class Skeleton(Monster):
 class Wizard(Monster):
     def __init__(self):
         self.difficulty = random.randint(5,6)
-        if self.difficulty == 5:
-            self.attack = 2
-        else:
-            self.attack = 3 
+        if self.difficulty == 5: self.attack = 2
+        else: self.attack = 3 
         super().__init__(
             type="WIZARD", 
             max_health=self.difficulty-1,

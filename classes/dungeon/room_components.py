@@ -40,7 +40,5 @@ class Interactable(ABC):
         print(f"""\n {self.description}""")
         if len(self.action_words) > 0:
             print(" You could try to ")
-            for each_action_word in self.action_words:
-                print(f""" {each_action_word}""")
-        else:
-            print(" There's not much to do.")
+            for each_action_word in self.action_words: print(f""" {each_action_word}""")
+        else: print(" There's not much to do.")

@@ -27,46 +27,56 @@ class Pool(Interactable):
     def run_interaction(self, action_word, player, room):
         if action_word == "SWIM" and "SWIM" in self.action_words:
             if "INSPECT SHADOW" in self.action_words and self.event_num == 1:
-                print(" You feel something wrap around your leg and pull you under the water!")
-                room.spawn_monster(SeaCreature)
-                for each_monster in room.monsters: 
-                    if each_monster.type == "SEA CREATURE":
-                        each_monster.is_aware = True
-                self.action_words.clear()
-                self.exit_hold = room.exits
-                room.exits = None
-                player.hiding = True
-                if player.inventory.armor.rating == 3 or player.inventory.armor.rating == 4:
-                    room.adjustments[1].append(check_for_heavy_armor)
+                self.run_sea_creature(player, room)
             elif player.inventory.armor.rating == 3 or player.inventory.armor.rating == 4:
-                print(f""" Your {player.inventory.armor.name} is too heavy to swim in!""")
-                player.take_damage(2, True)
-                print(" You make it back to solid ground. Swimming in heavy armor could lead to drowning.")
+                self.run_heavy_swim(player)
             elif "INSPECT SHADOW" in self.action_words and self.event_num == 2:
-                self.action_words.remove("INSPECT SHADOW")
-                print(" You found a chest!")
-                room.description = "A room with a small pond."
-                room.interactables.append(Chest(2, ["BREAK THE LOCK", "USE A KEY"]," with a rusted lock.", contents=[HealthPotion(), DurabilityGem(), 15]))
+                self.run_find_chest(room)
             elif self.healing_available == True:
-                if player.current_health == player.max_health:
-                    print(" Your health is currently full. Come back later to regain some in the POOL.")
+                if player.current_health == player.max_health: print(" Your health is currently full. Come back later to regain some in the POOL.")
                 else:
                     print(" You took a quick dip in the refreshing water!")
                     player.recover_health(4)
                     self.healing_available == False
-            else:
-                print("You took another swim in the water! You're gonna get pruny if you keep this up!")
+            else: print("You took another swim in the water! You're gonna get pruny if you keep this up!")
         elif action_word == "THROW ROCKS" and "THROW ROCKS" in self.action_words:
             print(f""" You throw some rocks into the water, it makes a lot of noise. \n You skip one rock {random.randint(1,6)} times!""")
             room.spawn_monster()
         elif action_word == "INSPECT SHADOW" and "INSPECT SHADOW" in self.action_words:
             print(" You can't inspect the SHADOW from outside the pool.")
 
+    def run_sea_creature(self, player, room):
+        print(" You feel something wrap around your leg and pull you under the water!")
+        room.spawn_monster(SeaCreature)
+        for each_monster in room.monsters: 
+            if each_monster.type == "SEA CREATURE": each_monster.is_aware = True
+        self.action_words.clear()
+        self.exit_hold = room.exits
+        room.exits = None
+        player.hiding = True
+        if player.inventory.armor.rating == 3 or player.inventory.armor.rating == 4: room.adjustments[1].append(check_for_heavy_armor)
+
+    def run_heavy_swim(self, player):
+        print(f""" Your {player.inventory.armor.name} is too heavy to swim in!""")
+        player.take_damage(2, True)
+        print(" You make it back to solid ground. Swimming in heavy armor could lead to drowning.")
+    
+    def run_find_chest(self, room):
+        self.action_words.remove("INSPECT SHADOW")
+        print(" You found a chest!")
+        room.description = "A room with a small pond."
+        room.interactables.append(Chest(2, ["BREAK THE LOCK", "USE A KEY"]," with a rusted lock.", contents=[HealthPotion(), DurabilityGem(), 15]))
+
+
+
 #---------------------------------------------------------
 
 class GlowingCrystal(Interactable):
 
     def __init__(self, number, action_words, descriptor):
+        if self.number == 1: self.contents = misc_options["RUBY DUST"]
+        elif self.number == 2: self.contents = DurabilityGem()            
+        elif self.number == 3: self.contents = StatMedallion()
         super().__init__(
             type="GLOWING CRYSTAL", 
             number=number, 
@@ -78,42 +88,38 @@ class GlowingCrystal(Interactable):
         
     def run_interaction(self, action_word, player, room):
         if action_word == "SHATTER" and "SHATTER" in self.action_words:
-            crystal_def = Combatant("GLOWING CRYSTAL", 1, 1, 0, self.number*3+2, Inventory(), self.number)
-            player.make_attack(crystal_def)
-            if crystal_def.current_health <= 0:
-                if self.number == 1:
-                    player.inventory.add_item(misc_options["RUBY DUST"])
-                    print(f""" You found some RUBY DUST""")
-                if self.number == 2:
-                    player.inventory.add_item(DurabilityGem())
-                    print(f""" You found a DURABILITY GEM""")
-                if self.number == 3:
-                    player.inventory.add_item(StatMedallion())
-                    print(f""" You found a STAT MEDALLION""")
-                if "INSPECT" in self.action_words:
-                    self.action_words.remove("INSPECT")
-                self.type = "DESTROYED CRYSTAL PILE"
-                self.description = "The shattered remains of what used to by a GLOWING CRYSTAL"
-                self.stealth_mod-=1
-            else:
-                print(f""" You couldn't break GLOWING CRYSTAL {self.number}.""")
-            self.action_words.remove("SHATTER")
+            self.run_shatter(player)
         elif action_word == "INSPECT" and "INSPECT" in self.action_words:
-            if player.investigation + random.randint(1,5) >= self.invest_requirement:
-                self.invest_requirement = 0
-                print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
-                if player.current_health == player.max_health:
-                    print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
-                else:
-                    player.recover_health(self.number*3)
-                    self.action_words.remove("INSPECT")
+            self.run_inspect(player)
+    
+    def run_shatter(self, player):
+        crystal_def = Combatant("GLOWING CRYSTAL", 1, 1, 0, self.number*3+2, Inventory(), self.number)
+        player.make_attack(crystal_def)
+        if crystal_def.current_health <= 0:
+            player.inventory.add_item(self.contents)
+            print(f""" You found 1 {self.contents.name}""")
+            if "INSPECT" in self.action_words: self.action_words.remove("INSPECT")
+            self.type = "DESTROYED CRYSTAL PILE"
+            self.description = "The shattered remains of what used to by a GLOWING CRYSTAL"
+            self.stealth_mod-=1
+        else: print(f""" You couldn't break GLOWING CRYSTAL {self.number}.""")
+        self.action_words.remove("SHATTER")
+
+    def run_inspect(self, player):
+        if player.investigation + random.randint(1,5) >= self.invest_requirement:
+            self.invest_requirement = 0
+            print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
+            if player.current_health == player.max_health: print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
             else:
-                print(f""" The secrets of GLOWING CRYSTAL {self.number} elude you.""")
+                player.recover_health(self.number*3)
                 self.action_words.remove("INSPECT")
+        else:
+            print(f""" The secrets of GLOWING CRYSTAL {self.number} elude you.""")
+            self.action_words.remove("INSPECT")
 
 #---------------------------------------------------------
 
-class MagmaRiver(Interactable):
+class MagmaRiver(Interactable): #make a parent class for Crossing(Interactable)
 
     def __init__(self, number, action_words, descriptor):
         self.exit_hold = Exit(1, Room("Magma River Passage", 
@@ -130,14 +136,13 @@ class MagmaRiver(Interactable):
             stealth_mod=0
             )
 
-    def run_interaction(self, action_word, player, room):
+    def run_interaction(self, action_word, player, room): 
         if action_word == "JUMP" and "JUMP" in self.action_words:
             jump_score = random.randint(1,8)
             if jump_score == 1:
                 print(" The ash in the room choking you, you attempt to leap across the MAGMA RIVER and land less than halfway across.")
                 player.take_damage(random.randint(7,11), True)
-                if player.current_health > 0:
-                    print(" You make it back onto land. You weren't able to cross, but you did survive jumping into lava.")
+                if player.current_health > 0: print(" You make it back onto land. You weren't able to cross, but you did survive jumping into lava.")
             elif jump_score > 1 and jump_score < 7:
                 print(" With a running start you successfully leap most of the way accross MAGMA RIVER! You land just short of the opposite bank.")
                 player.take_damage(random.randint(2,4), True)
@@ -157,8 +162,7 @@ class MagmaRiver(Interactable):
             elif misc_options["WOOD"] in player.inventory.misc:
                 wood_count = 0
                 for each_item in player.inventory.misc:
-                    if each_item.name == "WOOD":
-                        wood_count += 1
+                    if each_item.name == "WOOD": wood_count += 1
                 if wood_count >= 3:
                     print(" You built a WOOD BRIDGE across the MAGMA RIVER!")
                     self.action_words.append("CROSS THE BRIDGE")
@@ -166,8 +170,7 @@ class MagmaRiver(Interactable):
                     self.action_words.remove("BUILD BRIDGE")
                     for x in range(3):
                         player.inventory.misc.remove(misc_options["WOOD"])
-            else:
-                print(" You don't have the materials to build a bridge.")
+            else: print(" You don't have the materials to build a bridge.")
         elif action_word == "CROSS THE BRIDGE" and "CROSS THE BRIDGE" in self.action_words:
             print(" You crossed the WOOD BRIDGE you built. As you reach the far side the bridge catches fire and incinerates. The opposite side is blocked by the MAGMA RIVER again.")
             self.action_words.append("BUILD BRIDGE")
@@ -196,7 +199,7 @@ class MagmaRiver(Interactable):
 
 #---------------------------------------------------------
 
-class Chest(Interactable):
+class Chest(Interactable): #make a parent class for Lockable(Interactable)
 
     def __init__(self, number, action_words, descriptor, challenge=0, contents=[10]):
         self.challenge = challenge
@@ -212,49 +215,55 @@ class Chest(Interactable):
 
     def run_interaction(self, action_word, player, room):
         if action_word == "OPEN" and "OPEN" in self.action_words:
-            if self.challenge > 0:
-                selection_loop = True
-                while selection_loop == True:
-                    print(" The CHEST is locked. How would you like to open it?")
-                    for each_option in self.action_words:
-                        print(f"""{each_option}""")
-                    print("NEVERMIND")
-                    selection = input("- ").upper()
-                    if selection == "NEVERMIND":
-                        selection_loop = False
-                    for each_option in self.action_words:
-                        if selection == each_option:
-                            self.run_interaction(selection, player, room)
-                            selection_loop = False
-                    if selection_loop == True:
-                        print(" That's not an option here.")
-            else:
-                print(" You opened the CHEST!")
-                reward_num = random.randint(1, len(self.contents))-1
-                try:
-                    self.contents[reward_num].type
-                    player.inventory.add_item(self.contents[reward_num])
-                    print(f""" You found a {self.contents[reward_num].name}!""")
-                except: 
-                    player.inventory.dollar_bills += self.contents[reward_num]
-                    print(f""" You found {self.contents[reward_num]} dollar bills!""")
-                self.action_words.remove("OPEN")
+            if self.challenge > 0: self.select_unlock_method(player, room)
+            else: self.open(player)
         elif action_word == "BREAK THE LOCK" and "BREAK THE LOCK" in self.action_words:
-            chest_def = Combatant("THE LOCK", 1, 1, 0, self.challenge, Inventory())
-            player.make_attack(chest_def)
-            if chest_def.current_health <= 0:
-                self.unlock_success(player, room)
-            else:
-                print(" You jammed the lock into the closed position. You can try again but it'll be even more difficult now.")
-                self.challenge*=2
-                self.description += " It's lock has been jammed closed."
+            self.attempt_to_break(player, room)
         elif action_word == "USE A KEY" and "USE A KEY" in self.action_words:
-            if misc_options["KEY"] in player.inventory.misc:
-                player.inventory.misc.remove(misc_options["KEY"])
-                print(" You used your key to open the lock. The key then dissintegrates, it's task in this world complete.")
-                self.unlock_success(player, room)
-            else:
-                print(" You don't have a key to use.")
+            self.use_key(player, room)
+    
+    def open(self, player):
+        print(" You opened the CHEST!")
+        reward_num = random.randint(1, len(self.contents))-1
+        try:
+            self.contents[reward_num].type
+            player.inventory.add_item(self.contents[reward_num])
+            print(f""" You found a {self.contents[reward_num].name}!""")
+        except: 
+            player.inventory.dollar_bills += self.contents[reward_num]
+            print(f""" You found {self.contents[reward_num]} dollar bills!""")
+        self.action_words.remove("OPEN")
+
+    def select_unlock_method(self, player, room):
+        selection_loop = True
+        while selection_loop == True:
+            print(" The CHEST is locked. How would you like to open it?")
+            for each_option in self.action_words:
+                print(f"""{each_option}""")
+            print("NEVERMIND")
+            selection = input("- ").upper()
+            if selection == "NEVERMIND": selection_loop = False
+            for each_option in self.action_words:
+                if selection == each_option:
+                    self.run_interaction(selection, player, room)
+                    selection_loop = False
+            if selection_loop == True: print(" That's not an option here.")
+
+    def attempt_to_break(self, player, room):
+        chest_def = Combatant("THE LOCK", 1, 1, 0, self.challenge, Inventory())
+        player.make_attack(chest_def)
+        if chest_def.current_health <= 0: self.unlock_success(player, room)
+        else:
+            print(" You jammed the lock into the closed position. You can try again but it'll be even more difficult now.")
+            self.challenge*=2
+            self.description += " It's lock has been jammed closed."
+    
+    def use_key(self, player, room):
+        if misc_options["KEY"] in player.inventory.misc:
+            player.inventory.misc.remove(misc_options["KEY"])
+            print(" You used your key to open the lock. The key then dissintegrates, it's task in this world complete.")
+            self.unlock_success(player, room)
+        else: print(" You don't have a key to use.")
 
     def unlock_success(self, player, room):
         self.challenge = 0
@@ -265,7 +274,7 @@ class Chest(Interactable):
 
 #---------------------------------------------------------
 
-class Tree(Interactable):
+class Tree(Interactable): #make a child class for MagicTree(Tree)
 
     def __init__(self, number, action_words, descriptor, stealth_mod=1, challenge=0):
         self.challenge = challenge
@@ -299,13 +308,11 @@ class Tree(Interactable):
                 player.inventory.add_item(misc_options["WOOD"])
                 self.type = "CHOPPED TREE"
                 for each_interactable in room.interactables:
-                    if each_interactable.type == "CHOPPED TREE":
-                        room.interactables.remove(each_interactable)
+                    if each_interactable.type == "CHOPPED TREE": room.interactables.remove(each_interactable)
             elif self.challenge >= 6:
                 print(" The GLOWING TREE hardened itself with magic. You can no longer CHOP or INSPECT it.")
                 self.action_words.remove("CHOP")
-                if "INSPECT" in self.action_words:
-                    self.action_words.remove("INSPECT")
+                if "INSPECT" in self.action_words: self.action_words.remove("INSPECT")
                 self.action_words.append("APOLOGIZE")
         elif action_word == "INSPECT" and "INSPECT" in self.action_words:
             if player.investigation + random.randint(1,5) >= self.invest_requirement:
@@ -330,11 +337,9 @@ class Tree(Interactable):
                 self.gift_given = True
                 print(f""" A {monster.type} has come to test you.""")
                 room.monsters.append(monster)
-            else:
-                print(f""" The secrets of the GLOWING TREE elude you. It will allow you to try again later.""") #add the adjustment function for this upon returning
+            else: print(f""" The secrets of the GLOWING TREE elude you. It will allow you to try again later.""") #add the adjustment function for this upon returning
             self.action_words.remove("INSPECT")
-        elif action_word == "APOLOGIZE" and "APOLOGIZE" in self.action_words:
-            print(" The GLOWING TREE does not accept your apology.")
+        elif action_word == "APOLOGIZE" and "APOLOGIZE" in self.action_words: print(" The GLOWING TREE does not accept your apology.")
 
 #---------------------------------------------------------
 
@@ -352,60 +357,66 @@ class Cauldron(Interactable):
             )
         
     def run_interaction(self, action_word, player, room):
+
         if action_word == "RELIGHT FIRE" and "RELIGHT FIRE" in self.action_words:
-            if misc_options["WOOD"] in player.inventory.misc:
-                print(" You used some WOOD to relight the fire under the CAULDRON!")
-                player.inventory.misc.remove(misc_options["WOOD"])
-                self.fire_lit = True
-                self.action_words.remove("RELIGHT FIRE")
-            else:
-                print(" You don't have any WOOD to light a new fire.")
+            self.relight(player)
         if action_word == "COOK" and "COOK" in self.action_words:
-            if self.fire_lit == True:
-                ingredient_options = []
-                if misc_options["SEA CREATURE MEAT"] in player.inventory.misc:
-                    ingredient_options.append(misc_options["SEA CREATURE MEAT"])
-                if misc_options["GLOWING FRUIT"] in player.inventory.misc:
-                    ingredient_options.append(misc_options["GLOWING FRUIT"])
-                if player.inventory.misc.count(misc_options["APPLES"]) >= 4:
-                    ingredient_options.append(misc_options["APPLES"])
-                elif misc_options["APPLES"] in player.inventory.misc:
-                    ingredient_options.append(misc_options["NOT ENOUGH APPLES"])
-                if len(ingredient_options) > 0:
-                    ingredient = None
-                    selection_loop = True
-                    while selection_loop == True:
-                        print(" What would you like to cook with?")
-                        for each_option in ingredient_options:
-                            print(f""" {each_option.name}""")
-                        print(" NEVERMIND")
-                        selection = input("\n - ").upper()
-                        if selection == "NEVERMIND":
-                            selection_loop = False
-                        for each_option in ingredient_options:
-                            if each_option.name == selection:
-                                ingredient = each_option
-                                selection_loop = False
-                        if selection_loop == True:
-                            print(f"""\n {selection} is not an option.""")
-                    if ingredient is not None:
-                        if ingredient.name == "NOT ENOUGH APPLES":
-                            print(" You can't cook with apples when you don't have enough.")
-                        else:
-                            print(f""" Good thing you always carry some spare flour! You cooked some of the {ingredient.name} into a PIE!""")
-                            player.inventory.misc.remove(ingredient)
-                            player.inventory.add_item(Pie())
-                            if ingredient == misc_options["APPLES"]:
-                                for x in range(0, 3):
-                                    player.inventory.misc.remove(ingredient)
-                else:
-                    print(" You don't have any ingredients to cook.")
+            ingredient_options = self.determin_elegibility(player)
+            if len(ingredient_options) > 0: 
+                ingredient = self.select_ingredient(ingredient_options)
+                self.cook(player, ingredient)
+                
+
+    def relight(self, player):
+        if misc_options["WOOD"] in player.inventory.misc:
+            print(" You used some WOOD to relight the fire under the CAULDRON!")
+            player.inventory.misc.remove(misc_options["WOOD"])
+            self.fire_lit = True
+            self.action_words.remove("RELIGHT FIRE")
+        else: print(" You don't have any WOOD to light a new fire.")
+
+    def determin_elegibility(self, player):
+        ingredient_options = []
+        if self.fire_lit == True:
+                if misc_options["SEA CREATURE MEAT"] in player.inventory.misc: ingredient_options.append(misc_options["SEA CREATURE MEAT"])
+                if misc_options["GLOWING FRUIT"] in player.inventory.misc: ingredient_options.append(misc_options["GLOWING FRUIT"])
+                if player.inventory.misc.count(misc_options["APPLES"]) >= 4: ingredient_options.append(misc_options["APPLES"])
+                elif misc_options["APPLES"] in player.inventory.misc: ingredient_options.append(misc_options["NOT ENOUGH APPLES"])
+                if len(ingredient_options) == 0: print(" You don't have any ingredients to cook.")
+        else: print(" You need to light the fire if you're going to cook in the cauldron.")
+        return ingredient_options
+
+    def select_ingredient(self, ingredient_options):
+        ingredient = None
+        selection_loop = True
+        while selection_loop == True:
+            print(" What would you like to cook with?")
+            for each_option in ingredient_options:
+                print(f""" {each_option.name}""")
+            print(" NEVERMIND")
+            selection = input("\n - ").upper()
+            if selection == "NEVERMIND": selection_loop = False
+            for each_option in ingredient_options:
+                if each_option.name == selection:
+                    ingredient = each_option
+                    selection_loop = False
+            if selection_loop == True: print(f"""\n {selection} is not an option.""")
+        return ingredient
+    
+    def cook(self, player, ingredient):
+        if ingredient is not None:
+            if ingredient.name == "NOT ENOUGH APPLES": print(" You can't cook with apples when you don't have enough.")
             else:
-                print(" You need to light the fire if you're going to cook in the cauldron.")
+                print(f""" Good thing you always carry some spare flour! You cooked some of the {ingredient.name} into a PIE!""")
+                player.inventory.misc.remove(ingredient)
+                player.inventory.add_item(Pie())
+                if ingredient == misc_options["APPLES"]:
+                    for x in range(0, 3):
+                        player.inventory.misc.remove(ingredient)
 
 #---------------------------------------------------------
 
-class NPC(Interactable):
+class NPC(Interactable): #make this a parent class and add separate ShopOwner(NPC) class
 
     def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, inventory, dollar_bills):
         self.name = name
@@ -413,7 +424,7 @@ class NPC(Interactable):
         self.convo = convo
         self.inventory = inventory
         self.dollar_bills = dollar_bills
-        self.restock_requirement = 0
+        self.refresh_requirement = 0
         super().__init__(
             type=name, 
             number=number, 
@@ -425,7 +436,7 @@ class NPC(Interactable):
         
     def run_interaction(self, action_word, player, room):
         if action_word == "TALK" and "TALK" in self.action_words:
-            if self.restock_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
+            if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
             else: print(f""" {self.name}: {self.convo[0]} """)
         elif action_word == "ROB" and "ROB" in self.action_words:
             if player.hiding_score >= self.invest_requirement:
@@ -448,28 +459,28 @@ class NPC(Interactable):
                 print(f""" You still managed to swipe a {self.inventory[0].name}""")
                 player.inventory.add_item(self.inventory[0])
                 self.inventory.pop(0)
-                self.restock_requirement = 100000
+                self.refresh_requirement = 100000
             self.action_words.remove("ROB")
         elif action_word == "BUY" and "BUY" in self.action_words:
-            if self.restock_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
+            if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
             elif len(self.inventory) <= 0: print(f""" {self.name}: {self.convo[5]}""")
             else: 
                 products = []
                 for each_item in self.inventory:
                     if each_item.name not in products: products.append(each_item.name)
                 for each_item in self.inventory:
-                    if each_item.name in products:
-                        products[products.index(each_item.name)] = each_item
+                    if each_item.name in products: products[products.index(each_item.name)] = each_item
                 selection_loop = True
                 while selection_loop == True:
                     print(f"""\n {self.name}: {self.convo[3]} """)
-                    print(" PRODUCT | PRICE | STOCK")
+                    print(" PRICE | PRODUCT | STOCK")
                     for each_product in products:
-                        print(f""" {math.ceil(each_product.value * 1.5)} {each_product.name} {sum(1 for each_item in self.inventory if each_item.name == each_product.name)}""")
+                        if math.ceil(each_product.value * 1.5) <= 9:
+                            print(f""" {math.ceil(each_product.value * 1.5)}  | {each_product.name} x{sum(1 for each_item in self.inventory if each_item.name == each_product.name)}""")
+                        else: print(f""" {math.ceil(each_product.value * 1.5)} | {each_product.name} x{sum(1 for each_item in self.inventory if each_item.name == each_product.name)}""")
                     print(" NEVERMIND")
                     selection = input("\n - ").upper()
-                    if selection == "NEVERMIND":
-                        selection_loop = False
+                    if selection == "NEVERMIND": selection_loop = False
                     for each_product in products:
                         if selection == each_product.name:
                             if player.inventory.dollar_bills >= math.ceil(each_product.value * 1.5):
@@ -480,18 +491,62 @@ class NPC(Interactable):
                                 self.dollar_bills += math.ceil(each_product.value * 1.5)
                                 self.inventory.remove(each_product)
                                 selection_loop = False
-                            else: 
-                                print(" You don't have enough dollar bills though!")
-                    if selection_loop == True:
-                        print(f" Sorry, no can do. Buy something else?")
+                            else: print(" You don't have enough dollar bills though!")
+                    if selection_loop == True: print(f" Sorry, no can do. Buy something else?")
         elif action_word == "SELL" and "SELL" in self.action_words:
-            if self.restock_requirement == 100000: print(f""" {self.convo[2]} """)
+            if self.refresh_requirement == 100000: print(f""" {self.convo[2]} """)
             elif len(player.inventory.misc + player.inventory.consumables) <= 0: print(f""" {self.name}: {self.convo[7]}""")
             else:
-                print(f""" {self.name}: {self.convo[6]}""")
-
-
-
+                all_options = []
+                for each_misc in player.inventory.misc:
+                    if each_misc.name not in all_options: all_options.append(each_misc.name)
+                for each_misc in player.inventory.misc:
+                    if each_misc.name in all_options: all_options[all_options.index(each_misc.name)] = each_misc
+                for each_consumable in player.inventory.consumables:
+                    if each_consumable.name not in all_options: all_options.append(each_consumable.name)
+                for each_consumable in player.inventory.consumables:
+                    if each_consumable.name in all_options: all_options[all_options.index(each_consumable.name)] = each_consumable
+                selection_loop = True
+                while selection_loop == True:
+                    print(f""" {self.name}: {self.convo[6]}""")
+                    print(" OFFER | PRODUCT | NUMBER IN INVENTORY")
+                    for each_product in all_options:
+                        if math.ceil(each_product.value * .75) <= 9:
+                            print(f""" {math.ceil(each_product.value * .75)}  | {each_product.name} x{sum(1 for each_item in player.inventory.misc if each_item.name == each_product.name) + sum(1 for each_item in player.inventory.consumables if each_item.name == each_product.name)}""")
+                        else: print(f""" {math.ceil(each_product.value * .75)} | {each_product.name} x{sum(1 for each_item in player.inventory.misc if each_item.name == each_product.name) + sum(1 for each_item in player.inventory.consumables if each_item.name == each_product.name)}""")
+                    print(" NEVERMIND")
+                    selection = input("\n - ").upper()
+                    if selection == "NEVERMIND": selection_loop = False
+                    for each_product in all_options:
+                        if selection == each_product.name:
+                            quantity = 1
+                            if sum(1 for each_item in player.inventory.misc if each_item.name == each_product.name) + sum(1 for each_item in player.inventory.consumables if each_item.name == each_product.name) > 1:
+                                quantity_loop = True
+                                while quantity_loop == True:
+                                    print(f""" You have {sum(1 for each_item in player.inventory.misc if each_item.name == each_product.name) + sum(1 for each_item in player.inventory.consumables if each_item.name == each_product.name)} {selection}. How many would you like to sell?""")
+                                    quantity = (input(" - "))
+                                    try: int(quantity)
+                                    except: print(" Please input a number.")
+                                    else: 
+                                        quantity = int(quantity)
+                                        if quantity > sum(1 for each_item in player.inventory.misc if each_item.name == each_product.name) + sum(1 for each_item in player.inventory.consumables if each_item.name == each_product.name): print(f""" You don't have that many {selection}.""")
+                                        elif quantity < 0: print(" You cannot sell a negative amount.")
+                                        elif quantity == 0: 
+                                            print(" Cancel your sale?")
+                                            command = input(" - ").upper()
+                                            if command == "YES" or command == "YEAH" or command == "YEP" or command == "Y": quantity_loop = False
+                                        else: quantity_loop = False
+                            if quantity > 0: 
+                                print(f""" {self.name}: {self.convo[4]}""")
+                                print(f""" You sold {quantity} {each_product.name} to {self.name} for {math.ceil(each_product.value * .75) * quantity} dollar bills!""")
+                                for x in range(0, quantity):
+                                    self.inventory.append(each_product)
+                                    if self.dollar_bills >= math.ceil(each_product.value * .75) + 30: self.dollar_bills -= math.ceil(each_product.value * .75)
+                                    player.inventory.dollar_bills += math.ceil(each_product.value * .75)
+                                    player.inventory.remove_item(each_product)
+                            else: print(f""" {self.name} looks dissapointed but understands.""")
+                            selection_loop = False
+                    if selection_loop == True: print(f""" You don't have any {selection} to sell.""")
 
 #---------------------------------------------------------
 

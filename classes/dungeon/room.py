@@ -32,39 +32,29 @@ class Room:
                 elif monster_chance >= self.monster_spawning.threshold1:
                     print(f""" A new {self.monster_spawning.monster1().type} has appeared!""")
                     new_monster = self.monster_spawning.monster1()
-        else:
-            new_monster = monster_given()
+        else: new_monster = monster_given()
         if new_monster is not None:
             new_monster.number = sum(1 for each_monster in self.monsters if each_monster.type == new_monster.type) + 1
             self.monsters.append(new_monster)
 
     def view_monster_count(self, player_request=False):
-        if len(self.monsters) == 0 and player_request == True:
-            print(" No monsters are here.")
+        if len(self.monsters) == 0 and player_request == True: print(" No monsters are here.")
         else: 
             monster_list = []
             for each_monster in self.monsters:
-                if each_monster.type not in monster_list:
-                    monster_list.append(each_monster.type)
+                if each_monster.type not in monster_list: monster_list.append(each_monster.type)
             for each_monster_type in monster_list:
-                if sum(1 for each_monster in self.monsters if each_monster.type == each_monster_type) == 1:
-                    print(f""" A {each_monster_type} is here.""")
-                else:
-                    print(f""" {sum(1 for each_monster in self.monsters if each_monster.type == each_monster_type)} {each_monster_type}s are here.""")
+                if sum(1 for each_monster in self.monsters if each_monster.type == each_monster_type) == 1: print(f""" A {each_monster_type} is here.""")
+                else: print(f""" {sum(1 for each_monster in self.monsters if each_monster.type == each_monster_type)} {each_monster_type}s are here.""")
     
     def room_interaction(self, player_action, player, room): #consider moving this to server.py and merging with select_sequence() for DRY
-        if len(self.interactables) <= 0:
-            print(f"""\n {player_action} isn't an option here. Input MENU for a list of current options.""")
+        if len(self.interactables) <= 0: print(f"""\n {player_action} isn't an option here. Input MENU for a list of current options.""")
         else:
             options = []
             for each_interactable in self.interactables:
-                if len(each_interactable.action_words) > 0 :
-                    if player_action in each_interactable.action_words:
-                        options.append(each_interactable)
-            if len(options) == 0:
-                print(f"""\n {player_action} isn't an option here. Input MENU for a list of current options.""")
-            elif len(options) == 1:
-                options[0].run_interaction(player_action, player, room)
+                if len(each_interactable.action_words) > 0 and player_action in each_interactable.action_words: options.append(each_interactable)
+            if len(options) == 0: print(f"""\n {player_action} isn't an option here. Input MENU for a list of current options.""")
+            elif len(options) == 1: options[0].run_interaction(player_action, player, room)
             else:
                 selection_loop = True
                 while selection_loop == True:
@@ -73,12 +63,10 @@ class Room:
                         print(f""" {each_option.type} {each_option.number}""")
                     print(" NEVERMIND")
                     selection = input("\n - ").upper()
-                    if selection == "NEVERMIND":
-                        selection_loop = False
+                    if selection == "NEVERMIND": selection_loop = False
                     for each_option in options:
                         if selection == each_option.type + " " + str(each_option.number) or selection == each_option.type + str(each_option.number):
                             each_option.run_interaction(player_action, player, room)
                             selection_loop = False
                             break
-                    if selection_loop == True:
-                        print(f"""\n {selection} is not an option (include the number if it has one).""")
+                    if selection_loop == True: print(f"""\n {selection} is not an option (include the number if it has one).""")

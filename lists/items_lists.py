@@ -22,7 +22,7 @@ armor_options = {
     "CLOTHES" : Armor(1, "ARMOR", "CLOTHES", 3, 1),
     "GAMBESON" : Armor(2, "ARMOR", "GAMBESON", 5, 12),
     "CHAINMAIL" : Armor(3, "ARMOR", "CHAINMAIL", 7, 35),
-    "PLATEMAIL" : Armor(4, "ARMOR", "PLATEMAIL", 9, 100),
+    "PLATEMAIL" : Armor(4, "ARMOR", "PLATEMAIL", 9, 100), #don't sell platemail in regular shops
     "MAGIC PLATE" : Armor(5, "ARMOR", "MAGIC PLATE", 12, 250)
 }
 

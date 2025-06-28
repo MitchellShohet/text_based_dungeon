@@ -19,7 +19,7 @@ class PlayerCharacter(Combatant):
                 weapon=weapon_options["FIST"],
                 armor=armor_options["PLATEMAIL"],
                 consumables=[DurabilityGem()], #*** Update this once done testing
-                misc=[misc_options["WOOD"],  misc_options["APPLES"], armor_options["GAMBESON"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], misc_options["JAW BONE"]], #*** Update this once done testing
+                misc=[misc_options["WOOD"],  misc_options["APPLES"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], misc_options["JAW BONE"]], #*** Update this once done testing
                 dollar_bills=100 #*** Update this once done testing
                 )
             )
@@ -39,38 +39,27 @@ class PlayerCharacter(Combatant):
             print(f""" You have {self.stat_points} STAT POINTS to spend.""")
 
     def recover_health(self, amount):
-        if self.current_health + amount > self.max_health:
-            amount = self.max_health - self.current_health
+        if self.current_health + amount > self.max_health: amount = self.max_health - self.current_health
         self.current_health += amount
         print(f"""\n CURRENT HEALTH increased by {amount} points.""")
 
     def increase_stat(self, stat_variable, increased_stat):
         print(f"""\n How many points would you like to increase {increased_stat} by?""")
         command = input("\n - ")
-        try:        #
-            int(command)
-        except:
-            print("\n Please input a number.")
-            command = 0
-        if self.initial_setup == False:
-            if int(command) < 0:       #prevents the player from gaining extra STAT POINTS by trading from other stats post game setup
-                print("\n STAT POINTS cannot be traded after initial character setup.")
-                command = 0
-        if int(command) > self.stat_points:       #prevents the player from expending more STAT POINTS then are available
-            print("\n You don't have that many STAT POINTS.")
-            command = 0
-        if stat_variable + int(command) < 1:       #prevents the player from lowering a stat below 0
-            print(f"""\n You cannot have less that 1 {increased_stat}""") 
-            command = 0
-        stat_variable += int(command)
-        self.stat_points -= int(command)
-        print(f"""\n {increased_stat} increased by {command} points.
-            """)
-        if increased_stat == "MAX HEALTH":
-            self.current_health += int(command)
-            print(f""" CURRENT HEALTH INCREASED BY {command} points.
-                {line_spacer}
-                """)
+        try: int(command)
+        except: print("\n Please input a number.")
+        else: 
+            command = int(command)
+            if self.initial_setup == False and command < 0: print("\n STAT POINTS cannot be traded after initial character setup.") #prevents the player from gaining extra STAT POINTS by trading from other stats post game setup
+            elif command > self.stat_points: print("\n You don't have that many STAT POINTS.") #prevents the player from expending more STAT POINTS then are available
+            elif stat_variable + command < 1: print(f"""\n You cannot have less than 1 {increased_stat}""") #prevents the player from lowering a stat below 0
+            else:
+                stat_variable += command
+                self.stat_points -= command
+                print(f"""\n {increased_stat} increased by {command} points.""")
+                if increased_stat == "MAX HEALTH":
+                    self.current_health += command
+                    print(f""" CURRENT HEALTH INCREASED BY {command} points. {line_spacer}""")
         return stat_variable
 
     def set_player_stats(self):
@@ -83,29 +72,17 @@ class PlayerCharacter(Combatant):
                 print(" ATTACK")
                 print(" STEALTH")
                 print(" INVESTIGATION")
-                command = input("\n - ")
-                if command.upper() == "CURRENT HEALTH":
-                    print("\n Increasing MAX HEALTH will increase CURRENT HEALTH")
-                    command = "MAX HEALTH"
-                if command.upper() == "MAX HEALTH":
-                    self.max_health = self.increase_stat(self.max_health, "MAX HEALTH")
-                elif command.upper() == "ATTACK":
-                    self.attack = self.increase_stat(self.attack, "ATTACK")
-                elif command.upper() == "DEFENSE":
-                    print(f"""\n Your DEFENSE is {self.defense}.
-                        \n DEFENSE cannot be upgraded with stat points, but you might find better ARMOR in the dungeon.
-                        {line_spacer}
-                        """)
-                elif command.upper() == "STEALTH":
-                    self.stealth = self.increase_stat(self.stealth, "STEALTH")
-                elif command.upper() == "INVESTIGATION":
-                    self.investigation = self.increase_stat(self.investigation, "INVESTIGATION")
+                command = input("\n - ").upper()
+                if command == "MAX HEALTH": self.max_health = self.increase_stat(self.max_health, "MAX HEALTH")
+                elif command == "ATTACK": self.attack = self.increase_stat(self.attack, "ATTACK")
+                elif command == "STEALTH": self.stealth = self.increase_stat(self.stealth, "STEALTH")
+                elif command == "INVESTIGATION": self.investigation = self.increase_stat(self.investigation, "INVESTIGATION")
                 else:
                     print("\n Sorry that isn't an option. Please select MAX HEALTH, ATTACK, STEALTH, or INVESTIGATION.")
                     print(line_spacer)
                 self.get_player_stats()
             else:
-                if self.initial_setup == False:      #later in the game players will earn additional STAT POINTS, and can reenter the stat menu
+                if self.initial_setup == False:
                     setting_stats = False
                     print("\n Your character has been updated! Returning to the game.")
                 else:
@@ -114,8 +91,6 @@ class PlayerCharacter(Combatant):
                     print(line_spacer)
                     setting_stats = False
                     while self.initial_setup == True:
-                        #command = input("\n To begin game, input START. - ")
-                        #if command.upper() == "START":
                             self.initial_setup = False
                             print(line_spacer)
                             print(line_spacer)

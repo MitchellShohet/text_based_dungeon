@@ -22,8 +22,7 @@ class Monster(Combatant):
         elif stealth_check >= self.perception and player_request == True and self.is_aware == True:
             self.is_aware = False
             print(f""" {self.type} {self.number} lost you!""")
-        else:
-            print(f""" {self.type} {self.number} hasn't noticed you!""")
+        else: print(f""" {self.type} {self.number} hasn't noticed you!""")
         return self.is_aware
 
     def investigate(self, player, room):
@@ -38,10 +37,8 @@ class Monster(Combatant):
                 print(f""" {self.type} {self.number}'s attack buff is {self.attack_buff}.""")
             else:
                 print(f"""\n You searched {self.type} {self.number} and found a {self.inventory.weapon.name}, """)
-                if self.inventory.weapon.name == "MAGIC WAND":
-                    player.inventory.add_item(MagicWand())
-                else:
-                    player.inventory.add_item(self.inventory.weapon)
+                if self.inventory.weapon.name == "MAGIC WAND": player.inventory.add_item(MagicWand())
+                else: player.inventory.add_item(self.inventory.weapon)
                 for each_misc in self.inventory.misc:
                     print(f""" a {each_misc.name}, """)
                     player.inventory.add_item(each_misc)
