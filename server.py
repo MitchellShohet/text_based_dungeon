@@ -76,6 +76,7 @@ class PlayThrough:
     def select_sequence(self, action_word, list):
         selection_loop = True
         while selection_loop == True:
+            item_names = []
             if action_word == "HIDE":
                 print(" Where would you like to HIDE?")
             else:
@@ -88,7 +89,9 @@ class PlayThrough:
                         print(f""" {each_thing.type} {each_thing.number}""")
                 if action_word == "EQUIP":
                     if each_thing.type == "WEAPON" or each_thing.type == "ARMOR" or each_thing.name == "SHIELD":
-                        print(f""" {each_thing.name}""")
+                        if each_thing.name not in item_names:
+                            item_names.append(each_thing.name)
+                            print(f""" {each_thing.name}""") 
                 if action_word == "USE":
                     print(f""" {each_thing.name}""")
                 if action_word == "HIDE":
