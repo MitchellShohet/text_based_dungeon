@@ -1,7 +1,7 @@
 from classes.dungeon.room_components import Exit, MonsterSpawning
 from classes.dungeon.room import Room
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, Avatar, MagmaGoblin
-from lists.interactables_list import Pool, GlowingCrystal, Chest, MagmaRiver, Tree, Cauldron, NPC
+from lists.interactables_list import Pool, GlowingCrystal, Chest, MagmaRiver, Tree, Cauldron, NPC, ShopOwner
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, PowerBerry, DurabilityGem, MagicWand, SmokeBomb, GreaterHealthPotion
 from lists.adjustments_list import add_to_interactable, add_to_description, add_monsters, change_monster_spawning, shop_refresh, sea_creature_defeated, tree_inspect_renew
 
@@ -82,15 +82,14 @@ room_list = [
         Room("Trader's Camp", 
             "A canvas tent opened in the front reveals a pleasent interior. Currently empty shelves as a woman in her 60's appears to be packing up.", 
             [Exit(0), Exit(1), Exit(2)],
-            interactables=[NPC(0, 
+            interactables=[ShopOwner(0, 
                             ["TALK", "ROB", "BUY", "SELL"], 
                             "Trader in her 60's. Her brown hair is in a high pony, and she's wearing square rimmed glasses.", 
                             "STELLA", 
                             ["she", "her"], 
                             ["Hey there friend, let me know if you have any questions about my wares!", "Hey I saw that! Drop it and get out of my shop!", "I'm not doing business with someone who tried to rob me. Scram!", "What's catching your eye?", "Pleasure doing buisiness with you!", "Afraid I'm all out of stock friend! I'll get some new items soon!", "Ooh what do ya got?", "Mmm you don't really have anything to sell. Come back later, I'd love to see what you find!"], 
                             10, 
-                            [misc_options["GLOWING FRUIT"], misc_options["KEY"], misc_options["KEY"], HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem(), SmokeBomb(), SmokeBomb(), SmokeBomb(), SmokeBomb(), GreaterHealthPotion(), GreaterHealthPotion(), GreaterHealthPotion(), GreaterHealthPotion(), StatMedallion(), StatMedallion(), StatMedallion(), armor_options["CHAINMAIL"], weapon_options["LONGSWORD"]], 
-                            36)],
+                            [misc_options["GLOWING FRUIT"], misc_options["KEY"], misc_options["KEY"], HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem(), SmokeBomb(), SmokeBomb(), SmokeBomb(), SmokeBomb(), GreaterHealthPotion(), GreaterHealthPotion(), GreaterHealthPotion(), GreaterHealthPotion(), StatMedallion(), StatMedallion(), StatMedallion(), armor_options["CHAINMAIL"], weapon_options["LONGSWORD"]])],
             adjustments=[[shop_refresh], 
                         [], 
                         {"shop_refresh" : [2, [misc_options["GLOWING FRUIT"], misc_options["KEY"], misc_options["KEY"], HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), HealthPotion(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), PowerBerry(), DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem(), SmokeBomb(), SmokeBomb(), SmokeBomb(), SmokeBomb(), GreaterHealthPotion(), GreaterHealthPotion(), GreaterHealthPotion(), GreaterHealthPotion(), StatMedallion(), StatMedallion(), StatMedallion(), armor_options["CHAINMAIL"], weapon_options["LONGSWORD"]], "Good news friend, I just restocked my shop! Let me know if you have any questions.", "Hey there friend, let me know if you have any questions about my wares!"]}]),
