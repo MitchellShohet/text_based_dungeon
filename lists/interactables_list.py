@@ -8,7 +8,7 @@ from classes.inventory.inventory import Inventory
 from classes.inventory.items import Weapon
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, Pie, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import check_for_heavy_armor
+from lists.adjustments_list import check_for_heavy_armor, change_room
 
 
 #-------------------------------------------------------
@@ -34,9 +34,11 @@ class Crossing(Interactable, ABC):
         if action_word == "JUMP" and "JUMP" in self.action_words:
             self.jump(player, room)
         elif action_word == "BUILD BRIDGE" and "BUILD BRIDGE" in self.action_words:
-            self.use_bridge(player)
+            self.build_bridge(player)
         elif action_word == "CROSS THE BRIDGE" and "CROSS THE BRIDGE" in self.action_words:
             self.cross_bridge(player, room)
+        elif action_word == "TAKE THE BRIDGE" and "TAKE THE BRIDGE" in self.action_words:
+            self.take_bridge(player)
         elif action_word == "THROW ROCKS" and "THROW ROCKS" in self.action_words:
                 self.throw_rocks(room)
 
@@ -58,13 +60,14 @@ class Crossing(Interactable, ABC):
             self.switch_sides(room)
         else: self.jump_failure(jump_score, player, room)
 
-    def use_bridge(self, player):
+    def build_bridge(self, player):
         if misc_options["MAGIC BRIDGE"] in player.inventory.misc:
             print(f""" You placed the MAGIC BRIDGE over the {self.type}!""")
             self.bridge = "MAGIC"
             player.inventory.misc.remove(misc_options["MAGIC BRIDGE"])
             self.action_words.remove("BUILD BRIDGE")
             self.action_words.append("CROSS THE BRIDGE")
+            self.action_words.append("TAKE THE BRIDGE")
         elif misc_options["WOOD"] in player.inventory.misc:
             wood_count = 0
             for each_item in player.inventory.misc:
@@ -76,12 +79,21 @@ class Crossing(Interactable, ABC):
                     player.inventory.misc.remove(misc_options["WOOD"])
                 self.action_words.remove("BUILD BRIDGE")
                 self.action_words.append("CROSS THE BRIDGE")
+            else: print(" You don't have enough wood to build a bridge.")
         else: print(" You don't have the materials to build a bridge.")
 
     def cross_bridge(self, player, room):
         print(f""" You crossed the {self.bridge} BRIDGE over the {self.type}""")
+        self.switch_sides(room)
         if self.bridge == "WOOD":
             self.wood_failure(player, room)
+    
+    def take_bridge(self, player):
+        print(f""" You took the MAGIC BRIDGE and put it in your pocket. The {self.type} is now blocking the opposite path.""")
+        self.action_words.remove("CROSS THE BRIDGE")
+        self.action_words.remove("TAKE THE BRIDGE")
+        self.action_words.append("BUILD BRIDGE")
+        player.inventory.add_item(misc_options["MAGIC BRIDGE"])
             
     @abstractmethod
     def jump_failure(self, jump_score, player, room):
@@ -126,6 +138,7 @@ class NPC(Interactable):
         else: print(f""" {self.name}: {self.convo[0]} """)
 
     def attempt_robbery(self, player):
+        rand_num = random.randint(0, len(self.inventory))
         if player.hiding_score >= self.invest_requirement * 1.7:
             print(f""" You successfully robbed {self.name} without {self.pronouns[1]} noticing!""")
             new_items = []
@@ -143,32 +156,32 @@ class NPC(Interactable):
         elif player.hiding_score >= self.invest_requirement * 1.7:
             if self.dollar_bills < 30: self.dollar_bills += 30
             print(f""" You robbed {self.name} a little without {self.pronouns[1]} noticing!""")
-            print(f""" You got 1 {self.inventory[0].name}!""")
+            print(f""" You got 1 {self.inventory[rand_num].name}!""")
             print(f""" You got {self.dollar_bills} dollar bills!""")
-            player.inventory.add_item(self.inventory[0])
+            player.inventory.add_item(self.inventory[rand_num])
             player.inventory.dollar_bills += self.dollar_bills
-            self.inventory.pop(0)
+            self.inventory.pop(rand_num)
             self.dollar_bills = 0
             self.invest_requirement = math.ceil(self.invest_requirement * 1.4)
         else:
             print(f""" {self.name}: {self.convo[1]}""")
             print(f""" {self.name} caught you trying to rob {self.pronouns[1]}""")
-            print(f""" You still managed to swipe a {self.inventory[0].name}""")
-            player.inventory.add_item(self.inventory[0])
-            self.inventory.pop(0)
+            print(f""" You still managed to swipe a {self.inventory[rand_num].name}""")
+            player.inventory.add_item(self.inventory[rand_num])
+            self.inventory.pop(rand_num)
             self.refresh_requirement = 100000
             self.invest_requirement = math.ceil(self.invest_requirement * 1.7)
         self.action_words.remove("ROB")
 
 #---------------------------------------------------------
 
-class Tree(Interactable): #make a child class for MagicTree(Tree)
+class Tree(Interactable):
 
-    def __init__(self, number, action_words, descriptor, stealth_mod=1, challenge=0):
+    def __init__(self, number, action_words, descriptor, stealth_mod=1, challenge=0, fruit=misc_options["APPLES"], type="TREE"):
+        self.fruit = fruit
         self.challenge = challenge
-        self.gift_given = False
         super().__init__(
-            type="TREE", 
+            type=type, 
             number=number, 
             action_words=action_words, 
             description="A" + descriptor + " tree.", 
@@ -178,117 +191,35 @@ class Tree(Interactable): #make a child class for MagicTree(Tree)
 
     def run_interaction(self, action_word, player, room):
         if action_word == "PICK FRUIT" and "PICK FRUIT" in self.action_words:
-            if self.challenge >= 6:
-                print(" You picked some of the tree's GLOWING FRUIT!")
-                player.inventory.add_item(misc_options["GLOWING FRUIT"])
-            else:
-                print(" You picked some of the tree's APPLES!")
-                player.inventory.add_item(misc_options["APPLES"])
-            self.action_words.remove("PICK FRUIT")
+            self.pick_fruit(player)
         elif action_word == "CHOP" and "CHOP" in self.action_words:
-            tree_def = Combatant("TREE", 1, 1, 3, self.challenge, Inventory(weapon=Weapon(0, "WEAPON", "", self.challenge/5, self.challenge, self.challenge, self.challenge, 0)), self.number)
-            if self.challenge >= 5 and self.gift_given == True:
-                print(" Betrayed, the GLOWING TREE attacks you with it's magic!")
-                tree_def.make_attack(player)
-            player.make_attack(tree_def)
-            if tree_def.current_health <= 0:
-                print(" You got 1 WOOD!")
-                player.inventory.add_item(misc_options["WOOD"])
-                self.type = "CHOPPED TREE"
-                for each_interactable in room.interactables:
-                    if each_interactable.type == "CHOPPED TREE": room.interactables.remove(each_interactable)
-            elif self.challenge >= 6:
-                print(" The GLOWING TREE hardened itself with magic. You can no longer CHOP or INSPECT it.")
-                self.action_words.remove("CHOP")
-                if "INSPECT" in self.action_words: self.action_words.remove("INSPECT")
-                self.action_words.append("APOLOGIZE")
-        elif action_word == "INSPECT" and "INSPECT" in self.action_words:
-            if player.investigation + random.randint(1,5) >= self.invest_requirement:
-                self.invest_requirement = 0
-                print(" After some time you start to understand the secrets of the GLOWING TREE. The tree feels seen and offers you a gift from its branches.")
-                if self.challenge == 6:
-                    reward = StatMedallion()
-                    monster = Wizard()
-                    monster.number = self.number
-                elif self.challenge == 10:
-                    reward = armor_options["PLATEMAIL"]
-                    monster = MudGolem()
-                    monster.number = self.number
-                elif self.challenge == 15:
-                    reward = weapon_options["MAGIC SWORD"]
-                    monster = Minotaur()
-                    monster.number = room.monster1_number
-                    room.monster1_number += 1
-                    room.monster1_count += 1
-                print(f""" The GLOWING TREE gifted you a {reward.name}!""")
-                player.inventory.add_item(reward)
-                self.gift_given = True
-                print(f""" A {monster.type} has come to test you.""")
-                room.monsters.append(monster)
-            else: print(f""" The secrets of the GLOWING TREE elude you. It will allow you to try again later.""") #add the adjustment function for this upon returning
-            self.action_words.remove("INSPECT")
-        elif action_word == "APOLOGIZE" and "APOLOGIZE" in self.action_words: print(" The GLOWING TREE does not accept your apology.")
+            self.chop(player, room)
 
-#-------------------------------------------------------
-#--------------- CHILD INTERACTABLES -------------------
-#-------------------------------------------------------
+    def pick_fruit(self, player):
+        print(f""" You picked some of the tree's {self.fruit.name}!""")
+        player.inventory.add_item(self.fruit)
+        self.action_words.remove("PICK FRUIT")
 
-class MagmaRiver(Crossing):
-
-    def __init__(self, number, action_words, descriptor):
-        super().__init__(
-            type="MAGMA RIVER", 
-            number=number, 
-            action_words=action_words, 
-            description="A 10ft wide river of flowing lava." + descriptor, 
-            exit_hold = Exit(1, Room("Magma River Passage", 
-                                        "A tunnel beyond the magma river opens to a chamber with a chest. The path forks into two exits onward.", 
-                                        [Exit(0), Exit(1), Exit(2)], 
-                                        MonsterSpawning(5, Goblin, 9, "twice"), 
-                                        [Chest(3, ["BREAK THE LOCK", "USE A KEY"]," with an image of a volcano etched onto its top.",contents=[weapon_options["LONGSWORD"], StatMedallion(), 40])])),
-            jump_challenge=7,
-            bridge=None,
-            invest_requirement=0, 
-            stealth_mod=0
-            )
-
-    def jump_failure(self, jump_score, player, room):
-        if jump_score == 1:
-            print(" The ash in the room choking you, you attempt to leap across the MAGMA RIVER and land less than halfway across.")
-            player.take_damage(random.randint(7,11), True)
-            if player.current_health > 0: print(" You make it back onto land. You weren't able to cross, but you did survive jumping into lava.")
-        elif jump_score > 1 and jump_score < 7:
-            print(" With a running start you successfully leap most of the way accross MAGMA RIVER! You land just short of the opposite bank.")
-            player.take_damage(random.randint(2,4), True)
-            if player.current_health > 0:
-                print(" You made it to the opposite bank with minimal burns considering you jumped a MAGMA RIVER. However the way behind you is now blocked.")
-                self.switch_sides(room)
-
-    def wood_failure(self, player, room):
-        print(" Afterward the bridge catches fire and incinerates. The opposite side is blocked by the MAGMA RIVER again.")
-        self.action_words.append("BUILD BRIDGE")
-        self.action_words.append("JUMP")
-        self.action_words.remove("CROSS THE BRIDGE")
-        self.switch_sides(room)
-
-    def throw_rocks(self, room):
-        print(f""" You throw some rocks into the lava, they sink immediately.""")
-        room.spawn_monster()
+    def chop(self, player, room):
+        print(" You got 1 WOOD!")
+        player.inventory.add_item(misc_options["WOOD"])
+        self.type = "CHOPPED TREE"
+        for each_interactable in room.interactables:
+            if each_interactable.type == "CHOPPED TREE": room.interactables.remove(each_interactable)
 
 #---------------------------------------------------------
 
-class Chest(Interactable): #make a parent class for Lockable(Interactable)
+class Lockable(Interactable, ABC):
 
-    def __init__(self, number, action_words, descriptor, challenge=0, contents=[10]):
+    def __init__(self, type, number, action_words, description, stealth_mod=0, challenge=0):
         self.challenge = challenge
-        self.contents = contents
         super().__init__(
-            type="CHEST", 
+            type=type, 
             number=number, 
             action_words=action_words, 
-            description="A treasure chest" + descriptor, 
+            description=description, 
             invest_requirement=number, 
-            stealth_mod=1
+            stealth_mod=stealth_mod
             )
 
     def run_interaction(self, action_word, player, room):
@@ -300,22 +231,14 @@ class Chest(Interactable): #make a parent class for Lockable(Interactable)
         elif action_word == "USE A KEY" and "USE A KEY" in self.action_words:
             self.use_key(player, room)
     
+    @abstractmethod
     def open(self, player):
-        print(" You opened the CHEST!")
-        reward_num = random.randint(1, len(self.contents))-1
-        try:
-            self.contents[reward_num].type
-            player.inventory.add_item(self.contents[reward_num])
-            print(f""" You found a {self.contents[reward_num].name}!""")
-        except: 
-            player.inventory.dollar_bills += self.contents[reward_num]
-            print(f""" You found {self.contents[reward_num]} dollar bills!""")
-        self.action_words.remove("OPEN")
+        pass
 
     def select_unlock_method(self, player, room):
         selection_loop = True
         while selection_loop == True:
-            print(" The CHEST is locked. How would you like to open it?")
+            print(f""" The {self.type} is locked. How would you like to open it?""")
             for each_option in self.action_words:
                 print(f"""{each_option}""")
             print("NEVERMIND")
@@ -328,20 +251,20 @@ class Chest(Interactable): #make a parent class for Lockable(Interactable)
             if selection_loop == True: print(" That's not an option here.")
 
     def attempt_to_break(self, player, room):
-        chest_def = Combatant("THE LOCK", 1, 1, 0, self.challenge, Inventory())
-        player.make_attack(chest_def)
-        if chest_def.current_health <= 0: self.unlock_success(player, room)
+        lock_def = Combatant("THE LOCK", 1, 1, 0, self.challenge, Inventory())
+        player.make_attack(lock_def)
+        if lock_def.current_health <= 0: self.unlock_success(player, room)
         else:
-            print(" You jammed the lock into the closed position. You can try again but it'll be even more difficult now.")
+            print(" You jammed THE LOCK into the closed position. You can try again but it'll be even more difficult now.")
             self.challenge*=2
-            self.description += " It's lock has been jammed closed."
+            self.description += " THE LOCK has been jammed closed."
     
     def use_key(self, player, room):
         if misc_options["KEY"] in player.inventory.misc:
             player.inventory.misc.remove(misc_options["KEY"])
-            print(" You used your key to open the lock. The key then dissintegrates, it's task in this world complete.")
+            print(" You used your KEY to open THE LOCK. It then dissintegrates, it's task in this world complete.")
             self.unlock_success(player, room)
-        else: print(" You don't have a key to use.")
+        else: print(" You don't have a KEY to use.")
 
     def unlock_success(self, player, room):
         self.challenge = 0
@@ -352,13 +275,222 @@ class Chest(Interactable): #make a parent class for Lockable(Interactable)
 
 #---------------------------------------------------------
 
+class RedHerring(Interactable):
+
+    def __init__(self, type, description, action_words, punchline):
+        self.punchline = punchline
+        super().__init__(
+            type=type, 
+            number=0, 
+            action_words=action_words, 
+            description=description, 
+            invest_requirement=0, 
+            stealth_mod=0
+            )
+
+    def run_interaction(self, action_word, player, room):
+        if action_word == "PLACE HAND" and "PLACE HAND" in self.action_words:
+            action = " You PLACE YOUR HAND on the " + self.type
+        elif action_word == "LICK" and "LICK" in self.action_words:
+            action = " YOU LICK the " + self.type
+        elif action_word == "OBSERVE" and "OBSERVE" in self.action_words:
+            action = f""" You OBSERVE the {self.type} for a while."""
+        elif action_word == "INSPECT" and "INSPECT" in self.action_words:
+            action = f""" You INSPECT the {self.type} for a while. Determined to uncover it's secrets."""
+        elif action_word == "SIT" and "SIT" in self.action_words:
+            action = f""" You SIT on the {self.type} for a while. It's a good chance to organize your thoughts."""
+        print(action)
+        print(self.punchline)
+
+#-------------------------------------------------------
+#--------------- CHILD INTERACTABLES -------------------
+#-------------------------------------------------------
+
+class ExitHold(RedHerring):
+
+    def __init__(self, type, description, action_words, punchline, exit_hold=None):
+        self.exit_hold = exit_hold
+        super().__init__(
+            type=type, 
+            description=description, 
+            action_words=action_words, 
+            punchline=punchline
+            )
+
+#---------------------------------------------------------
+
+class Chest(Lockable):
+
+    def __init__(self, number, action_words, descriptor, challenge=0, contents=[10]):
+        self.contents = contents
+        super().__init__(
+            type="CHEST", 
+            number=number, 
+            action_words=action_words, 
+            description="A treasure chest" + descriptor, 
+            stealth_mod=1,
+            challenge=challenge
+            )
+    
+    def open(self, player):
+        print(f""" You opened the {self.type}!""")
+        reward_num = random.randint(1, len(self.contents))-1
+        try:
+            self.contents[reward_num].type
+            player.inventory.add_item(self.contents[reward_num])
+            print(f""" You found a {self.contents[reward_num].name}!""")
+        except: 
+            player.inventory.dollar_bills += self.contents[reward_num]
+            print(f""" You found {self.contents[reward_num]} dollar bills!""")
+        self.action_words.remove("OPEN")
+        self.description = "A chest that's been opened."
+
+#---------------------------------------------------------
+
+class GlowingTree(Tree):
+
+    def __init__(self, number, action_words, descriptor, stealth_mod=1, challenge=6):
+        self.gift_given = False
+        super().__init__(
+            type="GLOWING TREE", 
+            number=number, 
+            action_words=action_words, 
+            descriptor=descriptor, 
+            stealth_mod=stealth_mod,
+            challenge = challenge,
+            fruit = misc_options["GLOWING FRUIT"]
+            )
+    
+    def run_interaction(self, action_word, player, room):
+        if action_word == "PICK FRUIT" and "PICK FRUIT" in self.action_words:
+            self.pick_fruit(player)
+        elif action_word == "CHOP" and "CHOP" in self.action_words:
+            self.chop(player, room)
+        elif action_word == "INSPECT" and "INSPECT" in self.action_words:
+            self.inspect(player, room)
+        elif action_word == "APOLOGIZE" and "APOLOGIZE" in self.action_words: print(" The GLOWING TREE does not accept your apology.")
+
+    def chop(self, player, room):
+        tree_def = Combatant("TREE", 1, 1, 3, self.challenge, Inventory(weapon=Weapon(0, "WEAPON", "", self.challenge/5, self.challenge, self.challenge, self.challenge, 0)), self.number)
+        if self.gift_given == True:
+            print(" Betrayed, the GLOWING TREE attacks you with it's magic!")
+            tree_def.make_attack(player)
+        player.make_attack(tree_def)
+        if tree_def.current_health <= 0:
+            print(" You got 1 WOOD!")
+            player.inventory.add_item(misc_options["WOOD"])
+            self.type = "CHOPPED TREE"
+            for each_interactable in room.interactables:
+                if each_interactable.type == "CHOPPED TREE": room.interactables.remove(each_interactable)
+        elif self.challenge >= 6:
+            print(" The GLOWING TREE hardened itself with magic. You can no longer CHOP or INSPECT it.")
+            self.action_words.remove("CHOP")
+            if "INSPECT" in self.action_words: self.action_words.remove("INSPECT")
+            self.action_words.append("APOLOGIZE")
+        
+    def inspect(self, player, room):
+        if player.investigation + random.randint(1,5) >= self.invest_requirement:
+            self.invest_requirement = 0
+            print(" After some time you start to understand the secrets of the GLOWING TREE. The tree feels seen and offers you a gift from its branches.")
+            if self.challenge == 6:
+                reward = StatMedallion()
+                monster = Wizard()
+                monster.number = self.number
+            elif self.challenge == 10:
+                reward = armor_options["PLATEMAIL"]
+                monster = MudGolem()
+                monster.number = self.number
+            elif self.challenge == 15:
+                reward = weapon_options["MAGIC SWORD"]
+                monster = Minotaur()
+                monster.number = sum(1 for each_monster in room.monsters if each_monster.type == "MINOTAUR")
+            print(f""" The GLOWING TREE gifted you a {reward.name}!""")
+            player.inventory.add_item(reward)
+            self.gift_given = True
+            print(f""" A {monster.type} has come to test you.""")
+            room.monsters.append(monster)
+        else: print(f""" The secrets of the GLOWING TREE elude you. It will allow you to try again later.""")
+        self.action_words.remove("INSPECT")
+
+#---------------------------------------------------------
+
+class MagmaRiver(Crossing):
+
+    def __init__(self, number, action_words, descriptor):
+        super().__init__(
+            type="MAGMA RIVER", 
+            number=number, 
+            action_words=action_words, 
+            description="A 10ft wide river of flowing lava." + descriptor, 
+            exit_hold = Exit(1, Room("Magma River Passage", 
+                                        "A tunnel beyond the magma river opens to a chamber with a chest. The path forks into two exits onward.", 
+                                        [Exit(0), Exit(1), Exit(2)], 
+                                        MonsterSpawning(5, Goblin, 9, "TWICE"), 
+                                        [Chest(3, ["BREAK THE LOCK", "USE A KEY"]," with an image of a volcano etched onto its top.",contents=[weapon_options["LONGSWORD"], StatMedallion(), 40])])),
+            jump_challenge=7,
+            bridge=None,
+            )
+
+    def jump_failure(self, jump_score, player, room):
+        if jump_score == 1:
+            print(" The ash in the room choking you, you attempt to leap across the MAGMA RIVER and land less than halfway across.")
+            player.take_damage(random.randint(7,11), True)
+            if player.current_health > 0: print(" You make it back onto land. You weren't able to cross, but you did survive jumping into lava.")
+        elif jump_score > 1:
+            print(" With a running start you successfully leap most of the way accross MAGMA RIVER! You land just short of the opposite bank.")
+            player.take_damage(random.randint(2,4), True)
+            if player.current_health > 0:
+                print(" You made it to the opposite bank with minimal burns considering you jumped a MAGMA RIVER. However the way behind you is now blocked.")
+                self.switch_sides(room)
+
+    def wood_failure(self, player, room):
+        print(" Afterward the bridge catches fire and incinerates. The opposite path is blocked by the MAGMA RIVER again.")
+        self.action_words.append("BUILD BRIDGE")
+        self.action_words.append("JUMP")
+        self.action_words.remove("CROSS THE BRIDGE")
+
+    def throw_rocks(self, room):
+        print(f""" You throw some rocks into the lava, they sink immediately.""")
+        room.spawn_monster()
+
+#---------------------------------------------------------
+
+class Chasm(Crossing):
+
+    def __init__(self, number, action_words, descriptor, challenge=4, bridge=None):
+        self.descriptor = descriptor
+        super().__init__(
+            type="CHASM", 
+            number=number, 
+            action_words=action_words, 
+            description="A chasm that drops into nothingness below", 
+            exit_hold=Exit(1),
+            jump_challenge=challenge,
+            bridge=bridge,
+            )
+
+    def jump_failure(self, jump_score, player, room):
+        print(" You attempt to leap over the abyss, but your footing was off and you tumble into the dark.")
+        print(" You land abruptly, smashing into the ground below!")
+        player.take_damage(7, True)
+        if player.current_health > 0: room.adjustments[1].append(change_room)
+
+    def wood_failure(self, player, room):
+        pass
+
+    def throw_rocks(self, room):
+        print(f""" You throw some rocks into the chasm{self.descriptor}""")
+        room.spawn_monster()
+
+#---------------------------------------------------------
+
 class ShopOwner(NPC):
 
     def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, inventory):
         super().__init__(
             number=number, 
             action_words=action_words, 
-            description=descriptor, 
+            descriptor=descriptor, 
             name = name,
             pronouns = pronouns,
             convo = convo,
@@ -395,7 +527,7 @@ class ShopOwner(NPC):
                 for each_product in products:
                     if selection == each_product.name:
                         selection_loop = self.buy_product(player, each_product)
-                if selection_loop == True: print(f" Sorry, no can do. Buy something else?")
+                if selection_loop == True: print(f""" {self.name}: Sorry, no can do. Buy something else?""")
 
     def build_buy_product_list(self):
         products = []
@@ -418,7 +550,7 @@ class ShopOwner(NPC):
         return True
 
     def run_sell_sequence(self, player):
-        if self.refresh_requirement == 100000: print(f""" {self.convo[2]} """)
+        if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
         elif len(player.inventory.misc + player.inventory.consumables) <= 0: print(f""" {self.name}: {self.convo[7]}""")
         else:
             all_options = self.build_sell_product_list(player)
@@ -490,7 +622,7 @@ class Pool(Interactable):
 
     def __init__(self, number, action_words, descriptor):
         self.healing_available = True
-        self.event_num = random.randint(1,2) #add the third for the body?
+        self.event_num = random.randint(1,2)
         self.exit_hold = None
         super().__init__(
             type="POOL", 
@@ -532,7 +664,7 @@ class Pool(Interactable):
     
     def run_find_chest(self, room):
         self.action_words.remove("INSPECT SHADOW")
-        print(" You found a chest!")
+        print(" You found a locked chest!")
         room.description = "A room with a small pond."
         room.interactables.append(Chest(2, ["BREAK THE LOCK", "USE A KEY"]," with a rusted lock.", contents=[HealthPotion(), DurabilityGem(), 15]))
 
@@ -545,16 +677,16 @@ class Pool(Interactable):
         self.exit_hold = room.exits
         room.exits = None
         player.hiding = True
-        if player.inventory.armor.rating == 3 or player.inventory.armor.rating == 4: room.adjustments[1].append(check_for_heavy_armor)
+        room.adjustments[1].append(check_for_heavy_armor)
 
 #---------------------------------------------------------
 
 class GlowingCrystal(Interactable):
 
     def __init__(self, number, action_words, descriptor):
-        if self.number == 1: self.contents = misc_options["RUBY DUST"]
-        elif self.number == 2: self.contents = DurabilityGem()            
-        elif self.number == 3: self.contents = StatMedallion()
+        if number == 1: self.contents = misc_options["RUBY DUST"]
+        elif number == 2: self.contents = DurabilityGem()            
+        elif number == 3: self.contents = StatMedallion()
         super().__init__(
             type="GLOWING CRYSTAL", 
             number=number, 
@@ -615,7 +747,7 @@ class Cauldron(Interactable):
         if action_word == "RELIGHT FIRE" and "RELIGHT FIRE" in self.action_words:
             self.relight(player)
         if action_word == "COOK" and "COOK" in self.action_words:
-            ingredient_options = self.determin_elegibility(player)
+            ingredient_options = self.determine_elegibility(player)
             if len(ingredient_options) > 0: 
                 ingredient = self.select_ingredient(ingredient_options)
                 self.cook(player, ingredient)
@@ -629,7 +761,7 @@ class Cauldron(Interactable):
             self.action_words.remove("RELIGHT FIRE")
         else: print(" You don't have any WOOD to light a new fire.")
 
-    def determin_elegibility(self, player):
+    def determine_elegibility(self, player):
         ingredient_options = []
         if self.fire_lit == True:
                 if misc_options["SEA CREATURE MEAT"] in player.inventory.misc: ingredient_options.append(misc_options["SEA CREATURE MEAT"])
@@ -667,6 +799,3 @@ class Cauldron(Interactable):
                 if ingredient == misc_options["APPLES"]:
                     for x in range(0, 3):
                         player.inventory.misc.remove(ingredient)
-
-#---------------------------------------------------------
-

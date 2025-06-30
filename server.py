@@ -62,7 +62,7 @@ class PlayThrough:
             if self.player_character.current_health > 0:
                 print(line_spacer) #this visually segments the game for each room entered. It helps with readability.
                 print(f"""\n You moved {direction}""")
-                self.navigation.enter_room(move_function()) #uses the move function determined by the direction earlier, as an argument to move rooms
+                self.navigation.enter_room(self.navigation.current_room.exits[move_function()]) #uses the move function determined by the direction earlier, as an argument to move rooms
                 self.player_character.hiding_score = random.randint(1,5) #this is the luck component of hiding for each room as the player enters it
                 self.player_character.hiding = False
 
@@ -116,8 +116,9 @@ class PlayThrough:
                         break
                 if action_word == "HIDE": #each_thing is each interactable in the room
                     if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number) or selection + "0" == each_thing.type + str(each_thing.number):
+                        print(f""" Hiding place modifier: {each_thing.stealth_mod}""") #to be removed?
+                        print(f""" Luck: {self.player_character.hiding_score}""")
                         self.player_character.hiding_score += each_thing.stealth_mod + self.player_character.stealth
-                        print(f"""\n Hiding place modifier: {each_thing.stealth_mod}""") #to be removed?
                         self.player_character.hiding = True
                         selection_loop = False
                 if action_word == "ATTACK": #each_thing is each monster in the room
@@ -191,7 +192,7 @@ class PlayThrough:
                 if "SHIELD" in self.player_character.inventory.misc: print(" You are using a shield.")
             #---------------------------------
             elif command == "INVENTORY":
-                print(f"""\n Your current weapon is: {self.player_character.inventory.weapon.name}.""") 
+                print(f""" Your current weapon is: {self.player_character.inventory.weapon.name}.""") 
                 print(f""" Your current armor is: {self.player_character.inventory.armor.name}.""")
                 if "SHIELD" in self.player_character.inventory.misc: print(" You are using a shield.")
                 print("\n CONSUMABLES:")
@@ -206,7 +207,7 @@ class PlayThrough:
                     if each_misc.name not in misc_names: misc_names.append(each_misc.name)
                 for each_misc_name in misc_names:
                     print(f""" {sum(1 for each_misc in self.player_character.inventory.misc if each_misc.name == each_misc_name)} {each_misc_name}""")
-                print(f"""\n DOLLAR BILLS: {self.player_character.inventory.dollar_bills}""")
+                print(f""" DOLLAR BILLS: {self.player_character.inventory.dollar_bills}""")
             #-------------------------------------
             elif command == "MENU":
                 options = []
@@ -225,7 +226,7 @@ class PlayThrough:
                     if self.navigation.current_room.exits[self.navigation.test_backward()].link == self.navigation.previous_room: options.append("BACKWARD")
                 if len(self.navigation.current_room.monsters) > 0: options.append("ATTACK")
                 if len(self.navigation.current_room.interactables) > 0 or len(self.navigation.current_room.monsters) > 0: options.append("INVESTIGATE")
-                if self.player_character.hiding == False and self.player_character.hiding == False: options.append("HIDE")
+                if self.player_character.hiding == False and len(self.navigation.current_room.interactables) > 0: options.append("HIDE")
                 if len(self.player_character.inventory.consumables) > 0: options.append("USE ITEM")
                 if self.player_character.inventory.has_equipables == True: options.append("EQUIP")
                 options.append("STATS")
@@ -252,11 +253,11 @@ class PlayThrough:
             elif command == "MCS BIG LEVEL UP--":
                 self.player_character.stat_points += 30
                 self.player_character.set_player_stats()
-            elif command == "DIE": self.player_character.take_damage(int(1000))
+            elif command == "DIE": self.player_character.take_damage(int(10000000000))
             #-------------------------------------------------
             else: self.navigation.current_room.room_interaction(command, self.player_character, self.navigation.current_room) #
             for each_adjustment in self.navigation.current_room.adjustments[1]:
-                each_adjustment(self.navigation.current_room, self.player_character)
+                each_adjustment(self.navigation, self.player_character)
             if self.player_character.current_health <= 0: self.player_alive = False
             if self.navigation.current_room.name == "Go Home":
                 print(f"""

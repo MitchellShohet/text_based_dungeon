@@ -4,7 +4,7 @@ from classes.combatants.monster import Monster
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, SmokeBomb, DurabilityGem, PowerBerry, GreaterHealthPotion, MagicWand
 
 class Goblin(Monster):
-    def __init__(self, type="GOBLIN", descriptor=""):
+    def __init__(self, type="GOBLIN", descriptor="", defense_buff=0):
         self.difficulty = random.randint(3,5)
         if self.difficulty == 3: self.attack = 0
         else: self.attack = 1 
@@ -40,7 +40,7 @@ class Skeleton(Monster):
             description="Walkin', talkin', weapon-swingin' jumble of bones. Minus the talkin'.",
             inventory=Inventory(
                 weapon=weapon_options["SHORTSWORD"],
-                misc=[misc_options["JAW BONE"], misc_options["SHIELD"]],
+                misc=[misc_options["JAW BONE"]],
                 dollar_bills=self.difficulty-1
                 )
             )
@@ -144,7 +144,16 @@ class MagmaGoblin(Goblin):
             type="MAGMA GOBLIN", 
             descriptor="- magma variety."
             )
-        
+
+#----------------------------------------------------------------
+
+class FlyingGoblin(Goblin):
+    def __init__(self):
+        super().__init__(
+            type="FLYING GOBLIN", 
+            descriptor="- flying variety.",
+            defense_buff=2
+            )
 #----------------------------------------------------------------
 
 class SeaCreature(Monster):

@@ -25,7 +25,7 @@ class Monster(Combatant):
         else: print(f""" {self.type} {self.number} hasn't noticed you!""")
         return self.is_aware
 
-    def investigate(self, player, room):
+    def investigate(self, player, room): #named like this to coincide with other interactables, but the player is the one investigating the monster here
         if player.investigation + random.randint(1,5) >= self.invest_requirement:
             if self.current_health > 0:
                 print(f"""\n You were able to OBSERVE {self.type} {self.number} and glean some info about it.""")
@@ -49,7 +49,7 @@ class Monster(Combatant):
                 player.inventory.dollar_bills += self.inventory.dollar_bills
                 self.can_investigate = False
         else:
-            print(f"""\n You inspected {self.type} {self.number}, there wasn't much to find.""")
+            print(f"""\n You investigated {self.type} {self.number}, there wasn't much to find.""")
             self.can_investigate = False
         
 

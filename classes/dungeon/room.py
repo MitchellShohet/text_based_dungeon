@@ -12,9 +12,6 @@ class Room:
         self.visits = 0
         self.adjustments=adjustments
 
-    def set_exit_link(self, number, room):
-        self.exits[number].set_link(room)
-
     def spawn_monster(self, monster_given=False):
         new_monster = None
         if monster_given == False:

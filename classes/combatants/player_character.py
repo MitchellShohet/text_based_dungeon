@@ -6,20 +6,20 @@ from lists.items_lists import weapon_options, misc_options,DurabilityGem, armor_
 class PlayerCharacter(Combatant):
 
     def __init__(self):
-        self.stealth = 5 #baseline for normal mode is 3
+        self.stealth = 5 #baseline for normal mode is 1
         self.investigation = 2 #baseline for normal mode is 1
         self.stat_points = 0 #baseline for normal mode is 8
         super().__init__(
             type="PLAYER", 
             max_health=10000000, #baseline for normal mode is 10
-            current_health=100, #baseline for normal mode is 10
-            attack=5, #baseline for normal mode is 0
+            current_health=10000000, #baseline for normal mode is 10
+            attack=5, #baseline for normal mode is 1
             defense=3, 
             inventory=Inventory(
                 weapon=weapon_options["FIST"],
-                armor=armor_options["PLATEMAIL"],
+                armor=armor_options["CLOTHES"],
                 consumables=[DurabilityGem()], #*** Update this once done testing
-                misc=[misc_options["WOOD"],  misc_options["APPLES"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], misc_options["JAW BONE"]], #*** Update this once done testing
+                misc=[misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["APPLES"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], misc_options["JAW BONE"]], #*** Update this once done testing
                 dollar_bills=100 #*** Update this once done testing
                 )
             )
@@ -36,7 +36,7 @@ class PlayerCharacter(Combatant):
             print(f""" Your INVESTIGATION is +{self.investigation}.""")
             print(f""" Your ATTACK BUFF is +{self.attack_buff}.""")
             print(f""" Your DEFENSE BUFF is +{self.defense_buff}.""")
-            print(f""" You have {self.stat_points} STAT POINTS to spend.""")
+            print(f"""\n You have {self.stat_points} STAT POINTS to spend.""")
 
     def recover_health(self, amount):
         if self.current_health + amount > self.max_health: amount = self.max_health - self.current_health

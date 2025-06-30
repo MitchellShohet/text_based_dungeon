@@ -14,9 +14,9 @@ class Navigation:
         self.unlinked_exits = 2 #counts the total number of unexplored exits currently in the dungeon
         self.has_idol = False
 
-    def enter_room(self, exit_number):
-        self.determine_floor(exit_number)
-        self.determine_next_room(exit_number)
+    def enter_room(self, exit):
+        self.determine_floor(exit.number)
+        self.determine_next_room(exit)
         self.test_link_issues()
         self.run_adjustments()
         self.run_idol_state()
@@ -30,19 +30,19 @@ class Navigation:
         elif self.current_room.name == "Second Floor Landing" and exit_number == 0 or self.current_room.name == "Final Floor Landing" and exit_number == 0: 
             self.floor-=1
     
-    def determine_next_room(self, exit_number):
-        if self.current_room.exits[exit_number].link == None: #determines if the exit being taken already has a room linked to it
+    def determine_next_room(self, exit):
+        if exit.link == None: #determines if the exit being taken already has a room linked to it
             self.unlinked_exits -= 1
             new_room = self.find_unexplored_room()
-            self.current_room.set_exit_link(exit_number, new_room)
+            exit.link = new_room
             self.rooms_visited[str(self.floor)].append(new_room)
             if new_room.name != "Placeholder Rooms Maxed" : self.room_options[self.floor].remove(new_room) #**REMOVE AFTER TESTING**
             self.previous_room = self.current_room #before leaving the current room, establishes it as the previous room
-            self.current_room = self.current_room.exits[exit_number].link #sets the current room to the new one attached to the link
+            self.current_room = exit.link #sets the current room to the new one attached to the link
             self.current_room.exits[0].link = self.previous_room
         else:
             self.previous_room = self.current_room
-            self.current_room = self.current_room.exits[exit_number].link
+            self.current_room = exit.link
 
     def test_link_issues(self):
         try: self.current_room.exits[0].link #catches cases where a player reenters a room with an exit that's been blocked.
@@ -71,7 +71,7 @@ class Navigation:
         while new_room.name == "Second Floor Tunnel" or new_room.name == "Final Floor Tunnel":
             try: self.rooms_visited[str(self.floor)][0].name #prevents dungeon from spawning next floor before a single room has been added to the current floor list
             except: new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
-            if len(self.rooms_visited[str(self.floor)]) < 4: #prevents dungeon from spawning next floor before the player explores at least 4 rooms on the current one
+            if len(self.rooms_visited[str(self.floor)]) < 5: #prevents dungeon from spawning next floor before the player explores at least 5 rooms on the current one
                 new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
         if self.floor == 1 and len(self.rooms_visited["1"]) > 12 and self.room_options[1][len(self.room_options[1])-1].name == "Second Floor Tunnel": #prevents dungeon from taking too long to spawn the second floor tunnel
             new_room = self.room_options[1][len(self.room_options[1]-1)]
@@ -88,7 +88,7 @@ class Navigation:
     def run_adjustments(self):
         self.current_room.visits += 1
         for each_adjustment in self.current_room.adjustments[0]:
-            each_adjustment(self.current_room, self.rooms_visited)
+            each_adjustment(self)
     
     def run_idol_state(self):
         if self.has_idol == False: self.determine_idol_taken

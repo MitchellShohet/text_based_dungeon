@@ -1,12 +1,8 @@
-import random
 from abc import ABC, abstractmethod
 
 class Exit:
     def __init__(self, number, link=None):
         self.number = number
-        self.link = link
-
-    def set_link(self, link):
         self.link = link
 
 #----------------------------------------------------------------
