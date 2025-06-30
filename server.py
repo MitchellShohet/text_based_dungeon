@@ -138,27 +138,27 @@ class PlayThrough:
             print(" What would you like to do?")
             command = input("\n - ").upper()
             #-------------------------------
-            if command == "FORWARD" or command == "FF": self.nav_sequence("FORWARD")
-            elif command == "LEFT": self.nav_sequence("LEFT")
-            elif command == "RIGHT": self.nav_sequence("RIGHT")
-            elif command == "BACKWARD": self.nav_sequence("BACKWARD")
+            if command == "FORWARD" or command == "FF" or command == "FORAWRD" or command == "FORWAR" or command == "STRAIGHT": self.nav_sequence("FORWARD")
+            elif command == "LEFT" or command == "LFET" or command == "LEF": self.nav_sequence("LEFT")
+            elif command == "RIGHT" or command == "RIHGT" or command == "RGIHT" or command == "RIGH": self.nav_sequence("RIGHT")
+            elif command == "BACKWARD" or command == "BACK" or command == "BACKARD" or command == "BACKAWRD" or command == "BACKWAR" or command == "BAC" or command == "BAKCWARD": self.nav_sequence("BACKWARD")
             #-----------------------------
-            elif command == "USE" or command == "USE ITEM" or command == "ITEM":
+            elif command == "USE" or command == "USE ITEM" or command == "ITEM" or command == "USEITEM" or command == "USE ITE" or command == "USE ITM":
                 if len(self.player_character.inventory.consumables) > 0: 
                     self.select_sequence("USE", self.player_character.inventory.consumables)
                 else: print(" You have no consumables to use. Input MENU for a list of current options.")
             #-------------------------------
-            elif command == "EQUIP":
+            elif command == "EQUIP" or command == "EQIP" or command == "EQUI" or command == "EQUP" or command == "ARMOR" or command == "SWITCH WEAPON" or command == "EQUAIP" or command == "EQUIPE":
                 if self.player_character.inventory.has_equipables == True: 
                     self.select_sequence("EQUIP", self.player_character.inventory.misc)
                 else: print(" You have nothing new to equip. Input MENU for a list of current options.")
             #--------------------------------
-            elif command == "INVESTIGATE": 
+            elif command == "INVESTIGATE" or command == "PERCEPTION" or command == "INVESTIATE" or command == "INVESTIGAT" or command == "INVEASATE" or command == "INVEATIGATE" or command == "SEARCH": 
                 if len(self.navigation.current_room.interactables) > 0 or len(self.navigation.current_room.monsters) > 0: 
                     self.select_sequence("INVESTIGATE", self.navigation.current_room.interactables + self.navigation.current_room.monsters)
                 else: print(" There's nothing to INVESTIGATE here. Input MENU for a list of current options.")
             #---------------------------------
-            elif command == "HIDE":
+            elif command == "HIDE" or command == "HID":
                 if self.player_character.hiding == False:
                     if len(self.navigation.current_room.interactables) > 0:
                         self.player_attacking = True
@@ -171,7 +171,7 @@ class PlayThrough:
                     else: print(" There's nowhere to hide here. Input MENU for a list of current options.")
                 else: print(" You are already hiding.")
             #------------------------------------
-            elif command == "ATTACK":
+            elif command == "ATTACK" or command == "SWING SWORD" or command == "ATACK" or command == "ATTAC" or command == "ATTACVK" or command == "KILL" or command == "STAB":
                 if len(self.navigation.current_room.monsters) > 0:
                     self.player_attacking = True
                     self.select_sequence("ATTACK", self.navigation.current_room.monsters)
@@ -185,13 +185,13 @@ class PlayThrough:
                             each_monster.make_attack(self.player_character)
                 else: print(" There are no monsters here to attack. Input MENU for a list of current options.")
             #---------------------------------
-            elif command == "STATS":
+            elif command == "STATS" or command == "SATS" or command == "STAT" or command == "SATS" or command == "POINTS":
                 self.player_character.get_player_stats()
                 print(f"""\n Your current weapon is: {self.player_character.inventory.weapon.name}.""") 
                 print(f""" Your current armor is: {self.player_character.inventory.armor.name}.""")
                 if "SHIELD" in self.player_character.inventory.misc: print(" You are using a shield.")
             #---------------------------------
-            elif command == "INVENTORY":
+            elif command == "INVENTORY" or command == "INVNTORY" or command == "INVENTRY" or command == "INVENTOR" or command == "INVENTOY" or command == "INVETROIY" or command == "INVENTROY":
                 print(f""" Your current weapon is: {self.player_character.inventory.weapon.name}.""") 
                 print(f""" Your current armor is: {self.player_character.inventory.armor.name}.""")
                 if "SHIELD" in self.player_character.inventory.misc: print(" You are using a shield.")
@@ -209,7 +209,7 @@ class PlayThrough:
                     print(f""" {sum(1 for each_misc in self.player_character.inventory.misc if each_misc.name == each_misc_name)} {each_misc_name}""")
                 print(f""" DOLLAR BILLS: {self.player_character.inventory.dollar_bills}""")
             #-------------------------------------
-            elif command == "MENU":
+            elif command == "MENU" or command == "START" or command == "PAUSE":
                 options = []
                 try:self.navigation.current_room.exits[self.navigation.test_forward()].link
                 except: pass

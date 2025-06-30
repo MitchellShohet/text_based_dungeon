@@ -576,7 +576,7 @@ class ShopOwner(NPC):
     def build_sell_product_list(self, player):
         all_options = []
         for each_misc in player.inventory.misc:
-            if each_misc.name not in all_options: all_options.append(each_misc.name)
+            if each_misc.name not in all_options and each_misc.name is not "FIST": all_options.append(each_misc.name)
         for each_misc in player.inventory.misc:
             if each_misc.name in all_options: all_options[all_options.index(each_misc.name)] = each_misc
         for each_consumable in player.inventory.consumables:
