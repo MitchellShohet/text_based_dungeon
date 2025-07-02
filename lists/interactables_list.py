@@ -302,6 +302,41 @@ class RedHerring(Interactable):
         print(action)
         print(self.punchline)
 
+#---------------------------------------------------------
+
+class Breakable(Interactable):
+
+    def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, challenge=1, contents=None):
+        self.contents = contents
+        super().__init__(
+            type, 
+            number, 
+            action_words, 
+            description, 
+            invest_requirement, 
+            stealth_mod)
+    
+    def run_interaction(self, action_word, player, room):
+        if action_word == "SHATTER" and "SHATTER" in self.action_words or action_word == "BREAK" and "BREAK" in self.action_words:
+            self.run_shatter(player)
+
+    def run_shatter(self, player):
+        defender_object = Combatant(self.type, 1, 1, 0, self.challenge*3+2, Inventory(), self.number)
+        player.make_attack(defender_object)
+        if defender_object.current_health <= 0:
+            self.action_words.clear()
+            self.type = self.type+" REMAINS"
+            self.description = "The destroyed remains of what used to be a "+self.type
+            self.stealth_mod-=1
+            try: self.contents
+            except: pass
+            else:
+                print(f""" You found 1 {self.contents.name}!""")
+                player.inventory.add_item(self.contents)
+        else: print(f""" You couldn't break {self.type} {self.number}.""")
+        if "SHATTER" in self.action_words: self.action_words.remove("SHATTER")
+        else: self.action_words.remove("BREAK")
+
 #-------------------------------------------------------
 #--------------- CHILD INTERACTABLES -------------------
 #-------------------------------------------------------
@@ -344,6 +379,42 @@ class Chest(Lockable):
             print(f""" You found {self.contents[reward_num]} dollar bills!""")
         self.action_words.remove("OPEN")
         self.description = "A chest that's been opened."
+
+#---------------------------------------------------------
+
+class GlowingCrystal(Breakable):
+
+    def __init__(self, number, action_words, descriptor, challenge=1):
+        if number == 1: self.contents = misc_options["RUBY DUST"]
+        elif number == 2: self.contents = DurabilityGem()            
+        elif number == 3: self.contents = StatMedallion()
+        super().__init__(
+            type="GLOWING CRYSTAL", 
+            number=number, 
+            action_words=action_words, 
+            description="A large cluster of gems with a mysterious light sourced from within. Roughly the size of a" + descriptor, 
+            challenge=challenge,
+            invest_requirement=challenge*3, 
+            stealth_mod=challenge
+            )
+        
+    def run_interaction(self, action_word, player, room):
+        if action_word == "SHATTER" and "SHATTER" in self.action_words:
+            self.run_shatter(player)
+        elif action_word == "INSPECT" and "INSPECT" in self.action_words:
+            self.run_inspect(player)
+
+    def run_inspect(self, player):
+        if player.investigation + random.randint(1,5) >= self.invest_requirement:
+            self.invest_requirement = 0
+            print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
+            if player.current_health == player.max_health: print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
+            else:
+                player.recover_health(self.number*3)
+                self.action_words.remove("INSPECT")
+        else:
+            print(f""" The secrets of GLOWING CRYSTAL {self.number} elude you.""")
+            self.action_words.remove("INSPECT")
 
 #---------------------------------------------------------
 
@@ -414,44 +485,26 @@ class GlowingTree(Tree):
 
 #---------------------------------------------------------
 
-class MagmaRiver(Crossing):
+class MoneyTree(Tree):
 
-    def __init__(self, number, action_words, descriptor):
+    def __init__(self, action_words):
+        self.refresh_requirement = 0
+
         super().__init__(
-            type="MAGMA RIVER", 
-            number=number, 
+            type="MONEY TREE", 
+            number=0, 
             action_words=action_words, 
-            description="A 10ft wide river of flowing lava." + descriptor, 
-            exit_hold = Exit(1, Room("Magma River Passage", 
-                                        "A tunnel beyond the magma river opens to a chamber with a chest. The path forks into two exits onward.", 
-                                        [Exit(0), Exit(1), Exit(2)], 
-                                        MonsterSpawning(5, Goblin, 9, "TWICE"), 
-                                        [Chest(3, ["BREAK THE LOCK", "USE A KEY"]," with an image of a volcano etched onto its top.",contents=[weapon_options["LONGSWORD"], StatMedallion(), 40])])),
-            jump_challenge=7,
-            bridge=None,
+            descriptor="money", 
+            stealth_mod=2,
+            fruit=20,
+            challenge=0
             )
 
-    def jump_failure(self, jump_score, player, room):
-        if jump_score == 1:
-            print(" The ash in the room choking you, you attempt to leap across the MAGMA RIVER and land less than halfway across.")
-            player.take_damage(random.randint(7,11), True)
-            if player.current_health > 0: print(" You make it back onto land. You weren't able to cross, but you did survive jumping into lava.")
-        elif jump_score > 1:
-            print(" With a running start you successfully leap most of the way accross MAGMA RIVER! You land just short of the opposite bank.")
-            player.take_damage(random.randint(2,4), True)
-            if player.current_health > 0:
-                print(" You made it to the opposite bank with minimal burns considering you jumped a MAGMA RIVER. However the way behind you is now blocked.")
-                self.switch_sides(room)
-
-    def wood_failure(self, player, room):
-        print(" Afterward the bridge catches fire and incinerates. The opposite path is blocked by the MAGMA RIVER again.")
-        self.action_words.append("BUILD BRIDGE")
-        self.action_words.append("JUMP")
-        self.action_words.remove("CROSS THE BRIDGE")
-
-    def throw_rocks(self, room):
-        print(f""" You throw some rocks into the lava, they sink immediately.""")
-        room.spawn_monster()
+    def pick_fruit(self, player):
+        print(f""" You picked {self.fruit} dollar bills from the tree!""")
+        player.inventory.dollar_bills += self.fruit
+        self.fruit = 0
+        self.action_words.remove("PICK FRUIT")
 
 #---------------------------------------------------------
 
@@ -480,6 +533,46 @@ class Chasm(Crossing):
 
     def throw_rocks(self, room):
         print(f""" You throw some rocks into the chasm{self.descriptor}""")
+        room.spawn_monster()
+
+#---------------------------------------------------------
+
+class MagmaRiver(Crossing):
+
+    def __init__(self, number, action_words, descriptor):
+        super().__init__(
+            type="MAGMA RIVER", 
+            number=number, 
+            action_words=action_words, 
+            description="A 10ft wide river of flowing lava." + descriptor, 
+            exit_hold = Exit(1, Room("Magma River Passage", 
+                                        "A tunnel beyond the magma river opens to a chamber with a chest. The path forks into two exits onward.", 
+                                        [Exit(0), Exit(1), Exit(2)], 
+                                        MonsterSpawning(5, Goblin, 9, "TWICE"), 
+                                        [Chest(3, ["BREAK THE LOCK", "USE A KEY"]," with an image of a volcano etched onto its top.",contents=[weapon_options["LONGSWORD"], StatMedallion(), 40])])),
+            jump_challenge=7,
+            bridge=None,
+            )
+
+    def jump_failure(self, jump_score, player, room):
+        if jump_score == 1:
+            print(" The ash in the room choking you, you attempt to leap across the MAGMA RIVER and land less than halfway across.")
+            player.take_damage(random.randint(7,11), True)
+            if player.current_health > 0: print(" You make it back onto land. You weren't able to cross, but you did survive jumping into lava.")
+        elif jump_score > 1:
+            print(" With a running start you successfully leap most of the way accross MAGMA RIVER! You land just short of the opposite bank.")
+            player.take_damage(random.randint(2,4), True)
+            if player.current_health > 0:
+                print(" You made it to the opposite bank with minimal burns considering you jumped a MAGMA RIVER. However the opposite side is now blocked.")
+                self.switch_sides(room)
+
+    def wood_failure(self, player, room):
+        print(" Afterward the bridge catches fire and incinerates. The opposite path is blocked by the MAGMA RIVER again.")
+        self.action_words.append("BUILD BRIDGE")
+        self.action_words.remove("CROSS THE BRIDGE")
+
+    def throw_rocks(self, room):
+        print(f""" You throw some rocks into the lava, they sink immediately.""")
         room.spawn_monster()
 
 #---------------------------------------------------------
@@ -678,55 +771,6 @@ class Pool(Interactable):
         room.exits = None
         player.hiding = True
         room.adjustments[1].append(check_for_heavy_armor)
-
-#---------------------------------------------------------
-
-class GlowingCrystal(Interactable):
-
-    def __init__(self, number, action_words, descriptor):
-        if number == 1: self.contents = misc_options["RUBY DUST"]
-        elif number == 2: self.contents = DurabilityGem()            
-        elif number == 3: self.contents = StatMedallion()
-        super().__init__(
-            type="GLOWING CRYSTAL", 
-            number=number, 
-            action_words=action_words, 
-            description="A large cluster of gems with a mysterious light sourced from within. Roughly the size of a" + descriptor, 
-            invest_requirement=number*3, 
-            stealth_mod=number
-            )
-        
-    def run_interaction(self, action_word, player, room):
-        if action_word == "SHATTER" and "SHATTER" in self.action_words:
-            self.run_shatter(player)
-        elif action_word == "INSPECT" and "INSPECT" in self.action_words:
-            self.run_inspect(player)
-    
-    def run_shatter(self, player):
-        crystal_def = Combatant("GLOWING CRYSTAL", 1, 1, 0, self.number*3+2, Inventory(), self.number)
-        player.make_attack(crystal_def)
-        if crystal_def.current_health <= 0:
-            player.inventory.add_item(self.contents)
-            print(f""" You found 1 {self.contents.name}""")
-            if "INSPECT" in self.action_words: self.action_words.remove("INSPECT")
-            self.type = "DESTROYED CRYSTAL PILE"
-            self.description = "The shattered remains of what used to by a GLOWING CRYSTAL"
-            self.stealth_mod-=1
-        else: print(f""" You couldn't break GLOWING CRYSTAL {self.number}.""")
-        self.action_words.remove("SHATTER")
-
-    def run_inspect(self, player):
-        if player.investigation + random.randint(1,5) >= self.invest_requirement:
-            self.invest_requirement = 0
-            print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
-            if player.current_health == player.max_health: print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
-            else:
-                player.recover_health(self.number*3)
-                self.action_words.remove("INSPECT")
-        else:
-            print(f""" The secrets of GLOWING CRYSTAL {self.number} elude you.""")
-            self.action_words.remove("INSPECT")
-
 
 #---------------------------------------------------------
 

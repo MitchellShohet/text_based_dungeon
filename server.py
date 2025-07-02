@@ -228,14 +228,14 @@ class PlayThrough:
                 if len(self.navigation.current_room.interactables) > 0 or len(self.navigation.current_room.monsters) > 0: options.append("INVESTIGATE")
                 if self.player_character.hiding == False and len(self.navigation.current_room.interactables) > 0: options.append("HIDE")
                 if len(self.player_character.inventory.consumables) > 0: options.append("USE ITEM")
-                if self.player_character.inventory.has_equipables == True: options.append("EQUIP")
-                options.append("STATS")
-                options.append("INVENTORY")
                 if len(self.navigation.current_room.interactables) > 0:
                     for each_interactable in self.navigation.current_room.interactables:
                         if len(each_interactable.action_words) > 0:
                             for each_action_word in each_interactable.action_words:
                                 options.append(f"""{each_action_word}""")
+                if self.player_character.inventory.has_equipables == True: options.append("EQUIP")
+                options.append("STATS")
+                options.append("INVENTORY")
                 i=0
                 while i < len(options):
                     j=i+1

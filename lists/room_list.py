@@ -1,9 +1,9 @@
 from classes.dungeon.room_components import Exit, MonsterSpawning
 from classes.dungeon.room import Room
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, Avatar, MagmaGoblin, FlyingGoblin
-from lists.interactables_list import Pool, Chasm, RedHerring, GlowingCrystal, ExitHold, Chest, MagmaRiver, Tree, Cauldron, NPC, ShopOwner, GlowingTree
+from lists.interactables_list import Pool, Chasm, RedHerring, GlowingCrystal, ExitHold, Chest, MagmaRiver, MoneyTree, Tree, Cauldron, NPC, ShopOwner, GlowingTree
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, StatMedallion, PowerBerry, DurabilityGem, MagicWand, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import block_exit, add_to_interactable, add_to_description, change_room, add_monsters, change_monster_spawning, shop_refresh, sea_creature_defeated, tree_inspect_renew, damage_player
+from lists.adjustments_list import block_exit, add_to_interactable, money_tree_refresh, add_to_description, change_room, add_monsters, change_monster_spawning, shop_refresh, sea_creature_defeated, tree_inspect_renew, damage_player
 
 room_list = [ 
     [
@@ -39,6 +39,12 @@ room_list = [
             [Exit(0)], 
             MonsterSpawning(5, MagmaGoblin, 10, "TWICE"),
             [MagmaRiver(0, ["JUMP", "BUILD BRIDGE", "THROW ROCKS"], "")]),
+        Room("Money Tree Room",
+            "A room with a money tree placeholder description lol",
+            [Exit(0), Exit(1)],
+            MonsterSpawning(5, Wizard),
+            [MoneyTree(["PICK FRUIT", "CHOP"])],
+            [[money_tree_refresh], [], {"money_tree_refresh" : [0]}]), ####change the number here to 4 post testing
         Room("Chasm Room",
             "A narrow chasm",
             [Exit(0)],

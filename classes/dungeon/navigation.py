@@ -91,8 +91,8 @@ class Navigation:
             each_adjustment(self)
     
     def run_idol_state(self):
-        if self.has_idol == False: self.determine_idol_taken
-        else:
+        self.determine_idol_taken
+        if self.has_idol == True: 
             if Avatar() in self.current_room.monsters: 
                 self.current_room.monsters.remove(Avatar())
                 print(" The AVATAR OF DYNAE in this room has been fully healed!")

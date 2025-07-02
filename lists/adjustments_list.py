@@ -39,6 +39,17 @@ def shop_refresh(nav):
                 each_interactable.convo[0] = nav.current_room.adjustments[2]["shop_refresh"][2]
             else: each_interactable.convo[0] = nav.current_room.adjustments[2]["shop_refresh"][3]
 
+def money_tree_refresh(nav):
+    dungeon_length = len(nav.rooms_visited["1"]) + len(nav.rooms_visited["2"]) + len(nav.rooms_visited["3"])
+    for each_interactable in nav.current_room.interactables:
+        if each_interactable.type == "MONEY TREE":
+            if nav.current_room.visits == 1: each_interactable.refresh_requirement = dungeon_length
+            elif dungeon_length >= each_interactable.refresh_requirement + nav.current_room.adjustments[2]["money_tree_refresh"][0]:
+                each_interactable.fruit += len(nav.rooms_visited[str(nav.floor)]) * nav.floor
+                each_interactable.action_words.append("PICK FRUIT")
+                nav.current_room.adjustments[2]["money_tree_refresh"][0] += 2
+                each_interactable.refresh_requirement = dungeon_length
+
 def block_exit(nav):
     if nav.current_room.visits == nav.current_room.adjustments[2]["block_exit"][0]:
         nav.current_room.interactables[0].exit_hold = nav.current_room.exits[nav.current_room.adjustments[2]["block_exit"][1]]
