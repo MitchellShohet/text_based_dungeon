@@ -1,5 +1,6 @@
 import random, math
 from abc import ABC, abstractmethod
+from confirm_sequence import confirm_sequence
 from classes.dungeon.room_components import Interactable
 from classes.combatants.combatant import Combatant
 from classes.dungeon.room import Room
@@ -8,7 +9,7 @@ from classes.inventory.inventory import Inventory
 from classes.inventory.items import Weapon
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, Pie, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import check_for_heavy_armor, change_room
+from lists.adjustments_list import check_for_heavy_armor, change_room, teleport_sequence, block_exit
 
 
 #-------------------------------------------------------
@@ -525,8 +526,9 @@ class Chasm(Crossing):
     def jump_failure(self, jump_score, player, room):
         print(" You attempt to leap over the abyss, but your footing was off and you tumble into the dark.")
         print(" You land abruptly, smashing into the ground below!")
-        player.take_damage(7, True)
-        if player.current_health > 0: room.adjustments[1].append(change_room)
+        player.take_damage(4, True)
+        if player.current_health > 0: 
+            room.adjustments[1].append(change_room)
 
     def wood_failure(self, player, room):
         pass
@@ -574,6 +576,38 @@ class MagmaRiver(Crossing):
     def throw_rocks(self, room):
         print(f""" You throw some rocks into the lava, they sink immediately.""")
         room.spawn_monster()
+
+#---------------------------------------------------------
+
+class Fairy(NPC):
+
+    def __init__(self, number, descriptor, name, pronouns, convo, invest_requirement):
+        super().__init__(
+            number=number, 
+            action_words=["TALK", "ROB", "TELEPORT"], 
+            descriptor=descriptor, 
+            name = name,
+            pronouns = pronouns,
+            convo = convo,
+            invest_requirement=invest_requirement, 
+            inventory = [misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"]],
+            )
+        
+    def run_interaction(self, action_word, player, room):
+        if action_word == "TALK" and "TALK" in self.action_words:
+            self.talk()
+        elif action_word == "ROB" and "ROB" in self.action_words:
+            self.attempt_robbery(player)
+        elif action_word == "TELEPORT" and "TELEPORT" in self.action_words:
+            self.teleport(player, room)
+
+    def teleport(self, player, room):
+        if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
+        elif player.inventory.dollar_bills < 40 and sum(1 for each_item in player.inventory.misc if each_item.name == "BLADE OF GRASS") < 20: print(f""" {self.name}: {self.convo[7]}""")
+        else:
+            print(self.convo[3])
+            if confirm_sequence(self.convo[4], self.convo[5], self.convo[6]):
+                room.adjustments[1].append(teleport_sequence)
 
 #---------------------------------------------------------
 

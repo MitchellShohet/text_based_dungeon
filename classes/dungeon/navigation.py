@@ -74,7 +74,7 @@ class Navigation:
             if len(self.rooms_visited[str(self.floor)]) < 5: #prevents dungeon from spawning next floor before the player explores at least 5 rooms on the current one
                 new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
         if self.floor == 1 and len(self.rooms_visited["1"]) > 12 and self.room_options[1][len(self.room_options[1])-1].name == "Second Floor Tunnel": #prevents dungeon from taking too long to spawn the second floor tunnel
-            new_room = self.room_options[1][len(self.room_options[1]-1)]
+            new_room = self.room_options[1][len(self.room_options[1])-1]
         elif self.floor == 2 and len(self.rooms_visited["2"]) > 12 and self.room_options[2][len(self.room_options[2])-1].name == "Final Floor Tunnel": #prevents dungeon from taking too long to spawn the final floor tunnel
             new_room = self.room_options[2][len(self.room_options[2])-1]
         return new_room
@@ -87,8 +87,9 @@ class Navigation:
     
     def run_adjustments(self):
         self.current_room.visits += 1
+        dungeon_length = len(self.rooms_visited["1"]) + len(self.rooms_visited["2"]) + len(self.rooms_visited["3"])
         for each_adjustment in self.current_room.adjustments[0]:
-            each_adjustment(self)
+            each_adjustment(self.current_room, dungeon_length)
     
     def run_idol_state(self):
         self.determine_idol_taken
@@ -107,7 +108,7 @@ class Navigation:
             try: each_exit.link
             except: continue
             if each_exit.link == self.previous_room: return each_exit.number
-        return self.current_room.interactables[0].exit_hold.number #in the rare case that an exit behind the player is removed, this holds that exit information.
+        return self.current_room.interactables[0].exit_hold.number #in cases where an exit behind the player is removed, this holds that exit information.
     
     def test_forward(self): #returns the exit that is forward from the player's perspective
         backward = self.test_backward()

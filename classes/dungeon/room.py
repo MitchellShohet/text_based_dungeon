@@ -2,7 +2,7 @@ import random
 from classes.dungeon.room_components import Exit
 
 class Room:
-    def __init__(self, name, description, exits=[Exit(0)], monster_spawning=None, interactables=[], adjustments=[[],[]]):
+    def __init__(self, name, description, exits=[Exit(0)], monster_spawning=None, interactables=[], adjustments=[[],[],{}]):
         self.name = name
         self.description = description
         self.exits = exits

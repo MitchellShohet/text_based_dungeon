@@ -3,6 +3,7 @@ from line_spacer import line_spacer
 from classes.combatants.player_character import PlayerCharacter
 from classes.dungeon.navigation import Navigation
 from lists.items_lists import weapon_options, armor_options, HealthPotion, StatMedallion, SmokeBomb, DurabilityGem, PowerBerry
+from lists.adjustments_list import change_room, teleport_sequence
 
 class PlayThrough:
     def __init__(self):
@@ -257,7 +258,9 @@ class PlayThrough:
             #-------------------------------------------------
             else: self.navigation.current_room.room_interaction(command, self.player_character, self.navigation.current_room) #
             for each_adjustment in self.navigation.current_room.adjustments[1]:
-                each_adjustment(self.navigation, self.player_character)
+                if each_adjustment == change_room or each_adjustment == teleport_sequence:
+                    each_adjustment(self.navigation, self.player_character)
+                else: each_adjustment(self.navigation.current_room, self.player_character)
             if self.player_character.current_health <= 0: self.player_alive = False
             if self.navigation.current_room.name == "Go Home":
                 print(f"""
