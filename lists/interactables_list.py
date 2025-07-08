@@ -112,12 +112,12 @@ class Crossing(Interactable, ABC):
 
 class NPC(Interactable):
 
-    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, inventory=[misc_options["APPLES"]]):
+    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, inventory=[misc_options["APPLES"], weapon_options["SHORTSWORD"]]):
         self.name = name
         self.pronouns = pronouns
         self.convo = convo
         self.inventory = inventory
-        self.dollar_bills = invest_requirement*4
+        self.dollar_bills = invest_requirement*3
         self.refresh_requirement = 0
         super().__init__(
             type=name, 
@@ -154,7 +154,7 @@ class NPC(Interactable):
             self.inventory.clear()
             self.dollar_bills = 0
             self.invest_requirement *= 2
-        elif player.hiding_score >= self.invest_requirement * 1.7:
+        elif player.hiding_score >= self.invest_requirement * 1:
             if self.dollar_bills < 30: self.dollar_bills += 30
             print(f""" You robbed {self.name} a little without {self.pronouns[1]} noticing!""")
             print(f""" You got 1 {self.inventory[rand_num].name}!""")
@@ -181,8 +181,9 @@ class Tree(Interactable):
     def __init__(self, number, action_words, descriptor, stealth_mod=1, challenge=0, fruit=misc_options["APPLES"], type="TREE"):
         self.fruit = fruit
         self.challenge = challenge
+        self.type = type
         super().__init__(
-            type=type, 
+            type=self.type, 
             number=number, 
             action_words=action_words, 
             description="A" + descriptor + " tree.", 
@@ -252,7 +253,7 @@ class Lockable(Interactable, ABC):
             if selection_loop == True: print(" That's not an option here.")
 
     def attempt_to_break(self, player, room):
-        lock_def = Combatant("THE LOCK", 1, 1, 0, self.challenge, Inventory())
+        lock_def = Combatant("LOCK", 1, 1, 0, self.challenge, Inventory())
         player.make_attack(lock_def)
         if lock_def.current_health <= 0: self.unlock_success(player, room)
         else:
@@ -308,6 +309,7 @@ class RedHerring(Interactable):
 class Breakable(Interactable):
 
     def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, challenge=1, contents=None):
+        self.challenge = challenge
         self.contents = contents
         super().__init__(
             type, 
@@ -318,7 +320,7 @@ class Breakable(Interactable):
             stealth_mod)
     
     def run_interaction(self, action_word, player, room):
-        if action_word == "SHATTER" and "SHATTER" in self.action_words or action_word == "BREAK" and "BREAK" in self.action_words:
+        if action_word == "SHATTER" and "SHATTER" in self.action_words or action_word == "BREAK" and "BREAK" in self.action_words or action_word == "CHOP" and "CHOP" in self.action_words:
             self.run_shatter(player)
 
     def run_shatter(self, player):
@@ -326,8 +328,8 @@ class Breakable(Interactable):
         player.make_attack(defender_object)
         if defender_object.current_health <= 0:
             self.action_words.clear()
-            self.type = self.type+" REMAINS"
             self.description = "The destroyed remains of what used to be a "+self.type
+            self.type = self.type+" REMAINS"
             self.stealth_mod-=1
             try: self.contents
             except: pass
@@ -336,7 +338,8 @@ class Breakable(Interactable):
                 player.inventory.add_item(self.contents)
         else: print(f""" You couldn't break {self.type} {self.number}.""")
         if "SHATTER" in self.action_words: self.action_words.remove("SHATTER")
-        else: self.action_words.remove("BREAK")
+        elif "CHOP" in self.action_words: self.action_words.remove("CHOP")
+        elif "BREAK" in self.action_words: self.action_words.remove("BREAK")
 
 #-------------------------------------------------------
 #--------------- CHILD INTERACTABLES -------------------
@@ -352,6 +355,28 @@ class ExitHold(RedHerring):
             action_words=action_words, 
             punchline=punchline
             )
+
+#---------------------------------------------------------
+
+class Owl(RedHerring):
+
+    def __init__(self):
+        super().__init__(
+            type="OWL", 
+            description="A great horned owl perched on a rocky outcropping. It's glaring at you with a big frown.", 
+            action_words=["PET", "HOOT", "WAVE ARMS", "GLARE BACK"], 
+            punchline=" It keeps glaring at you."
+            )
+        
+    def run_interaction(self, action_word, player, room):
+        if action_word == "PET":
+            print(" It's too far away to reach." + self.punchline)
+        if action_word == "HOOT":
+            print(" You mimic the owl, it doesn't look amused.")
+        if action_word == "WAVE ARMS":
+            print(" You flap around at the owl and look kinda stupid." + self.punchline)
+        if action_word == "GLARE BACK":
+            print(" It's a staring contest. The owl wins and you feel a little stupid." + self.punchline)
 
 #---------------------------------------------------------
 
@@ -443,7 +468,7 @@ class GlowingTree(Tree):
         elif action_word == "APOLOGIZE" and "APOLOGIZE" in self.action_words: print(" The GLOWING TREE does not accept your apology.")
 
     def chop(self, player, room):
-        tree_def = Combatant("TREE", 1, 1, 3, self.challenge, Inventory(weapon=Weapon(0, "WEAPON", "", self.challenge/5, self.challenge, self.challenge, self.challenge, 0)), self.number)
+        tree_def = Combatant(self.type, 1, 1, 3, self.challenge, Inventory(weapon=Weapon(0, "WEAPON", "", self.challenge/5, self.challenge, self.challenge, self.challenge, 0)), self.number)
         if self.gift_given == True:
             print(" Betrayed, the GLOWING TREE attacks you with it's magic!")
             tree_def.make_attack(player)
@@ -467,15 +492,18 @@ class GlowingTree(Tree):
             if self.challenge == 6:
                 reward = StatMedallion()
                 monster = Wizard()
-                monster.number = self.number
+                if self.number == 0: monster.number = 1
+                else: monster.number = self.number
             elif self.challenge == 10:
                 reward = armor_options["PLATEMAIL"]
                 monster = MudGolem()
-                monster.number = self.number
+                if self.number == 0: monster.number = 1
+                else: monster.number = self.number
             elif self.challenge == 15:
                 reward = weapon_options["MAGIC SWORD"]
                 monster = Minotaur()
-                monster.number = sum(1 for each_monster in room.monsters if each_monster.type == "MINOTAUR")
+                if sum(1 for each_monster in room.monsters if each_monster.type == "MINOTAUR") == 0: monster.number = 1
+                else: monster.number = sum(1 for each_monster in room.monsters if each_monster.type == "MINOTAUR")
             print(f""" The GLOWING TREE gifted you a {reward.name}!""")
             player.inventory.add_item(reward)
             self.gift_given = True
@@ -757,6 +785,30 @@ class ShopOwner(NPC):
             if self.dollar_bills >= math.ceil(product.value * .75) + 30: self.dollar_bills -= math.ceil(product.value * .75)
             player.inventory.dollar_bills += math.ceil(product.value * .75)
             player.inventory.remove_item(product)
+
+#---------------------------------------------------------
+
+class Artisan(ShopOwner):
+
+    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, inventory):
+        super().__init__(number, action_words, descriptor, name, pronouns, convo, invest_requirement, inventory)
+
+    def attempt_robbery(self, player):
+        if self.dollar_bills < 4: print(f""" {self.name} doesn't have any money for you to rob!""")
+        elif player.hiding_score >= self.invest_requirement:
+            print(f""" You successfully robbed {self.name} without {self.pronouns[1]} noticing!""")
+            print(f""" You got {self.dollar_bills} dollar bills!""")
+            player.inventory.dollar_bills += self.dollar_bills
+            self.dollar_bills = 0
+            self.invest_requirement = math.ceil(self.invest_requirement * 1.4)
+        else:
+            print(f""" {self.name}: {self.convo[1]}""")
+            print(f""" {self.name} caught you trying to rob {self.pronouns[1]}""")
+            print(f""" You still managed to swipe {math.ceil(self.dollar_bills * .4)} dollar bills!""")
+            player.dollar_bills += math.ceil(self.dollar_bills * .4)
+            self.dollar_bills -= math.ceil(self.dollar_bills * .4)
+            self.refresh_requirement = 100000
+            self.invest_requirement = math.ceil(self.invest_requirement * 1.7)
 
 #-------------------------------------------------------
 #------------ INDEPENDENT INTERACTABLES ----------------

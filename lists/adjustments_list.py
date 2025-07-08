@@ -10,6 +10,10 @@ def add_to_interactable(room, dungeon_length):
     if room.visits == room.adjustments[2]["add_to_interactable"][0]:
         room.interactables[0].action_words.append(room.adjustments[2]["add_to_interactable"][1])
 
+def add_interactable(room, dungeon_length):
+    if room.visits == room.adjustments[2]["add_interactable"][0]:
+        room.interactables.append(room.adjustments[2]["add_interactable"][1])
+
 def add_to_description(room, dungeon_length):
     if room.visits == room.adjustments[2]["add_to_description"][0]:
         room.description += room.adjustments[2]["add_to_description"][1]
@@ -119,3 +123,20 @@ def sea_creature_defeated(room, player):
             room.description = "A room with a small pond, the corpse of a sea creature is floating in the water."
             room.adjustments[1].clear()
             player.hiding = False
+
+def add_owl(room, player):
+    if len(room.interactables) == 0:
+        print(" You notice an owl in the corner glaring at you.")
+        room.interactables.append(room.adjustments[2]["add_owl"][0])
+        room.description += " There's an owl glaring at you from the corner."
+
+def break_the_table(room, player):
+    table_destroyed = False
+    for each_interactable in room.interactables:
+        if each_interactable.type == "TABLE REMAINS":
+            if add_to_description in room.adjustments[0]: room.adjustments[0].remove(add_to_description)
+            table_destroyed = True
+            room.description = "A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor next to the remains of a table."
+        if each_interactable.type == "BILL" and table_destroyed == True:
+            each_interactable.convo[0] = "...You destroyed my table."
+            room.description = "A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor. A younger looking kid is looking at the remains of a destroyed table."
