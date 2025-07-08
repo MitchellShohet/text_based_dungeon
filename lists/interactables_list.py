@@ -653,7 +653,7 @@ class ShopOwner(NPC):
                 if selection == "NEVERMIND": selection_loop = False
                 for each_product in products:
                     if selection == each_product.name:
-                        selection_loop = self.buy_product(player, each_product)
+                        selection_loop = self.confirm_buy_details(player, each_product)
                 if selection_loop == True: print(f""" {self.name}: Sorry, no can do. Buy something else?""")
 
     def build_buy_product_list(self):
@@ -664,17 +664,29 @@ class ShopOwner(NPC):
             if each_item.name in products: products[products.index(each_item.name)] = each_item
         return products
     
-    def buy_product(self, player, product):
-        if player.inventory.dollar_bills >= math.ceil(product.value * 1.5):
-            print(f"""\n {self.name}: {self.convo[4]}""")
-            print(f""" You bought {self.name}'s {product.name}!""")
-            player.inventory.add_item(product)
-            player.inventory.dollar_bills -= math.ceil(product.value * 1.5)
-            self.dollar_bills += math.ceil(product.value * 1.5)
-            self.inventory.remove(product)
-            return False
-        else: print(" You don't have enough dollar bills though!")
-        return True
+    def confirm_buy_details(self, player, product):
+        if product.type == "CONSUMABLE": print(f""" {product.name}- {product.description}""")
+        elif product.type == "ARMOR": print(f""" {product.name}- Sets DEFENSE to {product.defense}.""")
+        elif product.type == "WEAPON": print(f""" {product.name}- Weapon rank {product.rank}/8.""")
+        elif product.name == "SHIELD": print(f""" {product.name}- Raises DEFENSE by 1 while in your inventory.""")
+        quantity = self.determine_quantity(self.inventory, product, "NPC")
+        if quantity > 0: 
+            if player.inventory.dollar_bills >= math.ceil(product.value * 1.5 * quantity):
+                confirm = confirm_sequence(f""" {self.name}: {quantity} {product.name} for {math.ceil(product.value * 1.5 * quantity)} dollar bills?""", f"""\n {self.name}: {self.convo[4]}""", f""" {self.name} looks dissapointed but understands.""")
+                if confirm: 
+                    self.buy_product(player, product, quantity)
+            else: print(f""" {self.name} You don't have enough dollar bills though!""")
+        else: print(f""" {self.name} looks dissapointed but understands.""")
+        return False
+
+
+    def buy_product(self, player, product, quantity):
+            if quantity == 1: print(f""" You bought {self.name}'s {product.name}!""")
+            else: print(f""" You bought {quantity} of {self.name}'s {product.name}!""")
+            for x in range(0, quantity): player.inventory.add_item(product)
+            player.inventory.dollar_bills -= math.ceil(product.value * 1.5 * quantity)
+            self.dollar_bills += math.ceil(product.value * 1.5 * quantity)
+            for x in range(0, quantity): self.inventory.remove(product)
 
     def run_sell_sequence(self, player):
         if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
@@ -694,11 +706,13 @@ class ShopOwner(NPC):
                 if selection == "NEVERMIND": selection_loop = False
                 for each_product in all_options:
                     if selection == each_product.name:
-                        quantity = self.determine_quantity(player, each_product)
-                        if quantity > 0: self.sell_product(player, each_product, quantity)
+                        quantity = self.determine_quantity(player.inventory.misc + player.inventory.consumables, each_product)
+                        if quantity > 0: 
+                            if confirm_sequence(f""" Sell {quantity} {each_product.name} to {self.name} for {math.ceil(each_product.value * .75 * quantity)}?""", f""" {self.name}: {self.convo[4]}""", f""" {self.name} looks dissapointed but understands."""): 
+                                self.sell_product(player, each_product, quantity)
                         else: print(f""" {self.name} looks dissapointed but understands.""")
                         selection_loop = False
-                if selection_loop == True: print(f""" You don't have any {selection} to sell.""")
+                if selection_loop == True: print(f""" {self.name} You don't have any {selection} to sell.""")
 
     def build_sell_product_list(self, player):
         all_options = []
@@ -712,28 +726,31 @@ class ShopOwner(NPC):
             if each_consumable.name in all_options: all_options[all_options.index(each_consumable.name)] = each_consumable
         return all_options
     
-    def determine_quantity(self, player, product): #Might be able to allow purchasing multiples with some adjusting, would we want to?
+    def determine_quantity(self, inventory, product, seller="PLAYER"):
         quantity = 1
-        if sum(1 for each_item in player.inventory.misc if each_item.name == product.name) + sum(1 for each_item in player.inventory.consumables if each_item.name == product.name) > 1:
+        if sum(1 for each_item in inventory if each_item.name == product.name) > 1:
             quantity_loop = True
             while quantity_loop == True:
-                print(f""" You have {sum(1 for each_item in player.inventory.misc if each_item.name == product.name) + sum(1 for each_item in player.inventory.consumables if each_item.name == product.name)} {product.name}. How many would you like to sell?""")
-                quantity = (input(" - "))
+                if seller == "PLAYER": print(f""" You have {sum(1 for each_item in inventory if each_item.name == product.name)} {product.name}. How many would you like to sell?""")
+                else: print(f""" {self.name} has {sum(1 for each_item in inventory if each_item.name == product.name)} {product.name}. How many would you like to buy?""")
+                quantity = (input("\n - "))
                 try: int(quantity)
                 except: print(" Please input a number.")
                 else: 
                     quantity = int(quantity)
-                    if quantity > sum(1 for each_item in player.inventory.misc if each_item.name == product.name) + sum(1 for each_item in player.inventory.consumables if each_item.name == product.name): print(f""" You don't have that many {product.name}.""")
-                    elif quantity < 0: print(" You cannot sell a negative amount.")
+                    if quantity > sum(1 for each_item in inventory if each_item.name == product.name) and seller == "PLAYER": print(f""" You don't have that many {product.name}.""")
+                    elif quantity > sum(1 for each_item in inventory if each_item.name == product.name): print(f""" {self.name} doesn't have that many {product.name}.""")
+                    elif quantity < 0 and seller == "PLAYER": print(" You cannot sell a negative amount.")
+                    elif quantity < 0: print(" You cannot buy a negative amount.")
                     elif quantity == 0: 
-                        print(" Cancel your sale?")
-                        command = input(" - ").upper()
+                        if seller== "PLAYER": print(" Cancel your sale?")
+                        else: print(" Cancel your purchase?")
+                        command = input("\n - ").upper()
                         if command == "YES" or command == "YEAH" or command == "YEP" or command == "Y": quantity_loop = False
                     else: quantity_loop = False
         return quantity
     
     def sell_product(self, player, product, quantity):
-        print(f""" {self.name}: {self.convo[4]}""")
         print(f""" You sold {quantity} {product.name} to {self.name} for {math.ceil(product.value * .75) * quantity} dollar bills!""")
         for x in range(0, quantity):
             self.inventory.append(product)

@@ -18,7 +18,7 @@ class PlayerCharacter(Combatant):
             inventory=Inventory(
                 weapon=weapon_options["FIST"],
                 armor=armor_options["CLOTHES"],
-                consumables=[DurabilityGem()], #*** Update this once done testing
+                consumables=[DurabilityGem(), HealthPotion()], #*** Update this once done testing
                 misc=[misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["APPLES"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], misc_options["JAW BONE"]], #*** Update this once done testing
                 dollar_bills=100 #*** Update this once done testing
                 )
@@ -31,7 +31,8 @@ class PlayerCharacter(Combatant):
             print(f"""\n Your CURRENT HEALTH is {self.current_health}.""")
             print(f""" Your MAX HEALTH is {self.max_health}.""")
             print(f""" Your ATTACK is +{self.attack}.""")
-            print(f""" Your DEFENSE is {self.defense}.""")
+            if "SHIELD" in self.inventory.misc: print(f""" Your DEFENSE is {self.inventory.armor.defense + 1}.""")
+            else: print(f""" Your DEFENSE is {self.inventory.armor.defense}.""")
             print(f""" Your STEALTH is +{self.stealth}.""")
             print(f""" Your INVESTIGATION is +{self.investigation}.""")
             print(f""" Your ATTACK BUFF is +{self.attack_buff}.""")

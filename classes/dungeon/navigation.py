@@ -52,14 +52,14 @@ class Navigation:
 
     def find_unexplored_room(self):
         try: new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)] #checks if every possible room has already been added to the dungeon
-        except: new_room = self.room_options[0][0] #later on this should trigger finding the next floor/ the idol/ the exit
+        except: new_room = self.room_options[0][0] #***CHANGE THIS TO A FAIRY FOUNTAIN***
         self.test_floor_elegibility(new_room)
         new_exits = self.check_for_new_exits(new_room)
         attempts = 1
         while new_exits + self.unlinked_exits <= 1: #prevents the dungeon from populating every exit with a dead end
             attempts +=1
             if attempts > 80:
-                new_room = self.room_options[0]
+                new_room = self.room_options[0] #***ADD A LIST OF FAIRY FOUNTAINS TO CHOOSE FROM***
                 break
             new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
             new_room = self.test_floor_elegibility(new_room)

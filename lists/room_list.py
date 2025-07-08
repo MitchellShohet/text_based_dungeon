@@ -85,7 +85,7 @@ room_list = [
         #         GlowingTree(3, ["CHOP"], " glowing birch sapling", challenge=3)],
         #     [[tree_inspect_renew], []]),
         Room("Medium Magic Tree",
-            "A large chamber with a glowing elm tree, a sourceless breeze is gentle blowing here.",
+            "A large chamber with a glowing elm tree, a sourceless breeze is gently blowing here.",
             [Exit(0), Exit(1), Exit(2)],
             MonsterSpawning(1, Skeleton, 2, "TWICE"),
             [GlowingTree(1, ["PICK FRUIT", "CHOP", "INSPECT"], " glowing elm", challenge=10)],

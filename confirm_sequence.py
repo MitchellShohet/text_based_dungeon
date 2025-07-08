@@ -6,7 +6,7 @@ def confirm_sequence(question, confirmation_text, denial_text):
         print(" YES")
         print(" NEVERMIND")
         selection = input("\n - ").upper()
-        if selection == "NO" or selection == "NEVERMIND" or selection == "NOPE" or selection == "NOE":
+        if selection == "NO" or selection == "NEVERMIND" or selection == "NOPE" or selection == "NOE" or selection == "NAH" or selection == "NAW":
             choosing = False
             print(denial_text)
         elif selection == "YES":
