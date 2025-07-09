@@ -96,7 +96,7 @@ def teleport_sequence(nav, player): #**Room options will need to be updated as w
         if select_loop == True: print(f""" {selection} is not an option here.""")
     if room_choice:
         nav.current_room.adjustments[2]["change_room"] = [Exit(0, room_choice)]
-        print(nav.current_room.interactables[0].convo[8],
+        print(f""" {nav.current_room.interactables[0].name}: {nav.current_room.interactables[0].convo[8]}""",
             "\n",
             line_spacer,
             "\n"

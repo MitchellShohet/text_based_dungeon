@@ -139,7 +139,7 @@ class NPC(Interactable):
         else: print(f""" {self.name}: {self.convo[0]} """)
 
     def attempt_robbery(self, player):
-        rand_num = random.randint(0, len(self.inventory))
+        rand_num = random.randint(0, len(self.inventory)-1)
         if player.hiding_score >= self.invest_requirement * 1.7:
             print(f""" You successfully robbed {self.name} without {self.pronouns[1]} noticing!""")
             new_items = []
@@ -607,39 +607,7 @@ class MagmaRiver(Crossing):
 
 #---------------------------------------------------------
 
-class Fairy(NPC):
-
-    def __init__(self, number, descriptor, name, pronouns, convo, invest_requirement):
-        super().__init__(
-            number=number, 
-            action_words=["TALK", "ROB", "TELEPORT"], 
-            descriptor=descriptor, 
-            name = name,
-            pronouns = pronouns,
-            convo = convo,
-            invest_requirement=invest_requirement, 
-            inventory = [misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"]],
-            )
-        
-    def run_interaction(self, action_word, player, room):
-        if action_word == "TALK" and "TALK" in self.action_words:
-            self.talk()
-        elif action_word == "ROB" and "ROB" in self.action_words:
-            self.attempt_robbery(player)
-        elif action_word == "TELEPORT" and "TELEPORT" in self.action_words:
-            self.teleport(player, room)
-
-    def teleport(self, player, room):
-        if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
-        elif player.inventory.dollar_bills < 40 and sum(1 for each_item in player.inventory.misc if each_item.name == "BLADE OF GRASS") < 20: print(f""" {self.name}: {self.convo[7]}""")
-        else:
-            print(self.convo[3])
-            if confirm_sequence(self.convo[4], self.convo[5], self.convo[6]):
-                room.adjustments[1].append(teleport_sequence)
-
-#---------------------------------------------------------
-
-class ShopOwner(NPC):
+class Merchant(NPC):
 
     def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, inventory):
         super().__init__(
@@ -658,72 +626,17 @@ class ShopOwner(NPC):
             self.talk()
         elif action_word == "ROB" and "ROB" in self.action_words:
             self.attempt_robbery(player)
-        elif action_word == "BUY" and "BUY" in self.action_words:
-            self.run_buy_sequence(player)
         elif action_word == "SELL" and "SELL" in self.action_words:
             self.run_sell_sequence(player)
 
-    def run_buy_sequence(self, player):
-        if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
-        elif len(self.inventory) <= 0: print(f""" {self.name}: {self.convo[5]}""")
-        else: 
-            products = self.build_buy_product_list()
-            selection_loop = True
-            while selection_loop == True:
-                print(f"""\n {self.name}: {self.convo[3]} """)
-                print(" PRICE | PRODUCT | STOCK")
-                for each_product in products:
-                    if math.ceil(each_product.value * 1.5) <= 9:
-                        print(f""" {math.ceil(each_product.value * 1.5)}  | {each_product.name} x{sum(1 for each_item in self.inventory if each_item.name == each_product.name)}""")
-                    else: print(f""" {math.ceil(each_product.value * 1.5)} | {each_product.name} x{sum(1 for each_item in self.inventory if each_item.name == each_product.name)}""")
-                print(" NEVERMIND")
-                selection = input("\n - ").upper()
-                if selection == "NEVERMIND": selection_loop = False
-                for each_product in products:
-                    if selection == each_product.name:
-                        selection_loop = self.confirm_buy_details(player, each_product)
-                if selection_loop == True: print(f""" {self.name}: Sorry, no can do. Buy something else?""")
-
-    def build_buy_product_list(self):
-        products = []
-        for each_item in self.inventory:
-            if each_item.name not in products: products.append(each_item.name)
-        for each_item in self.inventory:
-            if each_item.name in products: products[products.index(each_item.name)] = each_item
-        return products
-    
-    def confirm_buy_details(self, player, product):
-        if product.type == "CONSUMABLE": print(f""" {product.name}- {product.description}""")
-        elif product.type == "ARMOR": print(f""" {product.name}- Sets DEFENSE to {product.defense}.""")
-        elif product.type == "WEAPON": print(f""" {product.name}- Weapon rank {product.rank}/8.""")
-        elif product.name == "SHIELD": print(f""" {product.name}- Raises DEFENSE by 1 while in your inventory.""")
-        quantity = self.determine_quantity(self.inventory, product, "NPC")
-        if quantity > 0: 
-            if player.inventory.dollar_bills >= math.ceil(product.value * 1.5 * quantity):
-                confirm = confirm_sequence(f""" {self.name}: {quantity} {product.name} for {math.ceil(product.value * 1.5 * quantity)} dollar bills?""", f"""\n {self.name}: {self.convo[4]}""", f""" {self.name} looks dissapointed but understands.""")
-                if confirm: 
-                    self.buy_product(player, product, quantity)
-            else: print(f""" {self.name} You don't have enough dollar bills though!""")
-        else: print(f""" {self.name} looks dissapointed but understands.""")
-        return False
-
-
-    def buy_product(self, player, product, quantity):
-            if quantity == 1: print(f""" You bought {self.name}'s {product.name}!""")
-            else: print(f""" You bought {quantity} of {self.name}'s {product.name}!""")
-            for x in range(0, quantity): player.inventory.add_item(product)
-            player.inventory.dollar_bills -= math.ceil(product.value * 1.5 * quantity)
-            self.dollar_bills += math.ceil(product.value * 1.5 * quantity)
-            for x in range(0, quantity): self.inventory.remove(product)
-
     def run_sell_sequence(self, player):
         if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
-        elif len(player.inventory.misc + player.inventory.consumables) <= 0: print(f""" {self.name}: {self.convo[7]}""")
+        elif len(player.inventory.misc + player.inventory.consumables) <= 0: print(f""" {self.name}: {self.convo[5]}""")
         else:
             all_options = self.build_sell_product_list(player)
             selection_loop = True
             while selection_loop == True:
-                print(f""" {self.name}: {self.convo[6]}""")
+                print(f""" {self.name}: {self.convo[3]}""")
                 print(" OFFER | PRODUCT | NUMBER IN INVENTORY")
                 for each_product in all_options:
                     if math.ceil(each_product.value * .75) <= 9:
@@ -786,12 +699,67 @@ class ShopOwner(NPC):
             player.inventory.dollar_bills += math.ceil(product.value * .75)
             player.inventory.remove_item(product)
 
+
 #---------------------------------------------------------
 
-class Artisan(ShopOwner):
+class Fairy(Merchant):
 
-    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, inventory):
-        super().__init__(number, action_words, descriptor, name, pronouns, convo, invest_requirement, inventory)
+    def __init__(self, number, descriptor, name, pronouns, convo, invest_requirement):
+        super().__init__(
+            number=number, 
+            action_words=["TALK", "ROB", "SELL", "TELEPORT"], 
+            descriptor=descriptor, 
+            name = name,
+            pronouns = pronouns,
+            convo = convo,
+            invest_requirement=invest_requirement, 
+            inventory = [misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"]],
+            )
+        
+    def run_interaction(self, action_word, player, room):
+        if action_word == "TALK":
+            self.talk()
+        elif action_word == "ROB" and "ROB" in self.action_words:
+            self.attempt_robbery(player)
+        elif action_word == "SELL":
+            self.run_sell_sequence(player)
+        elif action_word == "TELEPORT":
+            self.teleport(player, room)
+
+    def teleport(self, player, room):
+        if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
+        elif player.inventory.dollar_bills < 40 and sum(1 for each_item in player.inventory.misc if each_item.name == "BLADE OF GRASS") < 20: print(f""" {self.name}: You don't have enough money or grass!""")
+        else:
+            if confirm_sequence(f""" {self.name}: {self.convo[6]}""", f""" {self.name} {self.convo[7]}""", f""" {self.name} looks dissappointed but understands."""):
+                room.adjustments[1].append(teleport_sequence)
+
+
+#---------------------------------------------------------
+
+class Artisan(Merchant):
+
+    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, price, service):
+        self.price = price
+        self.service = service
+        super().__init__(
+            number=number, 
+            action_words=action_words, 
+            descriptor=descriptor, 
+            name = name,
+            pronouns = pronouns,
+            convo = convo,
+            invest_requirement=invest_requirement
+            )
+        
+    def run_interaction(self, action_word, player, room):
+        if action_word == "TALK":
+            self.talk()
+        elif action_word == "ROB" and "ROB" in self.action_words:
+            self.attempt_robbery(player)
+        elif action_word == "SELL":
+            self.run_sell_sequence
+        elif action_word == "TRADE" and "TRADE" in self.action_words or action_word == "HIRE" and "HIRE" in self.action_words:
+            self.trade(player, room)
 
     def attempt_robbery(self, player):
         if self.dollar_bills < 4: print(f""" {self.name} doesn't have any money for you to rob!""")
@@ -809,6 +777,91 @@ class Artisan(ShopOwner):
             self.dollar_bills -= math.ceil(self.dollar_bills * .4)
             self.refresh_requirement = 100000
             self.invest_requirement = math.ceil(self.invest_requirement * 1.7)
+
+    def trade(self, player, room):
+        if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
+        elif player.inventory.dollar_bills < self.price: print(f""" {self.name}: {self.convo[8]}""")
+        else:
+            if confirm_sequence(self.convo[6], self.convo[7], f""" {self.name} looks dissappointed but understands."""):
+                room.adjustments[1].append(self.service)
+
+#---------------------------------------------------------
+
+class ShopOwner(Merchant):
+
+    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, inventory):
+        super().__init__(
+            number=number, 
+            action_words=action_words, 
+            descriptor=descriptor, 
+            name = name,
+            pronouns = pronouns,
+            convo = convo,
+            invest_requirement=invest_requirement, 
+            inventory = inventory,
+            )
+        
+    def run_interaction(self, action_word, player, room):
+        if action_word == "TALK" and "TALK" in self.action_words:
+            self.talk()
+        elif action_word == "ROB" and "ROB" in self.action_words:
+            self.attempt_robbery(player)
+        elif action_word == "BUY" and "BUY" in self.action_words:
+            self.run_buy_sequence(player)
+        elif action_word == "SELL" and "SELL" in self.action_words:
+            self.run_sell_sequence(player)
+
+    def run_buy_sequence(self, player):
+        if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
+        elif len(self.inventory) <= 0: print(f""" {self.name}: {self.convo[7]}""")
+        else: 
+            products = self.build_buy_product_list()
+            selection_loop = True
+            while selection_loop == True:
+                print(f"""\n {self.name}: {self.convo[6]} """)
+                print(" PRICE | PRODUCT | STOCK")
+                for each_product in products:
+                    if math.ceil(each_product.value * 1.5) <= 9:
+                        print(f""" {math.ceil(each_product.value * 1.5)}  | {each_product.name} x{sum(1 for each_item in self.inventory if each_item.name == each_product.name)}""")
+                    else: print(f""" {math.ceil(each_product.value * 1.5)} | {each_product.name} x{sum(1 for each_item in self.inventory if each_item.name == each_product.name)}""")
+                print(" NEVERMIND")
+                selection = input("\n - ").upper()
+                if selection == "NEVERMIND": selection_loop = False
+                for each_product in products:
+                    if selection == each_product.name:
+                        selection_loop = self.confirm_buy_details(player, each_product)
+                if selection_loop == True: print(f""" {self.name}: Sorry, no can do. Buy something else?""")
+
+    def build_buy_product_list(self):
+        products = []
+        for each_item in self.inventory:
+            if each_item.name not in products: products.append(each_item.name)
+        for each_item in self.inventory:
+            if each_item.name in products: products[products.index(each_item.name)] = each_item
+        return products
+    
+    def confirm_buy_details(self, player, product):
+        if product.type == "CONSUMABLE": print(f""" {product.name}- {product.description}""")
+        elif product.type == "ARMOR": print(f""" {product.name}- Sets DEFENSE to {product.defense}.""")
+        elif product.type == "WEAPON": print(f""" {product.name}- Weapon rank {product.rank}/8.""")
+        elif product.name == "SHIELD": print(f""" {product.name}- Raises DEFENSE by 1 while in your inventory.""")
+        quantity = self.determine_quantity(self.inventory, product, "NPC")
+        if quantity > 0: 
+            if player.inventory.dollar_bills >= math.ceil(product.value * 1.5 * quantity):
+                confirm = confirm_sequence(f""" {self.name}: {quantity} {product.name} for {math.ceil(product.value * 1.5 * quantity)} dollar bills?""", f"""\n {self.name}: {self.convo[4]}""", f""" {self.name} looks dissapointed but understands.""")
+                if confirm: 
+                    self.buy_product(player, product, quantity)
+            else: print(f""" {self.name}: You don't have enough dollar bills though!""")
+        else: print(f""" {self.name} looks dissapointed but understands.""")
+        return False
+
+    def buy_product(self, player, product, quantity):
+            if quantity == 1: print(f""" You bought {self.name}'s {product.name}!""")
+            else: print(f""" You bought {quantity} of {self.name}'s {product.name}!""")
+            for x in range(0, quantity): player.inventory.add_item(product)
+            player.inventory.dollar_bills -= math.ceil(product.value * 1.5 * quantity)
+            self.dollar_bills += math.ceil(product.value * 1.5 * quantity)
+            for x in range(0, quantity): self.inventory.remove(product)
 
 #-------------------------------------------------------
 #------------ INDEPENDENT INTERACTABLES ----------------
