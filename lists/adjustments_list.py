@@ -67,8 +67,29 @@ def change_room(nav, player):
 def block_exit(room, dungeon_length):
     room.interactables[0].exit_hold = room.exits[room.adjustments[2]["block_exit"][0]]
     room.exits[room.adjustments[2]["block_exit"][0]] = None
-    if room.adjustments[2]["block_exit"][1]: print(room.adjustments[2]["block_exit"][[1]])
+    if room.adjustments[2]["block_exit"][1]: print(room.adjustments[2]["block_exit"][1])
     room.adjustments[0].remove(block_exit)
+
+def cave_in(room, dungeon_length):
+    for each_exit in room.interactables[0].exit_hold.link.exits:
+        if each_exit.link == room:
+            room.interactables[1].exit_hold =each_exit
+            room.interactables[0].exit_hold.link.exits.remove(each_exit)
+
+def clear_cave_in(room, player):
+    room.adjustments[1].remove(clear_cave_in)
+    room.adjustments[0].append(add_interactable)
+    room.interactables[2].action_words.remove("HIRE")
+    room.adjustments[2]["add_interactable"][0] = room.visits + 1
+    room.adjustments[2]["add_interactable"][1] = room.interactables[2]
+    room.interactables.remove(room.interactables[2])
+    room.interactables[1].punchline = " Somehow you feel Harbor's disappointment."
+    print(" Harbor gets up, grabs some tools and heads out to clear the rubble.")
+    room.exits[0].link.interactables[0].exit_hold.link.exits.append(room.exits[0].link.interactables[1].exit_hold)
+    room.exits[0].link.exits[0] = room.exits[0].link.interactables[0].exit_hold
+    room.exits[0].link.interactables[0].exit_hold = None
+    room.exits[0].link.interactables[1].exit_hold = None
+    room.exits[0].link.description = "A rocky tunnel with heavy timbers reenforcing the walls. The cave in has been cleared away and the passage is usable again."
 
 def teleport_sequence(nav, player): #**Room options will need to be updated as we develop more
     nav.current_room.adjustments[1].remove(teleport_sequence)
@@ -77,7 +98,7 @@ def teleport_sequence(nav, player): #**Room options will need to be updated as w
         if each_room.name == "STELLA'S TRADE CAMP" or each_room.name == "CHASM ROOM" or each_room.name == "GIANT SEQUOIA CHAMBER" or each_room.name == "SECOND FLOOR TUNNEL": tele_options.append(each_room)
     if len(nav.rooms_visited["2"]) > 0: 
         for each_room in nav.rooms_visited["2"]:
-            if each_room.name == "SECOND FLOOR LANDING" or each_room.name == "FINAL FLOOR TUNNEL": tele_options.append(each_room)
+            if each_room.name == "SECOND FLOOR LANDING" or each_room.name == "EXCAVATOR ROOM" or each_room.name == "FINAL FLOOR TUNNEL": tele_options.append(each_room)
     if len(nav.rooms_visited["3"]) > 0: 
         for each_room in nav.rooms_visited["3"]:
             if each_room.name == "FINAL FLOOR LANDING" or each_room.name == "IDOL ROOM": tele_options.append(each_room)
@@ -135,8 +156,13 @@ def break_the_table(room, player):
     for each_interactable in room.interactables:
         if each_interactable.type == "TABLE REMAINS":
             if add_to_description in room.adjustments[0]: room.adjustments[0].remove(add_to_description)
+            if room.name == "SLEEPING QUARTERS": room.description = "A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor next to the remains of a table."
             table_destroyed = True
-            room.description = "A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor next to the remains of a table."
         if each_interactable.type == "BILL" and table_destroyed == True:
             each_interactable.convo[0] = "...You destroyed my table."
             room.description = "A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor. A younger looking kid is looking at the remains of a destroyed table."
+        elif each_interactable.type == "HARBOR" and table_destroyed == True:
+            each_interactable.convo = ["...You destroyed my table.", "Hey! You want to start something??", "Beat it, I don't need to deal with you.", "I better see a discount to pay for my table.", "Sure", "You don't have anything worthwhile.", "I can clear the path if you want but it's gonna cost. For you- 40 dollar bills"]
+            each_interactable.price = 40
+            room.description = "A rocky chamber with heavy timbers reenforcing the walls. A burly woman is looking at the remains of a destroyed table."
+
