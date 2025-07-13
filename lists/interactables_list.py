@@ -279,15 +279,15 @@ class Lockable(Interactable, ABC):
 
 class RedHerring(Interactable):
 
-    def __init__(self, type, description, action_words, punchline):
+    def __init__(self, type, description, action_words, punchline=None, invest_requirement=0, stealth_mod=0):
         self.punchline = punchline
         super().__init__(
             type=type, 
             number=0, 
             action_words=action_words, 
             description=description, 
-            invest_requirement=0, 
-            stealth_mod=0
+            invest_requirement=invest_requirement, 
+            stealth_mod=stealth_mod
             )
 
     def run_interaction(self, action_word, player, room):
@@ -306,7 +306,7 @@ class RedHerring(Interactable):
 
 #---------------------------------------------------------
 
-class Breakable(Interactable, RedHerring):
+class Breakable(RedHerring):
 
     def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, challenge=1, contents=None, punchline=None):
         self.challenge = challenge
@@ -659,7 +659,7 @@ class Merchant(NPC):
     def build_sell_product_list(self, player):
         all_options = []
         for each_misc in player.inventory.misc:
-            if each_misc.name not in all_options and each_misc.name is not "FIST": all_options.append(each_misc.name)
+            if each_misc.name not in all_options and each_misc.name != "FIST": all_options.append(each_misc.name)
         for each_misc in player.inventory.misc:
             if each_misc.name in all_options: all_options[all_options.index(each_misc.name)] = each_misc
         for each_consumable in player.inventory.consumables:
@@ -704,7 +704,7 @@ class Merchant(NPC):
 
 class Artisan(Merchant):
 
-    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, price, service, inventory=[misc_options["APPLES"], weapon_options["SHORTSWORD"]]):
+    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, price=0, service=None, inventory=[misc_options["APPLES"], weapon_options["SHORTSWORD"]]):
         self.price = price
         self.service = service
         super().__init__(
@@ -732,7 +732,7 @@ class Artisan(Merchant):
         if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
         elif action_word == "TELEPORT" and player.inventory.dollar_bills < 40 and sum(1 for each_item in player.inventory.misc if each_item.name == "BLADE OF GRASS") < 20: print(f""" {self.name}: You don't have enough money or grass!""")
         elif action_word == "ENCHANT" and armor_options["PLATEMAIL"] not in player.inventory.misc: print(f""" {self.name}: You need an unequipped PLATEMAIL for me to ENCHANT.""")
-        elif player.inventory.dollar_bills < self.price: print(f""" {self.name}: You don't have enough dollar bills though!""")
+        elif player.inventory.dollar_bills < self.price: print(f""" {self.name}: {self.convo[6]} You don't have enough dollar bills though..""")
         else:
             if confirm_sequence(f""" {self.name}: {self.convo[6]}""", f""" {self.name} {self.convo[4]}""", f""" {self.name} looks dissappointed but understands."""):
                 room.adjustments[1].append(self.service)
@@ -825,9 +825,9 @@ class ShopOwner(Merchant):
     def confirm_buy_details(self, player, product):
         if product.type == "CONSUMABLE": print(f""" {product.name}- {product.description}""")
         elif product.type == "ARMOR": print(f""" {product.name}- Sets DEFENSE to {product.defense}.""")
-        elif product.type == "WEAPON": print(f""" {product.name}- Weapon rank {product.rank}/8.""")
+        elif product.type == "WEAPON": print(f""" {product.name}- Weapon rank {product.rating}/8.""")
         elif product.name == "SHIELD": print(f""" {product.name}- Raises DEFENSE by 1 while in your inventory.""")
-        elif product.name == "MAGIC BRIDGE": print(f""" {product.name}- Can be placed over any barrier that requires a bridge, and reclaimed once crossed.""")
+        elif product.name == "MAGIC BRIDGE": print(f""" {product.name}- Can be placed over any barrier that requires a bridge and reclaimed once crossed.""")
         quantity = self.determine_quantity(self.inventory, product, "NPC")
         if quantity > 0: 
             if player.inventory.dollar_bills >= math.ceil(product.value * self.markup * quantity):
@@ -841,10 +841,15 @@ class ShopOwner(Merchant):
     def buy_product(self, player, product, quantity):
             if quantity == 1: print(f""" You bought {self.name}'s {product.name}!""")
             else: print(f""" You bought {quantity} of {self.name}'s {product.name}!""")
-            for x in range(0, quantity): player.inventory.add_item(product)
+            for i in range(quantity): player.inventory.add_item(product)
             player.inventory.dollar_bills -= math.ceil(product.value * self.markup * quantity)
             self.dollar_bills += math.ceil(product.value * self.markup * quantity)
-            for x in range(0, quantity): self.inventory.remove(product)
+            updated_inventory = []
+            for each_item in self.inventory:
+                if quantity > 0 and each_item.name == product.name: quantity -= 1
+                else: updated_inventory.append(each_item)
+            self.inventory = updated_inventory
+
 
 #-------------------------------------------------------
 #------------ INDEPENDENT INTERACTABLES ----------------

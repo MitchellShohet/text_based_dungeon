@@ -55,14 +55,17 @@ class Room:
             else:
                 selection_loop = True
                 while selection_loop == True:
-                    print(f"""\n Which {options[0].type} would you like to {player_action}?""")
+                    if player_action == "TALK" or player_action == "SELL": print(f""" Who would you like to {player_action} to?""")
+                    elif player_action == "ROB": print(f""" Who would you like to {player_action}?""")
+                    else: print(f""" Which {options[0].type} would you like to {player_action}?""")
                     for each_option in options:
-                        print(f""" {each_option.type} {each_option.number}""")
+                        if each_option.number == 0: print(f""" {each_option.type}""")
+                        else: print(f""" {each_option.type} {each_option.number}""")
                     print(" NEVERMIND")
                     selection = input("\n - ").upper()
                     if selection == "NEVERMIND": selection_loop = False
                     for each_option in options:
-                        if selection == each_option.type + " " + str(each_option.number) or selection == each_option.type + str(each_option.number):
+                        if selection == each_option.type + " " + str(each_option.number) or selection == each_option.type + str(each_option.number) or selection + "0" == each_option.type + str(each_option.number):
                             each_option.run_interaction(player_action, player, room)
                             selection_loop = False
                             break

@@ -20,7 +20,7 @@ class PlayerCharacter(Combatant):
                 armor=armor_options["CLOTHES"],
                 consumables=[DurabilityGem(), HealthPotion()], #*** Update this once done testing
                 misc=[misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["APPLES"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], misc_options["JAW BONE"]], #*** Update this once done testing
-                dollar_bills=100 #*** Update this once done testing
+                dollar_bills=10000 #*** Update this once done testing
                 )
             )
         self.hiding_score = 0
