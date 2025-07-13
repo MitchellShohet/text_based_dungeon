@@ -248,10 +248,10 @@ class PlayThrough:
                     print(f""" {options[i]}""")
                     i+=1
             #-------------------------------------------------
-            elif command == "MCS ADD ITEMS--": #cheat codes
+            elif command == "MCS ADD ITEMS": #cheat codes
                 self.player_character.inventory.add_item(weapon_options["MAGIC SWORD"])
                 self.player_character.inventory.add_item(armor_options["MAGIC PLATE"])
-            elif command == "MCS BIG LEVEL UP--":
+            elif command == "MCS LEVEL UP":
                 self.player_character.stat_points += 30
                 self.player_character.set_player_stats()
             elif command == "DIE": self.player_character.take_damage(int(10000000000))

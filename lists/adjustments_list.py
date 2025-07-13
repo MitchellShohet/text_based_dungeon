@@ -14,9 +14,9 @@ def add_interactable(room, dungeon_length):
     if room.visits == room.adjustments[2]["add_interactable"][0]:
         room.interactables.append(room.adjustments[2]["add_interactable"][1])
 
-def add_to_description(room, dungeon_length):
+def change_room_description(room, dungeon_length):
     if room.visits == room.adjustments[2]["add_to_description"][0]:
-        room.description += room.adjustments[2]["add_to_description"][1]
+        room.description = room.adjustments[2]["add_to_description"][1]
 
 def add_monsters(room, dungeon_length):
     if room.visits == room.adjustments[2]["add_monsters"][0]:
@@ -98,10 +98,10 @@ def teleport_sequence(nav, player): #**Room options will need to be updated as w
         if each_room.name == "STELLA'S TRADE CAMP" or each_room.name == "CHASM ROOM" or each_room.name == "GIANT SEQUOIA CHAMBER" or each_room.name == "SECOND FLOOR TUNNEL": tele_options.append(each_room)
     if len(nav.rooms_visited["2"]) > 0: 
         for each_room in nav.rooms_visited["2"]:
-            if each_room.name == "SECOND FLOOR LANDING" or each_room.name == "EXCAVATOR ROOM" or each_room.name == "FINAL FLOOR TUNNEL": tele_options.append(each_room)
+            if each_room.name == "SECOND FLOOR LANDING" or each_room.name == "SHIELD'S SMITHY" or each_room.name == "EXCAVATOR ROOM" or each_room.name == "FINAL FLOOR TUNNEL": tele_options.append(each_room)
     if len(nav.rooms_visited["3"]) > 0: 
         for each_room in nav.rooms_visited["3"]:
-            if each_room.name == "FINAL FLOOR LANDING" or each_room.name == "IDOL ROOM": tele_options.append(each_room)
+            if each_room.name == "FINAL FLOOR LANDING" or each_room.name == "FINAL FLOOR MARKET" or each_room.name == "IDOL ROOM": tele_options.append(each_room)
     room_choice = False
     select_loop = True
     while select_loop == True:
@@ -155,7 +155,7 @@ def break_the_table(room, player):
     table_destroyed = False
     for each_interactable in room.interactables:
         if each_interactable.type == "TABLE REMAINS":
-            if add_to_description in room.adjustments[0]: room.adjustments[0].remove(add_to_description)
+            if change_room_description in room.adjustments[0]: room.adjustments[0].remove(change_room_description)
             if room.name == "SLEEPING QUARTERS": room.description = "A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor next to the remains of a table."
             table_destroyed = True
         if each_interactable.type == "BILL" and table_destroyed == True:
@@ -165,4 +165,15 @@ def break_the_table(room, player):
             each_interactable.convo = ["...You destroyed my table.", "Hey! You want to start something??", "Beat it, I don't need to deal with you.", "I better see a discount to pay for my table.", "Sure", "You don't have anything worthwhile.", "I can clear the path if you want but it's gonna cost. For you- 40 dollar bills"]
             each_interactable.price = 40
             room.description = "A rocky chamber with heavy timbers reenforcing the walls. A burly woman is looking at the remains of a destroyed table."
+        elif each_interactable.type == "SHIELD" and table_destroyed == True:
+            each_interactable.convo = ["...You destroyed my sign. I worked really hard on that.", "Oh come on!! Look I didn't do anything to you, just leave!", "Please just leave.", "Okay yeah I'll look at your stock, but what about my sign?", "Ok, thanks..", "Sorry I'm not really interested in anything you have.", "A BATTLE AXE will help you get further, do you wanna buy one? It's 150 dollar bills."],
+            each_interactable.price = 150
+            room.description = "A bare-bones forge with multiple BATTLE AXES on display. There's no sign to display the name of the place, but that would probably help business.",
 
+def obtain_item(room, player):
+    player.inventory.add_item(room.adjustments["obtain_item"][2][0])
+    room.adjustments[1].remove(obtain_item)
+
+def remove_item(room, player):
+    player.inventory.remove_item(room.adjustments["remove_item"][2][0])
+    room.adjustments[1].remove(remove_item)

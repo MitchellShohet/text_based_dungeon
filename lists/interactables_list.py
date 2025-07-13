@@ -9,7 +9,7 @@ from classes.inventory.inventory import Inventory
 from classes.inventory.items import Weapon
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, Pie, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import check_for_heavy_armor, change_room, teleport_sequence, block_exit
+from lists.adjustments_list import check_for_heavy_armor, change_room, teleport_sequence, block_exit, change_room_description
 
 
 #-------------------------------------------------------
@@ -306,11 +306,12 @@ class RedHerring(Interactable):
 
 #---------------------------------------------------------
 
-class Breakable(Interactable):
+class Breakable(Interactable, RedHerring):
 
-    def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, challenge=1, contents=None):
+    def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, challenge=1, contents=None, punchline=None):
         self.challenge = challenge
         self.contents = contents
+        self.punchline = punchline
         super().__init__(
             type, 
             number, 
@@ -703,17 +704,18 @@ class Merchant(NPC):
 
 class Artisan(Merchant):
 
-    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, price, service):
+    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, price, service, inventory=[misc_options["APPLES"], weapon_options["SHORTSWORD"]]):
         self.price = price
         self.service = service
         super().__init__(
             number=number, 
             action_words=action_words, 
             descriptor=descriptor, 
-            name = name,
-            pronouns = pronouns,
-            convo = convo,
-            invest_requirement=invest_requirement
+            name=name,
+            pronouns=pronouns,
+            convo=convo,
+            invest_requirement=invest_requirement,
+            inventory=inventory
             )
         
     def run_interaction(self, action_word, player, room):
@@ -723,12 +725,13 @@ class Artisan(Merchant):
             self.attempt_robbery(player)
         elif action_word == "SELL":
             self.run_sell_sequence(player)
-        elif action_word == "TRADE" and "TRADE" in self.action_words or action_word == "HIRE" and "HIRE" in self.action_words or action_word == "TELEPORT" and "TELEPORT" in self.action_words:
+        elif action_word == "TRADE" and "TRADE" in self.action_words or action_word == "HIRE" and "HIRE" in self.action_words or action_word == "TELEPORT" and "TELEPORT" in self.action_words or action_word == "ENCHANT" and "ENCHANT" in self.action_words:
             self.trade(player, room, action_word)
 
     def trade(self, player, room, action_word):
         if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
         elif action_word == "TELEPORT" and player.inventory.dollar_bills < 40 and sum(1 for each_item in player.inventory.misc if each_item.name == "BLADE OF GRASS") < 20: print(f""" {self.name}: You don't have enough money or grass!""")
+        elif action_word == "ENCHANT" and armor_options["PLATEMAIL"] not in player.inventory.misc: print(f""" {self.name}: You need an unequipped PLATEMAIL for me to ENCHANT.""")
         elif player.inventory.dollar_bills < self.price: print(f""" {self.name}: You don't have enough dollar bills though!""")
         else:
             if confirm_sequence(f""" {self.name}: {self.convo[6]}""", f""" {self.name} {self.convo[4]}""", f""" {self.name} looks dissappointed but understands."""):
@@ -741,6 +744,7 @@ class Artisan(Merchant):
                 self.inventory.append(misc_options["BLADE OF GRASS"])
                 player.inventory.misc.remove(misc_options["BLADE OF GRASS"])
         else: 
+            if action_word == "ENCHANT": player.inventory.remove_item(armor_options["PLATEMAIL"])
             self.dollar_bills += self.price
             player.inventory.dollar_bills -= self.price
 
@@ -823,6 +827,7 @@ class ShopOwner(Merchant):
         elif product.type == "ARMOR": print(f""" {product.name}- Sets DEFENSE to {product.defense}.""")
         elif product.type == "WEAPON": print(f""" {product.name}- Weapon rank {product.rank}/8.""")
         elif product.name == "SHIELD": print(f""" {product.name}- Raises DEFENSE by 1 while in your inventory.""")
+        elif product.name == "MAGIC BRIDGE": print(f""" {product.name}- Can be placed over any barrier that requires a bridge, and reclaimed once crossed.""")
         quantity = self.determine_quantity(self.inventory, product, "NPC")
         if quantity > 0: 
             if player.inventory.dollar_bills >= math.ceil(product.value * self.markup * quantity):
@@ -923,7 +928,7 @@ class Cauldron(Interactable):
         
     def run_interaction(self, action_word, player, room):
         if action_word == "RELIGHT FIRE" and "RELIGHT FIRE" in self.action_words:
-            self.relight(player)
+            self.relight(player, room)
         if action_word == "COOK" and "COOK" in self.action_words:
             ingredient_options = self.determine_elegibility(player)
             if len(ingredient_options) > 0: 
@@ -931,12 +936,13 @@ class Cauldron(Interactable):
                 self.cook(player, ingredient)
                 
 
-    def relight(self, player):
+    def relight(self, player, room):
         if misc_options["WOOD"] in player.inventory.misc:
             print(" You used some WOOD to relight the fire under the CAULDRON!")
             player.inventory.misc.remove(misc_options["WOOD"])
             self.fire_lit = True
             self.action_words.remove("RELIGHT FIRE")
+            room.adjustments[2]["change_room_description"][0] = room.visits
         else: print(" You don't have any WOOD to light a new fire.")
 
     def determine_elegibility(self, player):
