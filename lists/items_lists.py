@@ -6,11 +6,11 @@ from abc import ABC
 
 weapon_options = {
     "FIST" : Weapon(1, "WEAPON", "FIST", 1, 2, 1, 1, 0),
-    "CLUB" : Weapon(2, "WEAPON", "CLUB", 1, 5, 1, 3, 1),
-    "GOLEM FIST" : Weapon(3, "WEAPON", "GOLEM FIST", 2, 6, 1, 3, 25),
-    "SHORTSWORD" : Weapon(4, "WEAPON", "SHORTSWORD", 2, 6, 1, 4, 7),
-    "TRIDENT" : Weapon(5, "WEAPON", "TRIDENT", 2, 7, 2, 4, 24),
-    "LONGSWORD" : Weapon(6, "WEAPON", "LONGSWORD", 2, 8, 2, 4, 30),
+    "CLUB" : Weapon(2, "WEAPON", "CLUB", 1, 6, 1, 3, 1),
+    "GOLEM FIST" : Weapon(3, "WEAPON", "GOLEM FIST", 2, 7, 1, 3, 25),
+    "SHORTSWORD" : Weapon(4, "WEAPON", "SHORTSWORD", 2, 7, 1, 4, 7),
+    "TRIDENT" : Weapon(5, "WEAPON", "TRIDENT", 2, 8, 2, 4, 24),
+    "LONGSWORD" : Weapon(6, "WEAPON", "LONGSWORD", 3, 8, 2, 4, 55),
     "BATTLE AXE" : Weapon(7, "WEAPON", "BATTLE AXE", 3, 9, 3, 6, 80),
     "MAGIC SWORD" : Weapon(8, "WEAPON", "MAGIC SWORD", 4, 11, 3, 9, 120),
     "MAGIC WAND" : Weapon(0, "WEAPON", "MAGIC WAND", 1, 6, 1, 4, 0)

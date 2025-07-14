@@ -56,8 +56,7 @@ class Room:
                 selection_loop = True
                 while selection_loop == True:
                     if player_action == "TALK" or player_action == "SELL": print(f""" Who would you like to {player_action} to?""")
-                    elif player_action == "ROB": print(f""" Who would you like to {player_action}?""")
-                    else: print(f""" Which {options[0].type} would you like to {player_action}?""")
+                    else: print(f""" Which would you like to {player_action}?""")
                     for each_option in options:
                         if each_option.number == 0: print(f""" {each_option.type}""")
                         else: print(f""" {each_option.type} {each_option.number}""")

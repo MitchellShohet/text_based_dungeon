@@ -9,7 +9,7 @@ from classes.inventory.inventory import Inventory
 from classes.inventory.items import Weapon
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, Pie, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import check_for_heavy_armor, change_room, teleport_sequence, block_exit, change_room_description
+from lists.adjustments_list import check_for_heavy_armor, test_inspectables, inspect_crystal, change_room, teleport_sequence, block_exit, change_room_description
 
 
 #-------------------------------------------------------
@@ -178,7 +178,7 @@ class NPC(Interactable):
 
 class Tree(Interactable):
 
-    def __init__(self, number, action_words, descriptor, stealth_mod=1, challenge=0, fruit=misc_options["APPLES"], type="TREE"):
+    def __init__(self, number, action_words, descriptor, stealth_mod=1, challenge=0, fruit=misc_options["APPLES"], type="TREE", **kwargs):
         self.fruit = fruit
         self.challenge = challenge
         self.type = type
@@ -279,11 +279,11 @@ class Lockable(Interactable, ABC):
 
 class RedHerring(Interactable):
 
-    def __init__(self, type, description, action_words, punchline=None, invest_requirement=0, stealth_mod=0):
+    def __init__(self, type, number=0, action_words=[], description="", invest_requirement=0, stealth_mod=0, punchline=None):
         self.punchline = punchline
         super().__init__(
             type=type, 
-            number=0, 
+            number=number, 
             action_words=action_words, 
             description=description, 
             invest_requirement=invest_requirement, 
@@ -291,6 +291,10 @@ class RedHerring(Interactable):
             )
 
     def run_interaction(self, action_word, player, room):
+        self.punchline_test(action_word)
+
+    def punchline_test(self, action_word):
+        action = False
         if action_word == "PLACE HAND" and "PLACE HAND" in self.action_words:
             action = " You PLACE YOUR HAND on the " + self.type
         elif action_word == "LICK" and "LICK" in self.action_words:
@@ -301,14 +305,15 @@ class RedHerring(Interactable):
             action = f""" You INSPECT the {self.type} for a while. Determined to uncover it's secrets."""
         elif action_word == "SIT" and "SIT" in self.action_words:
             action = f""" You SIT on the {self.type} for a while. It's a good chance to organize your thoughts."""
-        print(action)
-        print(self.punchline)
+        if action: 
+            print(action)
+            if self.punchline: print(f""" {self.punchline}""")
 
 #---------------------------------------------------------
 
 class Breakable(RedHerring):
 
-    def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, challenge=1, contents=None, punchline=None):
+    def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, challenge=1, contents=None, punchline=None, **kwargs):
         self.challenge = challenge
         self.contents = contents
         self.punchline = punchline
@@ -321,11 +326,12 @@ class Breakable(RedHerring):
             stealth_mod)
     
     def run_interaction(self, action_word, player, room):
+        self.punchline_test(action_word)
         if action_word == "SHATTER" and "SHATTER" in self.action_words or action_word == "BREAK" and "BREAK" in self.action_words or action_word == "CHOP" and "CHOP" in self.action_words:
             self.run_shatter(player)
 
     def run_shatter(self, player):
-        defender_object = Combatant(self.type, 1, 1, 0, int(self.challenge*3+2), Inventory(), self.number)
+        defender_object = Combatant(self.type, 1, 1, 0, int(self.challenge*3+2), Inventory(), self.number) #***ADDRESS THE CHALLENGE HERE**
         player.make_attack(defender_object)
         if defender_object.current_health <= 0:
             self.action_words.clear()
@@ -342,13 +348,42 @@ class Breakable(RedHerring):
         elif "CHOP" in self.action_words: self.action_words.remove("CHOP")
         elif "BREAK" in self.action_words: self.action_words.remove("BREAK")
 
+#---------------------------------------------------------
+
+class Inspectable(Interactable):
+
+    def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, effect, **kwargs):
+        self.run_effect = False
+        self.effect = effect
+        super().__init__(
+            type, 
+            number, 
+            action_words, 
+            description, 
+            invest_requirement, 
+            stealth_mod)
+    
+    def run_interaction(self, action_word, player, room):
+        if action_word == "INSPECT" and "INSPECT" in self.action_words:
+            self.run_inspect(player, room)
+
+    def run_inspect(self, player, room):
+        if player.investigation + random.randint(1,5) >= self.invest_requirement:
+            self.invest_requirement = 0
+            self.run_effect = True
+            room.adjustments[1].append(test_inspectables)
+        else:
+            if self.number == 0: print(f""" The secrets of the {self.type} elude you.""")
+            else: print(f""" The secrets of {self.type} {self.number} elude you.""")
+        self.action_words.remove("INSPECT")
+
 #-------------------------------------------------------
 #--------------- CHILD INTERACTABLES -------------------
 #-------------------------------------------------------
 
 class ExitHold(RedHerring):
 
-    def __init__(self, type, description, action_words, punchline, exit_hold=None):
+    def __init__(self, type, description, action_words, punchline=None, exit_hold=None):
         self.exit_hold = exit_hold
         super().__init__(
             type=type, 
@@ -409,7 +444,7 @@ class Chest(Lockable):
 
 #---------------------------------------------------------
 
-class GlowingCrystal(Breakable):
+class GlowingCrystal(Inspectable, Breakable):
 
     def __init__(self, number, action_words, descriptor, challenge=1):
         if number == 1: self.contents = misc_options["RUBY DUST"]
@@ -420,28 +455,29 @@ class GlowingCrystal(Breakable):
             number=number, 
             action_words=action_words, 
             description="A large cluster of gems with a mysterious light sourced from within. Roughly the size of a" + descriptor, 
-            challenge=challenge,
             invest_requirement=challenge*3, 
-            stealth_mod=challenge
-            )
+            stealth_mod=challenge,
+            challenge=challenge,
+            effect=inspect_crystal
+        )
         
     def run_interaction(self, action_word, player, room):
         if action_word == "SHATTER" and "SHATTER" in self.action_words:
             self.run_shatter(player)
         elif action_word == "INSPECT" and "INSPECT" in self.action_words:
-            self.run_inspect(player)
+            self.run_inspect(player, room)
 
-    def run_inspect(self, player):
-        if player.investigation + random.randint(1,5) >= self.invest_requirement:
-            self.invest_requirement = 0
-            print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
-            if player.current_health == player.max_health: print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
-            else:
-                player.recover_health(self.number*3)
-                self.action_words.remove("INSPECT")
-        else:
-            print(f""" The secrets of GLOWING CRYSTAL {self.number} elude you.""")
-            self.action_words.remove("INSPECT")
+    # def run_inspect(self, player):
+    #     if player.investigation + random.randint(1,5) >= self.invest_requirement:
+    #         self.invest_requirement = 0
+    #         print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
+    #         if player.current_health == player.max_health: print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
+    #         else:
+    #             player.recover_health(self.number*3)
+    #             self.action_words.remove("INSPECT")
+    #     else:
+    #         print(f""" The secrets of GLOWING CRYSTAL {self.number} elude you.""")
+    #         self.action_words.remove("INSPECT")
 
 #---------------------------------------------------------
 
@@ -496,7 +532,7 @@ class GlowingTree(Tree):
                 if self.number == 0: monster.number = 1
                 else: monster.number = self.number
             elif self.challenge == 10:
-                reward = armor_options["PLATEMAIL"]
+                reward = armor_options["CHAINMAIL"]
                 monster = MudGolem()
                 if self.number == 0: monster.number = 1
                 else: monster.number = self.number
@@ -694,7 +730,7 @@ class Merchant(NPC):
     
     def sell_product(self, player, product, quantity):
         print(f""" You sold {quantity} {product.name} to {self.name} for {math.ceil(product.value * .75) * quantity} dollar bills!""")
-        for x in range(0, quantity):
+        for x in range(quantity):
             self.inventory.append(product)
             if self.dollar_bills >= math.ceil(product.value * .75) + 30: self.dollar_bills -= math.ceil(product.value * .75)
             player.inventory.dollar_bills += math.ceil(product.value * .75)
@@ -739,8 +775,8 @@ class Artisan(Merchant):
                 self.charge_fee(player, action_word)
 
     def charge_fee(self, player, action_word):
-        if action_word == "TELEPORT" and sum(1 for each_item in player.inventory.misc if each_item.name == "BLADE OF GRASS") < 20:
-            for x in range(0, 20):
+        if action_word == "TELEPORT" and sum(1 for each_item in player.inventory.misc if each_item.name == "BLADE OF GRASS") >= 20:
+            for x in range(20):
                 self.inventory.append(misc_options["BLADE OF GRASS"])
                 player.inventory.misc.remove(misc_options["BLADE OF GRASS"])
         else: 

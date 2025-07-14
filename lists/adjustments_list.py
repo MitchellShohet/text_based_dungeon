@@ -179,3 +179,20 @@ def obtain_item(room, player):
 def remove_item(room, player):
     player.inventory.remove_item(room.adjustments[2]["remove_item"][0])
     room.adjustments[1].remove(remove_item)
+
+def test_inspectables(room, player):
+    for each_interactable in room.interactables:
+        try: each_interactable.run_effect
+        except: pass
+        else: 
+            if each_interactable.run_effect:
+                each_interactable.run_effect = False
+                each_interactable.effect(room, each_interactable, player)
+
+def inspect_crystal(room, crystal, player):
+    print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
+    if player.current_health == player.max_health: 
+        print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
+        crystal.action_words.append("INSPECT")
+    else:
+        player.recover_health(crystal.number*3)
