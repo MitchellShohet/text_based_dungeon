@@ -1,18 +1,24 @@
 import random
 from line_spacer import line_spacer
 from classes.dungeon.room_components import Exit
+from classes.combatants.combatant import Combatant
+from classes.inventory.inventory import Inventory
 
 # since these are called generically but have different perameters, 
 # each room will have a dictionary for the arguements of its 
-# specific adjustment functions
+# specific adjustment functions. The last group are the exceptions.
 
-def add_to_interactable(room, dungeon_length):
-    if room.visits == room.adjustments[2]["add_to_interactable"][0]:
-        room.interactables[0].action_words.append(room.adjustments[2]["add_to_interactable"][1])
+#-------------------------------------------------------
+#---------- TRIGGERED UPON ENTERING A ROOM -------------
+#-------------------------------------------------------
 
 def add_interactable(room, dungeon_length):
     if room.visits == room.adjustments[2]["add_interactable"][0]:
         room.interactables.append(room.adjustments[2]["add_interactable"][1])
+
+def add_to_interactable(room, dungeon_length):
+    if room.visits == room.adjustments[2]["add_to_interactable"][0]:
+        room.interactables[0].action_words.append(room.adjustments[2]["add_to_interactable"][1])
 
 def change_room_description(room, dungeon_length):
     if room.visits == room.adjustments[2]["change_room_description"][0]:
@@ -54,15 +60,10 @@ def money_tree_refresh(room, dungeon_length):
                 room.adjustments[2]["money_tree_refresh"][0] += 2
                 each_interactable.refresh_requirement = dungeon_length
 
-def block_exit(room, dungeon_length):
-    if room.visits == room.adjustments[2]["block_exit"][0]:
-        room.interactables[0].exit_hold = room.exits[room.adjustments[2]["block_exit"][1]]
-        room.exits[room.adjustments[2]["block_exit"][1]] = None
-
-def change_room(nav, player):
-    nav.enter_room(nav.current_room.adjustments[2]["change_room"][0])
-    if change_room in nav.previous_room.adjustments[1]: nav.previous_room.adjustments[1].remove(change_room)
-    if nav.current_room.exits[0] is not None: nav.previous_room = nav.current_room.exits[0]
+# def block_exit(room, dungeon_length):
+#     if room.visits == room.adjustments[2]["block_exit"][0]:
+#         room.interactables[0].exit_hold = room.exits[room.adjustments[2]["block_exit"][1]]
+#         room.exits[room.adjustments[2]["block_exit"][1]] = None
 
 def block_exit(room, dungeon_length):
     room.interactables[0].exit_hold = room.exits[room.adjustments[2]["block_exit"][0]]
@@ -75,6 +76,14 @@ def cave_in(room, dungeon_length):
         if each_exit.link == room:
             room.interactables[1].exit_hold =each_exit
             room.interactables[0].exit_hold.link.exits.remove(each_exit)
+
+#-------------------------------------------------------
+#------------- TRIGGERED AT END OF TURN ----------------
+#-------------------------------------------------------
+
+def damage_player(room, player):
+    print(f""" {room.adjustments[2]["damage_player"][0]}""")
+    player.take_damage(room.adjustments[2]["damage_player"][1], True)
 
 def clear_cave_in(room, player):
     room.adjustments[1].remove(clear_cave_in)
@@ -90,6 +99,70 @@ def clear_cave_in(room, player):
     room.exits[0].link.interactables[0].exit_hold = None
     room.exits[0].link.interactables[1].exit_hold = None
     room.exits[0].link.description = "A rocky tunnel with heavy timbers reenforcing the walls. The cave in has been cleared away and the passage is usable again."
+
+def obtain_item(room, player):
+    player.inventory.add_item(room.adjustments[2]["obtain_item"][0])
+    print(f""" {room.adjustments[2]["obtain_item"][1]}""")
+    room.adjustments[1].remove(obtain_item)
+
+def remove_item(room, player):
+    player.inventory.remove_item(room.adjustments[2]["remove_item"][0])
+    room.adjustments[1].remove(remove_item)
+
+def test_inspectables(room, player):
+    for each_interactable in room.interactables:
+        try: each_interactable.run_effect
+        except: pass
+        else: 
+            if each_interactable.run_effect:
+                each_interactable.run_effect = False
+                each_interactable.effect(room, each_interactable, player)
+
+def add_owl(room, player):
+    if len(room.interactables) == 0:
+        print(" You notice an owl in the corner glaring at you.")
+        room.interactables.append(room.adjustments[2]["add_owl"][0])
+        room.description += " There's an owl glaring at you from the corner."
+
+def break_the_table(room, player):
+    table_destroyed = False
+    for each_interactable in room.interactables:
+        if "REMAINS" in each_interactable.type:
+            if change_room_description in room.adjustments[0]: room.adjustments[0].remove(change_room_description)
+            if room.name == "SLEEPING QUARTERS": room.description = "A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor next to the remains of a table."
+            table_destroyed = True
+        if each_interactable.type == "BILL" and table_destroyed == True:
+            each_interactable.convo[0] = "...You destroyed my table."
+            room.description = "A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor. A younger looking kid is looking at the remains of a destroyed table."
+        elif each_interactable.type == "HARBOR" and table_destroyed == True:
+            each_interactable.convo = ["...You destroyed my table.", "Hey! You want to start something??", "Beat it, I don't need to deal with you.", "I better see a discount to pay for my table.", "Sure", "You don't have anything worthwhile.", "I can clear the path if you want but it's gonna cost. For you- 40 dollar bills"]
+            each_interactable.price = 40
+            room.description = "A rocky chamber with heavy timbers reenforcing the walls. A burly woman is looking at the remains of a destroyed table."
+        elif each_interactable.type == "SHIELD" and table_destroyed == True:
+            each_interactable.convo = ["...You destroyed my sign. I worked really hard on that.", "Oh come on!! Look I didn't do anything to you, just leave!", "Please just leave.", "Okay yeah I'll look at your stock, but what about my sign?", "Ok, thanks..", "Sorry I'm not really interested in anything you have.", "A BATTLE AXE will help you get further, do you wanna buy one? It's 150 dollar bills."]
+            each_interactable.price = 150
+            room.adjustments[2]["obtain_item"][1] = "You traded with SHIELD and recieved a BATTLE AXE for 150 dollar bills!"
+            room.description = "A bare-bones forge with multiple BATTLE AXES on display. There's no sign to display the name of the place, but that would probably help business."
+
+def check_for_heavy_armor(room, player):
+    if player.inventory.armor.rating == 3 or player.inventory.armor.rating==4:
+        damage_player(room, player)
+
+def sea_creature_defeated(room, player):
+    for each_interactable in room.interactables:
+        if each_interactable.type == "SEA CREATURE":
+            print("\n You can now move freely again.")
+            room.interactables[0].action_words.append("SWIM")
+            room.interactables[0].action_words.append("THROW ROCKS")
+            room.exits = room.interactables[0].exit_hold
+            room.description = "A room with a small pond, the corpse of a sea creature is floating in the water."
+            room.adjustments[1].clear()
+            player.hiding = False
+
+def change_room(nav, player):
+    nav.enter_room(nav.current_room.adjustments[2]["change_room"][0])
+    if change_room in nav.previous_room.adjustments[1]: nav.previous_room.adjustments[1].remove(change_room)
+    if nav.current_room.exits[0] is not None: nav.previous_room = nav.current_room.exits[0]
 
 def teleport_sequence(nav, player): #**Room options will need to be updated as we develop more
     nav.current_room.adjustments[1].remove(teleport_sequence)
@@ -121,73 +194,60 @@ def teleport_sequence(nav, player): #**Room options will need to be updated as w
             "\n",
             line_spacer,
             "\n"
-            "\n You feel yourself landing back on solid ground, the magic fading.")
+            "\n You feel your feet landing back on solid ground, the magic fading.")
         change_room(nav, player)
     else: print(" You changed your mind and the fairy looks disappointed")
     nav.previous_room = nav.current_room.exits[0].link
 
-def check_for_heavy_armor(room, player):
-    if player.inventory.armor.rating == 3 or player.inventory.armor.rating==4:
-        damage_player(room, player)
+#-------------------------------------------------------
+#---------------- TRIGGERED ELSEWHERE ------------------
+#-------------------------------------------------------
 
-def damage_player(room, player):
-    print(f""" {room.adjustments[2]["damage_player"][0]}""")
-    player.take_damage(room.adjustments[2]["damage_player"][1], True)
+def run_inspect(interactable, player, room):
+        if player.investigation + random.randint(1,5) >= interactable.invest_requirement:
+            interactable.invest_requirement = 0
+            interactable.run_effect = True
+            room.adjustments[1].append(test_inspectables)
+        else:
+            if interactable.number == 0: print(f""" The secrets of the {interactable.type} elude you.""")
+            else: print(f""" The secrets of {interactable.type} {interactable.number} elude you.""")
+        interactable.action_words.remove("INSPECT")
 
-def sea_creature_defeated(room, player):
-    for each_interactable in room.interactables:
-        if each_interactable.type == "SEA CREATURE":
-            print("\n You can now move freely again.")
-            room.interactables[0].action_words.append("SWIM")
-            room.interactables[0].action_words.append("THROW ROCKS")
-            room.exits = room.interactables[0].exit_hold
-            room.description = "A room with a small pond, the corpse of a sea creature is floating in the water."
-            room.adjustments[1].clear()
-            player.hiding = False
-
-def add_owl(room, player):
-    if len(room.interactables) == 0:
-        print(" You notice an owl in the corner glaring at you.")
-        room.interactables.append(room.adjustments[2]["add_owl"][0])
-        room.description += " There's an owl glaring at you from the corner."
-
-def break_the_table(room, player):
-    table_destroyed = False
-    for each_interactable in room.interactables:
-        if "REMAINS" in each_interactable.type:
-            if change_room_description in room.adjustments[0]: room.adjustments[0].remove(change_room_description)
-            if room.name == "SLEEPING QUARTERS": room.description = "A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor next to the remains of a table."
-            table_destroyed = True
-        if each_interactable.type == "BILL" and table_destroyed == True:
-            each_interactable.convo[0] = "...You destroyed my table."
-            room.description = "A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor. A younger looking kid is looking at the remains of a destroyed table."
-        elif each_interactable.type == "HARBOR" and table_destroyed == True:
-            each_interactable.convo = ["...You destroyed my table.", "Hey! You want to start something??", "Beat it, I don't need to deal with you.", "I better see a discount to pay for my table.", "Sure", "You don't have anything worthwhile.", "I can clear the path if you want but it's gonna cost. For you- 40 dollar bills"]
-            each_interactable.price = 40
-            room.description = "A rocky chamber with heavy timbers reenforcing the walls. A burly woman is looking at the remains of a destroyed table."
-        elif each_interactable.type == "SHIELD" and table_destroyed == True:
-            each_interactable.convo = ["...You destroyed my sign. I worked really hard on that.", "Oh come on!! Look I didn't do anything to you, just leave!", "Please just leave.", "Okay yeah I'll look at your stock, but what about my sign?", "Ok, thanks..", "Sorry I'm not really interested in anything you have.", "A BATTLE AXE will help you get further, do you wanna buy one? It's 150 dollar bills."]
-            each_interactable.price = 150
-            room.adjustments[2]["obtain_item"][1] = "You traded with SHIELD and recieved a BATTLE AXE for 150 dollar bills!"
-            room.description = "A bare-bones forge with multiple BATTLE AXES on display. There's no sign to display the name of the place, but that would probably help business."
-
-def obtain_item(room, player):
-    player.inventory.add_item(room.adjustments[2]["obtain_item"][0])
-    print(f""" {room.adjustments[2]["obtain_item"][1]}""")
-    room.adjustments[1].remove(obtain_item)
-
-def remove_item(room, player):
-    player.inventory.remove_item(room.adjustments[2]["remove_item"][0])
-    room.adjustments[1].remove(remove_item)
-
-def test_inspectables(room, player):
-    for each_interactable in room.interactables:
-        try: each_interactable.run_effect
+def run_shatter(interactable, player):
+    defender_object = Combatant(interactable.type, 1, 1, 0, int(interactable.challenge), Inventory(), interactable.number)
+    player.make_attack(defender_object)
+    if defender_object.current_health <= 0:
+        interactable.action_words.clear()
+        interactable.description = "The destroyed remains of what used to be a "+interactable.type
+        interactable.type = interactable.type+" REMAINS"
+        interactable.stealth_mod-=1
+        try: interactable.contents
         except: pass
-        else: 
-            if each_interactable.run_effect:
-                each_interactable.run_effect = False
-                each_interactable.effect(room, each_interactable, player)
+        else:
+            print(f""" You found 1 {interactable.contents.name}!""")
+            player.inventory.add_item(interactable.contents)
+    else: print(f""" You couldn't break {interactable.type} {interactable.number}.""")
+    if "SHATTER" in interactable.action_words: interactable.action_words.remove("SHATTER")
+    elif "CHOP" in interactable.action_words: interactable.action_words.remove("CHOP")
+    elif "BREAK" in interactable.action_words: interactable.action_words.remove("BREAK")
+
+def punchline_test(interactable, action_word):
+    action = False
+    if action_word == "PLACE HAND" and "PLACE HAND" in interactable.action_words:
+        action = " You PLACE YOUR HAND on the " + interactable.type
+    elif action_word == "LICK" and "LICK" in interactable.action_words:
+        action = " You LICK the " + interactable.type
+    elif action_word == "OBSERVE" and "OBSERVE" in interactable.action_words:
+        action = f""" You OBSERVE the {interactable.type} for a while."""
+    elif action_word == "INSPECT" and "INSPECT" in interactable.action_words:
+        action = f""" You INSPECT the {interactable.type} for a while. Determined to uncover it's secrets."""
+    elif action_word == "SIT" and "SIT" in interactable.action_words:
+        if interactable.type == "TREE" or interactable.type == "GLOWING TREE" or interactable.type == " MONEY TREE": action = f""" You SIT under the {interactable.type} for a while. It's a good chance to organize your thoughts."""
+        elif interactable.type == "TABLE": action = f""" You SIT at the {interactable.type} for a while. It's a good chance to organize your thoughts."""
+        else: action = f""" You SIT on the {interactable.type} for a while. It's a good chance to organize your thoughts."""
+    if action: 
+        print(action)
+        if interactable.punchline: print(f""" {interactable.punchline}""")
 
 def inspect_crystal(room, crystal, player):
     print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
@@ -196,3 +256,16 @@ def inspect_crystal(room, crystal, player):
         crystal.action_words.append("INSPECT")
     else:
         player.recover_health(crystal.number*3)
+
+def inspect_tree(room, tree, player):
+    print(" After some time you start to understand the secrets of the GLOWING TREE. The tree feels seen and offers you a gift from its branches.")
+    if tree.number == 0 and tree.monster.type == "WIZARD" or tree.number == 0 and tree.monster.type == "MUD GOLEM":
+        tree.monster.number = 1
+    else:
+        if sum(1 for each_monster in room.monsters if each_monster.type == "MINOTAUR") == 0: tree.monster.number = 1
+        else: tree.monster.number = sum(1 for each_monster in room.monsters if each_monster.type == "MINOTAUR") + 1
+    print(f""" The GLOWING TREE gifted you a {tree.reward.name}!""")
+    player.inventory.add_item(tree.reward)
+    tree.gift_given = True
+    print(f""" A {tree.monster.type} has come to test you.""")
+    room.monsters.append(tree.monster)

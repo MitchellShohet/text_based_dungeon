@@ -19,7 +19,7 @@ class MonsterSpawning:
 
 class Interactable(ABC):
 
-    def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod):
+    def __init__(self, type, number=0, action_words=[], description="", invest_requirement=0, stealth_mod=0):
         self.type = type
         self.number = number
         self.action_words = action_words
