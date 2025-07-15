@@ -81,9 +81,27 @@ def cave_in(room, dungeon_length):
 #------------- TRIGGERED AT END OF TURN ----------------
 #-------------------------------------------------------
 
+def test_inspectables(room, player):
+    for each_interactable in room.interactables:
+        try: each_interactable.run_effect
+        except: pass
+        else: 
+            if each_interactable.run_effect:
+                each_interactable.run_effect = False
+                each_interactable.effect(room, each_interactable, player)
+
 def damage_player(room, player):
     print(f""" {room.adjustments[2]["damage_player"][0]}""")
     player.take_damage(room.adjustments[2]["damage_player"][1], True)
+
+def obtain_item(room, player):
+    player.inventory.add_item(room.adjustments[2]["obtain_item"][0])
+    print(f""" {room.adjustments[2]["obtain_item"][1]}""")
+    room.adjustments[1].remove(obtain_item)
+
+def remove_item(room, player):
+    player.inventory.remove_item(room.adjustments[2]["remove_item"][0])
+    room.adjustments[1].remove(remove_item)
 
 def clear_cave_in(room, player):
     room.adjustments[1].remove(clear_cave_in)
@@ -99,24 +117,6 @@ def clear_cave_in(room, player):
     room.exits[0].link.interactables[0].exit_hold = None
     room.exits[0].link.interactables[1].exit_hold = None
     room.exits[0].link.description = "A rocky tunnel with heavy timbers reenforcing the walls. The cave in has been cleared away and the passage is usable again."
-
-def obtain_item(room, player):
-    player.inventory.add_item(room.adjustments[2]["obtain_item"][0])
-    print(f""" {room.adjustments[2]["obtain_item"][1]}""")
-    room.adjustments[1].remove(obtain_item)
-
-def remove_item(room, player):
-    player.inventory.remove_item(room.adjustments[2]["remove_item"][0])
-    room.adjustments[1].remove(remove_item)
-
-def test_inspectables(room, player):
-    for each_interactable in room.interactables:
-        try: each_interactable.run_effect
-        except: pass
-        else: 
-            if each_interactable.run_effect:
-                each_interactable.run_effect = False
-                each_interactable.effect(room, each_interactable, player)
 
 def add_owl(room, player):
     if len(room.interactables) == 0:
@@ -158,6 +158,19 @@ def sea_creature_defeated(room, player):
             room.description = "A room with a small pond, the corpse of a sea creature is floating in the water."
             room.adjustments[1].clear()
             player.hiding = False
+
+def golem_machinery(room, player):
+    active_gems = sum(1 for each_interactable in room.interactables if each_interactable.type == "GREEN GEM")
+    working_drill = sum(1 for each_interactable in room.interactables if each_interactable.type == "DRILL")
+    if active_gems == 0: 
+        print(" Both gems on the machine have been destroyed!")
+        shutdown_machine(room)
+    elif working_drill == 0:
+        shutdown_machine(room)
+    elif room.adjustments[2]["add_monsters"][0] < room.visits: room.adjustments[2]["add_monsters"][0] = room.visits
+    else: 
+        add_monsters(room, 0)
+        print(" A new MUD GOLEM has appeared!")
 
 def change_room(nav, player):
     nav.enter_room(nav.current_room.adjustments[2]["change_room"][0])
@@ -221,7 +234,7 @@ def run_shatter(interactable, player):
         interactable.description = "The destroyed remains of what used to be a "+interactable.type
         interactable.type = interactable.type+" REMAINS"
         interactable.stealth_mod-=1
-        try: interactable.contents
+        try: interactable.contents.name
         except: pass
         else:
             print(f""" You found 1 {interactable.contents.name}!""")
@@ -269,3 +282,15 @@ def inspect_tree(room, tree, player):
     tree.gift_given = True
     print(f""" A {tree.monster.type} has come to test you.""")
     room.monsters.append(tree.monster)
+
+def inspect_machine(room, machine, player):
+    if golem_machinery in room.adjustments[1]:
+        print(" After some time you figure out how to operate the MACHINE and turn it off.")
+        shutdown_machine(room)
+    else: print(" You play with the buttons on the machine for a bit. It's a fun time and the machine is definitely shut down.")
+
+def shutdown_machine(room):
+    print(" No more MUD GOLEMS will spawn in this room.")
+    room.adjustments[1].remove(golem_machinery)
+    room.adjustments[2]["change_monster_spawning"][0] = room.visits
+    change_monster_spawning(room, 0)

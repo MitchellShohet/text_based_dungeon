@@ -98,7 +98,7 @@ class Breakable(Interactable):
             stealth_mod)
     
     def run_interaction(self, action_word, player, room):
-        if action_word == "SHATTER" and "SHATTER" in self.action_words or action_word == "BREAK" and "BREAK" in self.action_words or action_word == "CHOP" and "CHOP" in self.action_words:
+        if action_word == "SHATTER" and "SHATTER" in self.action_words or action_word == "BREAK" and "BREAK" in self.action_words or action_word == "CHOP" and "CHOP" in self.action_words or "SMASH" and "SMASH" is self.action_words:
             run_shatter(self, player)
         else: punchline_test(self, action_word)
 

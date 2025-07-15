@@ -7,7 +7,7 @@ from abc import ABC
 weapon_options = {
     "FIST" : Weapon(1, "WEAPON", "FIST", 1, 2, 1, 1, 0),
     "CLUB" : Weapon(2, "WEAPON", "CLUB", 1, 6, 1, 3, 1),
-    "GOLEM FIST" : Weapon(3, "WEAPON", "GOLEM FIST", 2, 7, 1, 3, 25),
+    "GOLEM FIST" : Weapon(3, "WEAPON", "GOLEM FIST", 2, 7, 0, 2, 25),
     "SHORTSWORD" : Weapon(4, "WEAPON", "SHORTSWORD", 2, 7, 1, 4, 7),
     "TRIDENT" : Weapon(5, "WEAPON", "TRIDENT", 2, 8, 2, 4, 24),
     "LONGSWORD" : Weapon(6, "WEAPON", "LONGSWORD", 3, 8, 2, 4, 55),
@@ -87,7 +87,7 @@ class Pie(HealingItem):
         super().__init__(
             name="PIE",
             description="A nicely baked pie, can be made from a variety of ingredients. Using will heal between 7-10 health.",
-            value=26,
+            value=16,
             healing=random.randint(7,10)
         )
 
@@ -98,7 +98,7 @@ class StatMedallion(Consumable):
         super().__init__(
             name="STAT MEDALLION",
             description="A lime-green coin that's warm to the touch. Using will allow you to increase your stats by 2 points.",
-            value=40
+            value=46
         )
 
     def effect(self, player_character):
@@ -113,7 +113,7 @@ class PowerBerry(Consumable):
         super().__init__(
             name="POWER BERRY",
             description="A massive berry the size of a fist; yet light, like eating a cloud. Using will give a bonus +3 to your next attack and the damage if that attack hits (does not stack).",
-            value=7
+            value=5
         )
 
     def effect(self, player_character):
@@ -128,7 +128,7 @@ class DurabilityGem(Consumable):
         super().__init__(
             name="DURABILITY GEM",
             description="A small, sharp, ceramic gemestone. Using will give a bonus +3 to your defense against the next attack against you (does not stack).",
-            value=10
+            value=8
         )
 
     def effect(self, player_character):
@@ -143,7 +143,7 @@ class SmokeBomb(Consumable):
         super().__init__(
             name = "SMOKE BOMB",
             description = "A round clump of a charcoal-like substance. Using will give a bonus +3 to your stealth until you leave the current room.",
-            value = 11
+            value = 9
         )
 
     def effect(self, player_character):
@@ -159,7 +159,7 @@ class MagicWand(Consumable):
         super().__init__(
             name="MAGIC WAND",
             description="A Stick made out of wood- no wait, metal? Clay? It's hard to tell but using will give a bonus +2 to your next attack, the damage if that attack hits, and your defense for the next attack against you (These do not stack with other items with similar effects).",
-            value=17
+            value=13
         )
 
     def effect(self, player_character):
