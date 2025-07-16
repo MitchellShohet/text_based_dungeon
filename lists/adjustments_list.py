@@ -29,6 +29,10 @@ def add_monsters(room, dungeon_length):
         for x in range(0, room.adjustments[2]["add_monsters"][1]):
             room.spawn_monster(room.adjustments[2]["add_monsters"][2])
 
+def adjustment_print(room, dungeon_length):
+    if room.visits == room.adjustments[2]["adjustment_print"][0]:
+        print(room.adjustments[2]["adjustment_print"][1])
+
 def change_monster_spawning(room, dungeon_length): ##
     if room.visits == room.adjustments[2]["change_monster_spawning"][0]:
         room.monster_spawning = room.adjustments[2]["change_monster_spawning"][1]
@@ -155,9 +159,16 @@ def sea_creature_defeated(room, player):
             room.interactables[0].action_words.append("SWIM")
             room.interactables[0].action_words.append("THROW ROCKS")
             room.exits = room.interactables[0].exit_hold
-            room.description = "A room with a small pond, the corpse of a sea creature is floating in the water."
+            if room.name == "POND ROOM": room.description = "A room with a small pond, the corpse of a sea creature is floating in the water."
+            else: room.description = "You hear the sound of water lapping against rocks. To your side there's a rocky bank and a large lake."
             room.adjustments[1].clear()
             player.hiding = False
+
+def sleeping_minotaur_defeated(room, player):
+    for each_interactable in room.interactables:
+        if each_interactable.type == "MINOTAUR":
+            room.description = "An open chamber with a dead minotaur lying on a fur rug."
+            room.adjustments[1].clear()
 
 def golem_machinery(room, player):
     active_gems = sum(1 for each_interactable in room.interactables if each_interactable.type == "GREEN GEM")
@@ -226,7 +237,7 @@ def run_inspect(interactable, player, room):
             else: print(f""" The secrets of {interactable.type} {interactable.number} elude you.""")
         interactable.action_words.remove("INSPECT")
 
-def run_shatter(interactable, player):
+def run_shatter(interactable, player, room):
     defender_object = Combatant(interactable.type, 1, 1, 0, int(interactable.challenge), Inventory(), interactable.number)
     player.make_attack(defender_object)
     if defender_object.current_health <= 0:
@@ -239,6 +250,11 @@ def run_shatter(interactable, player):
         else:
             print(f""" You found 1 {interactable.contents.name}!""")
             player.inventory.add_item(interactable.contents)
+        try: interactable.contents().is_aware
+        except: pass
+        else:
+            print(f""" A {interactable.contents().type} came out of the {interactable.type}!""")
+            add_monsters(room, 0)
     else: print(f""" You couldn't break {interactable.type} {interactable.number}.""")
     if "SHATTER" in interactable.action_words: interactable.action_words.remove("SHATTER")
     elif "CHOP" in interactable.action_words: interactable.action_words.remove("CHOP")

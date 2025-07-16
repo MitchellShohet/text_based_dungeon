@@ -9,8 +9,7 @@ from classes.inventory.inventory import Inventory
 from classes.inventory.items import Weapon
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, Pie, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import check_for_heavy_armor, run_shatter, punchline_test, run_inspect, inspect_crystal, inspect_tree, change_room, teleport_sequence, block_exit, change_room_description
-# from lists.additional_functions_list import run_inspect
+from lists.adjustments_list import check_for_heavy_armor, add_monsters, sleeping_minotaur_defeated, run_shatter, punchline_test, run_inspect, inspect_crystal, inspect_tree, change_room, teleport_sequence, block_exit, change_room_description
 
 #-------------------------------------------------------
 #----------- PARENT INTERACTABLES ----------------------
@@ -99,7 +98,7 @@ class Breakable(Interactable):
     
     def run_interaction(self, action_word, player, room):
         if action_word == "SHATTER" and "SHATTER" in self.action_words or action_word == "BREAK" and "BREAK" in self.action_words or action_word == "CHOP" and "CHOP" in self.action_words or "SMASH" and "SMASH" is self.action_words:
-            run_shatter(self, player)
+            run_shatter(self, player, room)
         else: punchline_test(self, action_word)
 
 #---------------------------------------------------------
@@ -258,16 +257,18 @@ class Crossing(Interactable, ABC):
             )
 
     def run_interaction(self, action_word, player, room): 
-        if action_word == "JUMP" and "JUMP" in self.action_words:
+        if action_word == "JUMP" and "JUMP" in self.action_words or action_word == "WALK PAST" and "WALK PAST" in self.action_words:
             self.jump(player, room)
         elif action_word == "BUILD BRIDGE" and "BUILD BRIDGE" in self.action_words:
             self.build_bridge(player)
-        elif action_word == "CROSS THE BRIDGE" and "CROSS THE BRIDGE" in self.action_words:
+        elif action_word == "CROSS BRIDGE" and "CROSS BRIDGE" in self.action_words:
             self.cross_bridge(player, room)
-        elif action_word == "TAKE THE BRIDGE" and "TAKE THE BRIDGE" in self.action_words:
+        elif action_word == "TAKE BRIDGE" and "TAKE BRIDGE" in self.action_words:
             self.take_bridge(player)
         elif action_word == "THROW ROCKS" and "THROW ROCKS" in self.action_words:
-                self.throw_rocks(room)
+            self.throw_rocks(player, room)
+        elif action_word == "SNEAK ATTACK" and "SNEAK ATTACK" in self.action_words:
+            self.sneak_attack(player, room)
 
     def switch_sides(self, room):
         try: room.exits[0].number
@@ -293,19 +294,19 @@ class Crossing(Interactable, ABC):
             self.bridge = "MAGIC"
             player.inventory.misc.remove(misc_options["MAGIC BRIDGE"])
             self.action_words.remove("BUILD BRIDGE")
-            self.action_words.append("CROSS THE BRIDGE")
-            self.action_words.append("TAKE THE BRIDGE")
+            self.action_words.append("CROSS BRIDGE")
+            self.action_words.append("TAKE BRIDGE")
         elif misc_options["WOOD"] in player.inventory.misc:
             wood_count = 0
             for each_item in player.inventory.misc:
                 if each_item.name == "WOOD": wood_count += 1
             if wood_count >= 3:
-                print(f""" You built a WOOD BRIDGE across the {self.type}!""")
+                print(f""" You built a WOOD BRIDGE over the {self.type}!""")
                 self.bridge = "WOOD"
                 for x in range(3):
                     player.inventory.misc.remove(misc_options["WOOD"])
                 self.action_words.remove("BUILD BRIDGE")
-                self.action_words.append("CROSS THE BRIDGE")
+                self.action_words.append("CROSS BRIDGE")
             else: print(" You don't have enough wood to build a bridge.")
         else: print(" You don't have the materials to build a bridge.")
 
@@ -317,8 +318,8 @@ class Crossing(Interactable, ABC):
     
     def take_bridge(self, player):
         print(f""" You took the MAGIC BRIDGE and put it in your pocket. The {self.type} is now blocking the opposite path.""")
-        self.action_words.remove("CROSS THE BRIDGE")
-        self.action_words.remove("TAKE THE BRIDGE")
+        self.action_words.remove("CROSS BRIDGE")
+        self.action_words.remove("TAKE BRIDGE")
         self.action_words.append("BUILD BRIDGE")
         player.inventory.add_item(misc_options["MAGIC BRIDGE"])
             
@@ -331,7 +332,10 @@ class Crossing(Interactable, ABC):
         pass
 
     @abstractmethod
-    def throw_rocks(self, room):
+    def throw_rocks(self, player, room):
+        pass
+
+    def sneak_attack(self, player, room):
         pass
 
 #-------------------------------------------------------
@@ -404,23 +408,11 @@ class GlowingCrystal(Breakable):
         elif action_word == "INSPECT" and "INSPECT" in self.action_words:
             run_inspect(self, player, room)
 
-    # def run_inspect(self, player):
-    #     if player.investigation + random.randint(1,5) >= self.invest_requirement:
-    #         self.invest_requirement = 0
-    #         print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
-    #         if player.current_health == player.max_health: print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
-    #         else:
-    #             player.recover_health(self.number*3)
-    #             self.action_words.remove("INSPECT")
-    #     else:
-    #         print(f""" The secrets of GLOWING CRYSTAL {self.number} elude you.""")
-    #         self.action_words.remove("INSPECT")
-
 #---------------------------------------------------------
 
 class GlowingTree(Tree):
 
-    def __init__(self, number, action_words, descriptor, stealth_mod=1, challenge=6):
+    def __init__(self, number, action_words, descriptor=" glowing", stealth_mod=1, challenge=6):
         self.gift_given = False
         self.run_effect = False
         self.effect = inspect_tree
@@ -515,7 +507,7 @@ class Chasm(Crossing):
     def wood_failure(self, player, room):
         pass
 
-    def throw_rocks(self, room):
+    def throw_rocks(self, player, room):
         print(f""" You throw some rocks into the chasm{self.descriptor}""")
         room.spawn_monster()
 
@@ -529,10 +521,10 @@ class MagmaRiver(Crossing):
             number=number, 
             action_words=action_words, 
             description="A 10ft wide river of flowing lava." + descriptor, 
-            exit_hold = Exit(1, Room("Magma River Passage", 
-                                        "A tunnel beyond the magma river opens to a chamber with a chest. The path forks into two exits onward.", 
-                                        [Exit(0), Exit(1), Exit(2)], 
-                                        MonsterSpawning(5, Goblin, 9, "TWICE"), 
+            exit_hold = Exit(1, Room("MAGMA RIVER PASSAGE", 
+                                        "A tunnel beyond the magma river opens to a chamber with a chest. The path continues onward.", 
+                                        [Exit(0), Exit(1)], 
+                                        MonsterSpawning(5, Goblin), 
                                         [Chest(3, ["BREAK THE LOCK", "USE A KEY"]," with an image of a volcano etched onto its top.",contents=[weapon_options["LONGSWORD"], StatMedallion(), 40])])),
             jump_challenge=7,
             bridge=None,
@@ -555,9 +547,79 @@ class MagmaRiver(Crossing):
         self.action_words.append("BUILD BRIDGE")
         self.action_words.remove("CROSS THE BRIDGE")
 
-    def throw_rocks(self, room):
+    def throw_rocks(self, player, room):
         print(f""" You throw some rocks into the lava, they sink immediately.""")
         room.spawn_monster()
+
+#---------------------------------------------------------
+
+class SleepingMinotaur(Crossing):
+
+    def __init__(self, description):
+        self.fail_limit = random.randint(1,5)
+        self.fail_count = 0
+        super().__init__(
+            type="SLEEPING MINOTAUR", 
+            number=0, 
+            action_words=["WALK PAST", "BUILD BRIDGE", "THROW ROCKS", "SNEAK ATTACK"], 
+            description=description, 
+            exit_hold = Exit(1, Room("SLEEPING MINOTAUR PASSAGE", 
+                                        "A tunnel beyond the sleeping minotaur opens to a hallway with a chest. The path forks in two directions.", 
+                                        [Exit(0), Exit(1)], 
+                                        MonsterSpawning(7, Skeleton), 
+                                        [Chest(3, ["BREAK THE LOCK", "USE A KEY"]," placed over a fur rug.", contents=[weapon_options["BATTLE AXE"], armor_options["CHAINMAIL"], StatMedallion(), 65])])),
+            jump_challenge = 15,
+            bridge = None
+            )
+
+    def jump(self, player, room):
+        if player.hiding_score >= self.jump_challenge:
+            print(f""" Cautiously, you successfully tiptoe past the {self.type}!""")
+            self.switch_sides(room)
+        else: self.jump_failure(player.hiding_score, player, room)
+    
+    def jump_failure(self, hiding_score, player, room):
+        print(" MINOTAURS are highly perceptive, even in their sleep.")
+        self.wake_minotaur(player, room)
+
+    def wood_failure(self, player, room):
+        wood_creak = random.randint(1,4)
+        self.fail_count += 1
+        if wood_creak == 1 or self.fail_count >= self.fail_limit:
+            print(" As you pass there's a loud creak! Guess you should've stayed in carpentry school.")
+            self.wake_minotaur(player, room)
+        else: print(" Wood bridges are notorious for being quiet.")
+
+    def throw_rocks(self, player, room):
+        self.fail_count += 2
+        if self.fail_count >= self.fail_limit:
+            print(" You chuck a rock at the MINOTAUR and bean it in the head. Pissed it jumps up and spots you. Seems like it was having a good dream too.")
+            self.wake_minotaur(player, room)
+        else: 
+            print(" You throw a rock in the opposite corner of the room as you sneak past. The MINOTAUR wakes and looks toward the sound. After a tense moment it goes back to sleep and you successfully cross past it.")
+            self.switch_sides(room)
+
+    def sneak_attack(self, player, room):
+        if player.hiding_score >= self.jump_challenge:
+            print(f""" Cautiously, you successfully tiptoe up to the {self.type}!""")
+            self.wake_minotaur(player, room, True)
+        else:
+            print(" MINOTAURS are highly perceptive, even in their sleep.")
+            self.wake_minotaur(player, room)
+
+    def wake_minotaur(self, player, room, is_attacked=False):
+        room.adjustments[2]["add_monsters"][0] = room.visits
+        room.adjustments[2]["change_room_description"][0] = room.visits
+        room.adjustments[1].append(sleeping_minotaur_defeated)
+        add_monsters(room, 0)
+        if is_attacked == True: player.make_attack(room.monsters[0])
+        print(" You woke the SLEEPING MINOTAUR!")
+        room.monsters[0].is_aware = True
+        room.monsters[0].make_attack(player)
+        if self.exit_hold.number == 1: room.exits.append(self.exit_hold)
+        else: room.exits[0] = self.exit_hold
+        if self.bridge == "MAGIC": player.inventory.add_item(misc_options["MAGIC BRIDGE"])
+        room.interactables.clear()
 
 #---------------------------------------------------------
 
@@ -840,7 +902,7 @@ class Pool(Interactable):
             type="POOL", 
             number=number, 
             action_words=action_words, 
-            description="A pool of water " + descriptor, 
+            description=descriptor, 
             invest_requirement=0, 
             stealth_mod=0
             )
@@ -878,7 +940,7 @@ class Pool(Interactable):
         self.action_words.remove("INSPECT SHADOW")
         print(" You found a locked chest!")
         room.description = "A room with a small pond."
-        room.interactables.append(Chest(2, ["BREAK THE LOCK", "USE A KEY"]," with a rusted lock.", contents=[HealthPotion(), DurabilityGem(), 15]))
+        room.interactables.append(Chest(2, ["BREAK THE LOCK", "USE A KEY"]," with a rusted lock.", 2, [HealthPotion(), DurabilityGem(), 15]))
 
     def run_sea_creature(self, player, room):
         print(" You feel something wrap around your leg and pull you under the water!")
@@ -910,10 +972,12 @@ class Cauldron(Interactable):
         if action_word == "RELIGHT FIRE" and "RELIGHT FIRE" in self.action_words:
             self.relight(player, room)
         if action_word == "COOK" and "COOK" in self.action_words:
-            ingredient_options = self.determine_elegibility(player)
-            if len(ingredient_options) > 0: 
-                ingredient = self.select_ingredient(ingredient_options)
-                self.cook(player, ingredient)
+            if len(room.monsters) > 0: print(" It's too dangerous to cook with monsters nearby!")
+            else:
+                ingredient_options = self.determine_elegibility(player)
+                if len(ingredient_options) > 0: 
+                    ingredient = self.select_ingredient(ingredient_options)
+                    self.cook(player, ingredient)
                 
 
     def relight(self, player, room):

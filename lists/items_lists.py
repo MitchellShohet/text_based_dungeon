@@ -5,15 +5,15 @@ from abc import ABC
 #---------------------------------------------
 
 weapon_options = {
-    "FIST" : Weapon(1, "WEAPON", "FIST", 1, 2, 1, 1, 0),
-    "CLUB" : Weapon(2, "WEAPON", "CLUB", 1, 6, 1, 3, 1),
-    "GOLEM FIST" : Weapon(3, "WEAPON", "GOLEM FIST", 2, 7, 0, 2, 25),
-    "SHORTSWORD" : Weapon(4, "WEAPON", "SHORTSWORD", 2, 7, 1, 4, 7),
-    "TRIDENT" : Weapon(5, "WEAPON", "TRIDENT", 2, 8, 2, 4, 24),
-    "LONGSWORD" : Weapon(6, "WEAPON", "LONGSWORD", 3, 8, 2, 4, 55),
-    "BATTLE AXE" : Weapon(7, "WEAPON", "BATTLE AXE", 3, 9, 3, 6, 80),
-    "MAGIC SWORD" : Weapon(8, "WEAPON", "MAGIC SWORD", 4, 11, 3, 9, 120),
-    "MAGIC WAND" : Weapon(0, "WEAPON", "MAGIC WAND", 1, 6, 1, 4, 0)
+    "FIST" : Weapon(1, "WEAPON", "FIST", 1, 3, 1, 1, 0),
+    "CLUB" : Weapon(2, "WEAPON", "CLUB", 1, 7, 1, 3, 1),
+    "GOLEM FIST" : Weapon(3, "WEAPON", "GOLEM FIST", 2, 8, 0, 2, 25),
+    "SHORTSWORD" : Weapon(4, "WEAPON", "SHORTSWORD", 2, 8, 1, 4, 7),
+    "TRIDENT" : Weapon(5, "WEAPON", "TRIDENT", 2, 9, 2, 4, 24),
+    "LONGSWORD" : Weapon(6, "WEAPON", "LONGSWORD", 3, 9, 2, 4, 55),
+    "BATTLE AXE" : Weapon(7, "WEAPON", "BATTLE AXE", 3, 10, 3, 6, 80),
+    "MAGIC SWORD" : Weapon(8, "WEAPON", "MAGIC SWORD", 4, 12, 3, 9, 120),
+    "MAGIC WAND" : Weapon(0, "WEAPON", "MAGIC WAND", 1, 7, 1, 4, 0)
 }
 
 #----------------------------------------------
@@ -148,7 +148,7 @@ class SmokeBomb(Consumable):
 
     def effect(self, player_character):
         print(f"""\n You used the {self.name}!""")
-        print(f""" previous hiding luck: {player_character.hiding_score}.""")
+        print(f""" previous hiding score: {player_character.hiding_score}.""")
         player_character.hiding_score += 3
         print(f""" new hiding score: {player_character.hiding_score}""")
 
