@@ -45,7 +45,8 @@ class NPC(Interactable):
         else: print(f""" {self.name}: {self.convo[0]} """)
 
     def attempt_robbery(self, player):
-        rand_num = random.randint(0, len(self.inventory)-1)
+        if len(self.inventory) > 0: rand_num = random.randint(0, len(self.inventory)-1)
+        else: rand_num = -1
         if player.hiding_score >= self.invest_requirement * 1.7:
             print(f""" You successfully robbed {self.name} without {self.pronouns[1]} noticing!""")
             new_items = []
@@ -63,22 +64,28 @@ class NPC(Interactable):
         elif player.hiding_score >= self.invest_requirement * 1:
             if self.dollar_bills < 30: self.dollar_bills += 30
             print(f""" You robbed {self.name} a little without {self.pronouns[1]} noticing!""")
-            print(f""" You got 1 {self.inventory[rand_num].name}!""")
+            if rand_num != -1:
+                print(f""" You got 1 {self.inventory[rand_num].name}!""")
+                player.inventory.add_item(self.inventory[rand_num])
+                self.inventory.pop(rand_num)
             print(f""" You got {self.dollar_bills} dollar bills!""")
-            player.inventory.add_item(self.inventory[rand_num])
             player.inventory.dollar_bills += self.dollar_bills
-            self.inventory.pop(rand_num)
             self.dollar_bills = 0
             self.invest_requirement = math.ceil(self.invest_requirement * 1.4)
         else:
             print(f""" {self.name}: {self.convo[1]}""")
             print(f""" {self.name} caught you trying to rob {self.pronouns[1]}""")
-            print(f""" You still managed to swipe a {self.inventory[rand_num].name}""")
-            player.inventory.add_item(self.inventory[rand_num])
-            self.inventory.pop(rand_num)
+            if self.invest_requirement < 12:
+                if rand_num != -1:
+                    print(f""" You still managed to swipe a {self.inventory[rand_num].name}""")
+                    player.inventory.add_item(self.inventory[rand_num])
+                    self.inventory.pop(rand_num)
+                else: 
+                    print(f""" You still managed to swipe {math.ceil(self.dollar_bills /5)} dollar bills!""")
+                    player.inventory.dollar_bills += math.ceil(self.dollar_bills /5)
+                    self.dollar_bills -= math.ceil(self.dollar_bills /5)
             self.refresh_requirement = 100000
             self.invest_requirement = math.ceil(self.invest_requirement * 1.7)
-        self.action_words.remove("ROB")
 
 #---------------------------------------------------------
 
@@ -957,8 +964,8 @@ class Pool(Interactable):
 
 class Cauldron(Interactable):
 
-    def __init__(self, number, action_words, descriptor):
-        self.fire_lit = False
+    def __init__(self, number, action_words, descriptor, fire_lit=False):
+        self.fire_lit = fire_lit
         super().__init__(
             type="CAULDRON", 
             number=number, 
@@ -992,11 +999,11 @@ class Cauldron(Interactable):
     def determine_elegibility(self, player):
         ingredient_options = []
         if self.fire_lit == True:
-                if misc_options["SEA CREATURE MEAT"] in player.inventory.misc: ingredient_options.append(misc_options["SEA CREATURE MEAT"])
-                if misc_options["GLOWING FRUIT"] in player.inventory.misc: ingredient_options.append(misc_options["GLOWING FRUIT"])
-                if player.inventory.misc.count(misc_options["APPLES"]) >= 4: ingredient_options.append(misc_options["APPLES"])
-                elif misc_options["APPLES"] in player.inventory.misc: ingredient_options.append(misc_options["NOT ENOUGH APPLES"])
-                if len(ingredient_options) == 0: print(" You don't have any ingredients to cook.")
+            if misc_options["SEA CREATURE MEAT"] in player.inventory.misc: ingredient_options.append(misc_options["SEA CREATURE MEAT"])
+            if misc_options["GLOWING FRUIT"] in player.inventory.misc: ingredient_options.append(misc_options["GLOWING FRUIT"])
+            if player.inventory.misc.count(misc_options["APPLES"]) >= 4: ingredient_options.append(misc_options["APPLES"])
+            elif misc_options["APPLES"] in player.inventory.misc: ingredient_options.append(misc_options["NOT ENOUGH APPLES"])
+            if len(ingredient_options) == 0: print(" You don't have any ingredients to cook.")
         else: print(" You need to light the fire if you're going to cook in the cauldron.")
         return ingredient_options
 

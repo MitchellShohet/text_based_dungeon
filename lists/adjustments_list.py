@@ -64,11 +64,6 @@ def money_tree_refresh(room, dungeon_length):
                 room.adjustments[2]["money_tree_refresh"][0] += 2
                 each_interactable.refresh_requirement = dungeon_length
 
-# def block_exit(room, dungeon_length):
-#     if room.visits == room.adjustments[2]["block_exit"][0]:
-#         room.interactables[0].exit_hold = room.exits[room.adjustments[2]["block_exit"][1]]
-#         room.exits[room.adjustments[2]["block_exit"][1]] = None
-
 def block_exit(room, dungeon_length):
     room.interactables[0].exit_hold = room.exits[room.adjustments[2]["block_exit"][0]]
     room.exits[room.adjustments[2]["block_exit"][0]] = None
