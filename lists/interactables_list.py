@@ -150,6 +150,8 @@ class Lockable(Interactable, ABC):
             self.attempt_to_break(player, room)
         elif action_word == "USE A KEY" and "USE A KEY" in self.action_words:
             self.use_key(player, room)
+        elif action_word == "ATTACK MIMIC" and "ATTACK MIMIC" in self.action_words:
+            print(f""" What're you talking about? That's a {self.type}?""")
     
     @abstractmethod
     def open(self, player):
@@ -224,7 +226,7 @@ class Tree(Breakable):
         self.action_words.remove("PICK FRUIT")
 
     def chop(self, player, room):
-        run_shatter(self, player)
+        run_shatter(self, player, room)
         for each_interactable in room.interactables:
             if "TREE REMAINS" in each_interactable.type: room.interactables.remove(each_interactable)
 
@@ -388,6 +390,21 @@ class Chest(Lockable):
         self.action_words.remove("OPEN")
         self.description = "A chest that's been opened."
 
+
+#---------------------------------------------------------
+
+class Mimic(Chest):
+
+    def __init__(self, number, action_words, descriptor, challenge=0):
+        super().__init__(number, action_words, descriptor, challenge, None)
+
+    def open(self, player):
+        print(f""" You opened the {self.type}!""")
+        print(f""" It's a MIMIC!""")
+        player.take_damage(2, True)
+        if "ATTACK MIMIC" not in self.action_words: self.action_words.append("ATTACK MIMIC")
+        print(f""" You escaped the MIMIC""")
+
 #---------------------------------------------------------
 
 class GlowingCrystal(Breakable):
@@ -411,7 +428,7 @@ class GlowingCrystal(Breakable):
         
     def run_interaction(self, action_word, player, room):
         if action_word == "SHATTER" and "SHATTER" in self.action_words:
-            run_shatter(self, player)
+            run_shatter(self, player, room)
         elif action_word == "INSPECT" and "INSPECT" in self.action_words:
             run_inspect(self, player, room)
 
@@ -456,7 +473,7 @@ class GlowingTree(Tree):
         if self.gift_given == True:
             print(" Betrayed, the GLOWING TREE attacks you with it's magic!")
             tree_def.make_attack(player)
-        run_shatter(self, player)
+        run_shatter(self, player, room)
         for each_interactable in room.interactables:
             if "TREE REMAINS" in each_interactable.type: room.interactables.remove(each_interactable)
         if self.type == "GLOWING TREE":
@@ -726,9 +743,11 @@ class Merchant(NPC):
 
 class Artisan(Merchant):
 
-    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, price=0, service=None, inventory=[misc_options["APPLES"], weapon_options["SHORTSWORD"]]):
+    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, price=0, service=None, inventory=[misc_options["APPLES"], weapon_options["SHORTSWORD"]], item_req=None, item_quantity_req=None):
         self.price = price
         self.service = service
+        self.item_req = item_req
+        self.item_quantity_req = item_quantity_req
         super().__init__(
             number=number, 
             action_words=action_words, 
@@ -752,8 +771,7 @@ class Artisan(Merchant):
 
     def trade(self, player, room, action_word):
         if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
-        elif action_word == "TELEPORT" and player.inventory.dollar_bills < 40 and sum(1 for each_item in player.inventory.misc if each_item.name == "BLADE OF GRASS") < 20: print(f""" {self.name}: You don't have enough money or grass!""")
-        elif action_word == "ENCHANT" and armor_options["PLATEMAIL"] not in player.inventory.misc: print(f""" {self.name}: You need an unequipped PLATEMAIL for me to ENCHANT.""")
+        elif self.item_req != None and sum(1 for each_item in player.inventory.misc if each_item.name == self.item_req.name) < self.item_quantity_req: print(f""" {self.name}: You don't have enough {self.item_req.name} in your inventory.""")
         elif player.inventory.dollar_bills < self.price: print(f""" {self.name}: {self.convo[6]} You don't have enough dollar bills though..""")
         else:
             if confirm_sequence(f""" {self.name}: {self.convo[6]}""", f""" {self.name} {self.convo[4]}""", f""" {self.name} looks dissappointed but understands."""):
@@ -761,14 +779,12 @@ class Artisan(Merchant):
                 self.charge_fee(player, action_word)
 
     def charge_fee(self, player, action_word):
-        if action_word == "TELEPORT" and sum(1 for each_item in player.inventory.misc if each_item.name == "BLADE OF GRASS") >= 20:
-            for x in range(20):
-                self.inventory.append(misc_options["BLADE OF GRASS"])
-                player.inventory.misc.remove(misc_options["BLADE OF GRASS"])
-        else: 
-            if action_word == "ENCHANT": player.inventory.remove_item(armor_options["PLATEMAIL"])
-            self.dollar_bills += self.price
-            player.inventory.dollar_bills -= self.price
+        if self.item_req != None:
+            for x in range(self.item_quantity_req):
+                self.inventory.append(self.item_req)
+                player.inventory.misc.remove(self.item_req)
+        self.dollar_bills += self.price
+        player.inventory.dollar_bills -= self.price
 
 #---------------------------------------------------------
 
@@ -787,6 +803,23 @@ class Fairy(Artisan):
             price=40,
             service=teleport_sequence
             )
+        
+    def trade(self, player, room, action_word):
+        if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
+        elif player.inventory.dollar_bills < 40 and sum(1 for each_item in player.inventory.misc if each_item.name == "BLADE OF GRASS") < 20: print(f""" {self.name}: You don't have enough money or grass!""")
+        else:
+            if confirm_sequence(f""" {self.name}: {self.convo[6]}""", f""" {self.name} {self.convo[7]}""", f""" {self.name} looks dissappointed but understands."""):
+                room.adjustments[1].append(self.service)
+                self.charge_fee(player, action_word)
+
+    def charge_fee(self, player, action_word):
+        if sum(1 for each_item in player.inventory.misc if each_item.name == "BLADE OF GRASS") >= 20:
+            for x in range(20):
+                self.inventory.append(misc_options["BLADE OF GRASS"])
+                player.inventory.misc.remove(misc_options["BLADE OF GRASS"])
+        else: 
+            self.dollar_bills += self.price
+            player.inventory.dollar_bills -= self.price
 
 #---------------------------------------------------------
 

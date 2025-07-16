@@ -51,7 +51,7 @@ class Navigation:
             if self.current_room.exits[0].link == None: self.current_room.exits[0].link = self.previous_room #catches cases where an exit is prelinked to another room, links the second room to the previous one
 
     def find_unexplored_room(self):
-        try: new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor]))] #checks if every possible room has already been added to the dungeon
+        try: new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)] #checks if every possible room has already been added to the dungeon
         except: new_room = self.room_options[0][0] #***CHANGE THIS TO A FAIRY FOUNTAIN***
         self.test_floor_elegibility(new_room)
         new_exits = self.check_for_new_exits(new_room)
