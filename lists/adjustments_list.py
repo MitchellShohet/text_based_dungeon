@@ -3,6 +3,8 @@ from line_spacer import line_spacer
 from classes.dungeon.room_components import Exit
 from classes.combatants.combatant import Combatant
 from classes.inventory.inventory import Inventory
+from lists.items_lists import StatMedallion, DurabilityGem
+from lists.monsters_list import Skeleton
 
 # since these are called generically but have different perameters, 
 # each room will have a dictionary for the arguements of its 
@@ -36,6 +38,9 @@ def adjustment_print(room, dungeon_length):
 def change_monster_spawning(room, dungeon_length): ##
     if room.visits == room.adjustments[2]["change_monster_spawning"][0]:
         room.monster_spawning = room.adjustments[2]["change_monster_spawning"][1]
+
+def change_adjustable_argument(room, dungeon_length):
+    room.adjustments[2][room.adjustments[2]["change_adjustable_argument"][0]][room.adjustments[2]["change_adjustable_argument"][1]] = room.adjustments[2]["change_adjustable_argument"][2]
 
 def tree_inspect_renew(room, dungeon_length):
     for each_interactable in room.interactables:
@@ -76,6 +81,20 @@ def cave_in(room, dungeon_length):
             room.interactables[1].exit_hold =each_exit
             room.interactables[0].exit_hold.link.exits.remove(each_exit)
 
+def randomize_container_contents(room, dungeon_length):
+    x = 0
+    while x < len(room.interactables):
+        container = room.interactables[random.randint(0,len(room.interactables)-1)]
+        if container.number == 0:
+            container.contents = room.adjustments[2]["randomize_container_contents"][x]
+            x += 1
+    random.shuffle(room.interactables)
+    x = 1
+    for each_container in room.interactables:
+        each_container.number = x
+        x += 1
+    room.adjustments[0].remove(randomize_container_contents)
+
 #-------------------------------------------------------
 #------------- TRIGGERED AT END OF TURN ----------------
 #-------------------------------------------------------
@@ -109,13 +128,22 @@ def clear_cave_in(room, player):
     room.adjustments[2]["add_interactable"][0] = room.visits + 1
     room.adjustments[2]["add_interactable"][1] = room.interactables[2]
     room.interactables.remove(room.interactables[2])
-    room.interactables[1].punchline = " Somehow you feel Harbor's disappointment."
+    room.interactables[1].punchline = "Somehow you feel Harbor's disappointment."
     print(" Harbor gets up, grabs some tools and heads out to clear the rubble.")
     room.exits[0].link.interactables[0].exit_hold.link.exits.append(room.exits[0].link.interactables[1].exit_hold)
     room.exits[0].link.exits[0] = room.exits[0].link.interactables[0].exit_hold
     room.exits[0].link.interactables[0].exit_hold = None
     room.exits[0].link.interactables[1].exit_hold = None
     room.exits[0].link.description = "A rocky tunnel with heavy timbers reenforcing the walls. The cave in has been cleared away and the passage is usable again."
+
+def ceribane_alchemy(room, player):
+    player.inventory.add_item(StatMedallion())
+    print(" You hired CERIBANE to make you a STAT MEDALLION for 2 GOLEM EYES!")
+    room.adjustments[2]["ceribane_alchemy"][0] += 1
+    if room.adjustments[2]['ceribane_alchemy'][0] >= 3: 
+        print(" CERIBANE: Well great-grandmother needs to go gather some more ingredients. I hope we see each other again in another life.")
+        room.interactables.pop(0)
+        room.description = "You see a door with an 'OPEN 7 DAYS A WEEK' sign on the front. Inside is a homely shop, its counters covered with books, tools, vials, and strange ingredients. You see a lonely, emerald cauldron longing for an old lady to hunch over it."
 
 def add_owl(room, player):
     if len(room.interactables) == 0:
@@ -177,6 +205,15 @@ def golem_machinery(room, player):
     else: 
         add_monsters(room, 0)
         print(" A new MUD GOLEM has appeared!")
+
+def reveal_mimics(room, player): 
+    if player.investigation >= 6:
+        for each_interactable in room.interactables:
+            try: each_interactable.reveal()
+            except: pass
+            else: each_interactable.reveal()
+        room.adjustments[1].remove(reveal_mimics)
+        
 
 def change_room(nav, player):
     nav.enter_room(nav.current_room.adjustments[2]["change_room"][0])
@@ -245,11 +282,14 @@ def run_shatter(interactable, player, room):
         else:
             print(f""" You found 1 {interactable.contents.name}!""")
             player.inventory.add_item(interactable.contents)
-        try: interactable.contents().is_aware
+        try: interactable.contents.is_aware
         except: pass
         else:
-            print(f""" A {interactable.contents().type} came out of the {interactable.type}!""")
+            print(f""" A {interactable.contents.type} came out of the {interactable.type}!""")
             add_monsters(room, 0)
+            room.monsters[len(room.monsters)-1].is_aware = True
+            room.monsters[len(room.monsters)-1].make_attack(player)
+        if interactable.contents == None: print(" There was nothing inside.")
     else: print(f""" You couldn't break {interactable.type} {interactable.number}.""")
     if "SHATTER" in interactable.action_words: interactable.action_words.remove("SHATTER")
     elif "CHOP" in interactable.action_words: interactable.action_words.remove("CHOP")
@@ -305,3 +345,6 @@ def shutdown_machine(room):
     room.adjustments[1].remove(golem_machinery)
     room.adjustments[2]["change_monster_spawning"][0] = room.visits
     change_monster_spawning(room, 0)
+
+def get_number(container):
+    return container.number

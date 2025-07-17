@@ -10,6 +10,7 @@ weapon_options = {
     "GOLEM FIST" : Weapon(3, "WEAPON", "GOLEM FIST", 2, 8, 0, 2, 25),
     "SHORTSWORD" : Weapon(4, "WEAPON", "SHORTSWORD", 2, 8, 1, 4, 7),
     "TRIDENT" : Weapon(5, "WEAPON", "TRIDENT", 2, 9, 2, 4, 24),
+    "MIMIC TOOTH" : Weapon(5, "WEAPON", "MIMIC TOOTH", 2, 9, 2, 4, 24),
     "LONGSWORD" : Weapon(6, "WEAPON", "LONGSWORD", 3, 9, 2, 4, 55),
     "BATTLE AXE" : Weapon(7, "WEAPON", "BATTLE AXE", 3, 10, 3, 6, 80),
     "MAGIC SWORD" : Weapon(8, "WEAPON", "MAGIC SWORD", 4, 12, 3, 9, 120),
@@ -39,7 +40,7 @@ misc_options = {
     "SEA CREATURE MEAT" : Item("MISC", "SEA CREATURE MEAT", 12),
     "KEY" : Item("MISC", "KEY", 20),
     "RUBY DUST" : Item("MISC", "RUBY DUST", 20),
-    "PAIR OF GOLEM EYES" : Item("MISC", "PAIR OF GOLEM EYES", 20),
+    "GOLEM EYE" : Item("MISC", "GOLEM EYE", 20),
     "MINOTAUR HORN" : Item("MISC", "MINOTAUR HORN", 30),
     "SHIELD" : Item("MISC", "SHIELD", 35),
     "MAGIC BRIDGE": Item("MISC", "MAGIC BRIDGE", 50)

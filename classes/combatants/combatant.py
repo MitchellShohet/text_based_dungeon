@@ -15,7 +15,7 @@ class Combatant:
         self.attack_buff = attack_buff
         self.defense_buff = defense_buff
         self.exceptions = ["GLOWING CRYSTAL", "LOCK", "TREE", "GLOWING TREE", "MONEY TREE", 
-                            "TABLE", "CHAIR", "SIGN", "GREEN GEM", "MACHINE", "DRILL"]
+                            "TABLE", "CHAIR", "SIGN", "GREEN GEM", "MACHINE", "DRILL", "TENT"]
 
     def make_attack(self, defender):
         attack_roll = random.randint(int(self.inventory.weapon.attack_odds1), int(self.inventory.weapon.attack_odds2)) + self.attack + self.attack_buff

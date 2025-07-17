@@ -44,7 +44,28 @@ class Skeleton(Monster):
                 dollar_bills=self.difficulty-1
                 )
             )
+        
+#-------------------------------------------------------------
 
+class MonsterMimic(Monster):
+    def __init__(self):
+        self.difficulty = random.randint(5,6)
+        super().__init__(
+            type="MIMIC", 
+            max_health=self.difficulty*2,
+            current_health=self.difficulty*2,
+            attack=2,
+            defense=self.difficulty+3, 
+            perception=self.difficulty+2,
+            stealth_mod=1,
+            description="A thing pretending to be a different thing.",
+            inventory=Inventory(
+                weapon=weapon_options["MIMIC TOOTH"],
+                misc=[],
+                dollar_bills=self.difficulty-1
+                )
+            )
+        
 #-------------------------------------------------------------
 
 class Wizard(Monster):
@@ -87,7 +108,7 @@ class  MudGolem(Monster):
             inventory=Inventory(
                 weapon=weapon_options["GOLEM FIST"],
                 consumables=[GreaterHealthPotion()], 
-                misc=[misc_options["PAIR OF GOLEM EYES"]], 
+                misc=[misc_options["GOLEM EYE"]], 
                 dollar_bills=self.difficulty+5
                 )
             )
@@ -102,7 +123,7 @@ class  Minotaur(Monster):
             max_health=self.difficulty*4,
             current_health=self.difficulty*4,
             attack=4,
-            defense=self.difficulty+2, 
+            defense=self.difficulty+3, 
             perception=self.difficulty+6,
             stealth_mod=5,
             description="12 feet tall, half-man, half bull. No joke.",
@@ -123,7 +144,7 @@ class  Avatar(Monster):
             max_health=80,
             current_health=80,
             attack=4,
-            defense=12, 
+            defense=14, 
             perception=18,
             stealth_mod=7,
             description="An monsterous abomination. A snake creature with 7 heads, waves of electrical energy surge around its form.",

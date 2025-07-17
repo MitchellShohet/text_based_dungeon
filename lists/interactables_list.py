@@ -7,7 +7,7 @@ from classes.dungeon.room import Room
 from classes.dungeon.room_components import Exit, MonsterSpawning
 from classes.inventory.inventory import Inventory
 from classes.inventory.items import Weapon
-from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature
+from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature, MonsterMimic
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, Pie, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
 from lists.adjustments_list import check_for_heavy_armor, add_monsters, sleeping_minotaur_defeated, run_shatter, punchline_test, run_inspect, inspect_crystal, inspect_tree, change_room, teleport_sequence, block_exit, change_room_description
 
@@ -104,7 +104,7 @@ class Breakable(Interactable):
             stealth_mod)
     
     def run_interaction(self, action_word, player, room):
-        if action_word == "SHATTER" and "SHATTER" in self.action_words or action_word == "BREAK" and "BREAK" in self.action_words or action_word == "CHOP" and "CHOP" in self.action_words or "SMASH" and "SMASH" is self.action_words:
+        if action_word == "SHATTER" and "SHATTER" in self.action_words or action_word == "BREAK" and "BREAK" in self.action_words or action_word == "CHOP" and "CHOP" in self.action_words or action_word == "SMASH" and "SMASH" in self.action_words:
             run_shatter(self, player, room)
         else: punchline_test(self, action_word)
 
@@ -145,13 +145,13 @@ class Lockable(Interactable, ABC):
     def run_interaction(self, action_word, player, room):
         if action_word == "OPEN" and "OPEN" in self.action_words:
             if self.challenge > 0: self.select_unlock_method(player, room)
-            else: self.open(player)
+            else: 
+                print(f""" You opened the {self.type}!""")
+                self.open(player)
         elif action_word == "BREAK THE LOCK" and "BREAK THE LOCK" in self.action_words:
             self.attempt_to_break(player, room)
         elif action_word == "USE A KEY" and "USE A KEY" in self.action_words:
             self.use_key(player, room)
-        elif action_word == "ATTACK MIMIC" and "ATTACK MIMIC" in self.action_words:
-            print(f""" What're you talking about? That's a {self.type}?""")
     
     @abstractmethod
     def open(self, player):
@@ -180,6 +180,8 @@ class Lockable(Interactable, ABC):
             print(" You jammed THE LOCK into the closed position. You can try again but it'll be even more difficult now.")
             self.challenge*=2
             self.description += " THE LOCK has been jammed closed."
+            if "USE A KEY" in self.action_words: self.action_words.remove("USE A KEY")
+
     
     def use_key(self, player, room):
         if misc_options["KEY"] in player.inventory.misc:
@@ -191,7 +193,7 @@ class Lockable(Interactable, ABC):
     def unlock_success(self, player, room):
         self.challenge = 0
         self.action_words.remove("BREAK THE LOCK")
-        self.action_words.remove("USE A KEY")
+        if "USE A KEY" in self.action_words: self.action_words.remove("USE A KEY")
         self.action_words.append("OPEN")
         self.run_interaction("OPEN", player, room)
 
@@ -378,7 +380,6 @@ class Chest(Lockable):
             )
     
     def open(self, player):
-        print(f""" You opened the {self.type}!""")
         reward_num = random.randint(1, len(self.contents))-1
         try:
             self.contents[reward_num].type
@@ -388,22 +389,87 @@ class Chest(Lockable):
             player.inventory.dollar_bills += self.contents[reward_num]
             print(f""" You found {self.contents[reward_num]} dollar bills!""")
         self.action_words.remove("OPEN")
-        self.description = "A chest that's been opened."
-
+        self.description = f"""A {self.type} that's been opened."""
 
 #---------------------------------------------------------
 
-class Mimic(Chest):
+class Container(Lockable):
 
-    def __init__(self, number, action_words, descriptor, challenge=0):
-        super().__init__(number, action_words, descriptor, challenge, None)
+    def __init__(self, type, number, action_words, descriptor, contents=None, stealth_mod=1):
+        self.contents = contents
+        super().__init__(
+            type=type, 
+            number=number, 
+            action_words=action_words, 
+            description=descriptor, 
+            stealth_mod=stealth_mod,
+            challenge=0
+            )
+    
+    def open(self, player):
+        if self.contents == None: print(" There was nothing inside.")
+        else:
+            try:
+                self.contents.type
+                player.inventory.add_item(self.contents)
+                print(f""" You found a {self.contents.name}!""")
+            except: 
+                player.inventory.dollar_bills += self.contents
+                print(f""" You found {self.contents} dollar bills!""")
+        self.action_words.remove("OPEN")
+        self.description = f"""A {self.type} that's been opened."""
+#---------------------------------------------------------
+
+class Mimic(Lockable):
+
+    def __init__(self, type, number, action_words, description, challenge=0, stealth_mod=1):
+        self.contents = None
+        super().__init__(
+            type=type, 
+            number=number, 
+            action_words=action_words, 
+            description=description, 
+            stealth_mod=stealth_mod,
+            challenge=challenge 
+            )
+
+    def run_interaction(self, action_word, player, room):
+        if action_word == "SHATTER" and "SHATTER" in self.action_words or action_word == "BREAK" and "BREAK" in self.action_words or action_word == "CHOP" and "CHOP" in self.action_words or action_word == "SMASH" and "SMASH" in self.action_words:
+            self.open(player)
+        elif action_word == "OPEN" and "OPEN" in self.action_words:
+            if self.challenge > 0: self.select_unlock_method(player, room)
+            else: 
+                print(f""" You opened the {self.type}!""")
+                self.open(player)
+        elif action_word == "BREAK THE LOCK" and "BREAK THE LOCK" in self.action_words:
+            self.attempt_to_break(player, room)
+        elif action_word == "USE A KEY" and "USE A KEY" in self.action_words:
+            self.use_key(player, room)
+        elif action_word == "ATTACK MIMIC" and "ATTACK MIMIC" in self.action_words:
+            self.get_accused(player, room)
 
     def open(self, player):
-        print(f""" You opened the {self.type}!""")
         print(f""" It's a MIMIC!""")
         player.take_damage(2, True)
         if "ATTACK MIMIC" not in self.action_words: self.action_words.append("ATTACK MIMIC")
         print(f""" You escaped the MIMIC""")
+
+    def get_accused(self, player, room):
+        if self.type == "MIMIC":
+            print(f""" Woah! That was a MIMIC!""")
+            room.spawn_monster(MonsterMimic)
+            room.monsters[len(room.monsters)-1].is_aware = True
+            if self.contents != None: room.monsters[len(room.monsters)-1].inventory.misc.append(self.contents)
+            player.make_attack(room.monsters[len(room.monsters)-1])
+            self.type = "COMPROMISED MIMIC"
+            for each_interactable in room.interactables:
+                if each_interactable.type == "COMPROMISED MIMIC": room.interactables.remove(each_interactable)
+        else: print(f""" What're you talking about? That's a {self.type}?""")
+        
+    def reveal(self):
+        self.type = "MIMIC"
+        self.number = 0
+        if "ATTACK MIMIC" not in self.action_words: self.action_words.append("ATTACK MIMIC")
 
 #---------------------------------------------------------
 

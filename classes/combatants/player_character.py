@@ -1,13 +1,13 @@
 from line_spacer import line_spacer
 from classes.combatants.combatant import Combatant
 from classes.inventory.inventory import Inventory
-from lists.items_lists import weapon_options, misc_options,DurabilityGem, armor_options, SmokeBomb, HealthPotion, GreaterHealthPotion
+from lists.items_lists import weapon_options, StatMedallion, misc_options,DurabilityGem, armor_options, SmokeBomb, HealthPotion, GreaterHealthPotion
 
 class PlayerCharacter(Combatant):
 
     def __init__(self):
         self.stealth = 35 #baseline for normal mode is 1
-        self.investigation = 45 #baseline for normal mode is 1
+        self.investigation = 7 #baseline for normal mode is 1
         self.stat_points = 0 #baseline for normal mode is 8
         super().__init__(
             type="PLAYER", 
@@ -18,7 +18,7 @@ class PlayerCharacter(Combatant):
             inventory=Inventory(
                 weapon=weapon_options["FIST"],
                 armor=armor_options["CLOTHES"],
-                consumables=[DurabilityGem(), HealthPotion()], #*** Update this once done testing
+                consumables=[DurabilityGem(), HealthPotion(), StatMedallion()], #*** Update this once done testing
                 misc=[misc_options["MAGIC BRIDGE"], armor_options["PLATEMAIL"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["APPLES"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], misc_options["JAW BONE"]], #*** Update this once done testing
                 dollar_bills=10000 #*** Update this once done testing
                 )
