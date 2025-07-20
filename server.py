@@ -74,7 +74,7 @@ class PlayThrough:
             if action_word == "HIDE": print(" Where would you like to HIDE?")
             else: print(f""" What would you like to {action_word}?""")
             for each_thing in list: #Prints out each option for the player to choose from depending on the list provided
-                if action_word == "INVESTIGATE":
+                if action_word == "LOOK":
                     if each_thing.number == 0 and each_thing.can_investigate == True: print(f""" {each_thing.type}""")
                     elif each_thing.can_investigate == True: print(f""" {each_thing.type} {each_thing.number}""")
                 if action_word == "EQUIP":
@@ -95,7 +95,7 @@ class PlayThrough:
                 selection_loop = False
                 self.player_attacking = False
             for each_thing in list: 
-                if action_word == "INVESTIGATE": #each_thing is each interactable and each monster in the room
+                if action_word == "LOOK": #each_thing is each interactable and each monster in the room
                     if each_thing.can_investigate == True:
                         if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number) or str(selection) + "0" == each_thing.type + str(each_thing.number):
                             each_thing.investigate(self.player_character, self.navigation.current_room)
@@ -154,10 +154,10 @@ class PlayThrough:
                     self.select_sequence("EQUIP", self.player_character.inventory.misc)
                 else: print(" You have nothing new to equip. Input MENU for a list of current options.")
             #--------------------------------
-            elif command == "INVESTIGATE" or command == "PERCEPTION" or command == "INVESTIATE" or command == "INVESTIGAT" or command == "INVEASATE" or command == "INVEATIGATE" or command == "SEARCH": 
+            elif command == "LOOK" or command == "PERCEPTION" or command == "INVESTIGATE" or command == "SEARCH"  or command == "LOO" or command == "LOK" or command == "LOOKE": 
                 if len(self.navigation.current_room.interactables) > 0 or len(self.navigation.current_room.monsters) > 0: 
-                    self.select_sequence("INVESTIGATE", self.navigation.current_room.interactables + self.navigation.current_room.monsters)
-                else: print(" There's nothing to INVESTIGATE here. Input MENU for a list of current options.")
+                    self.select_sequence("LOOK", self.navigation.current_room.interactables + self.navigation.current_room.monsters)
+                else: print(" There's nothing to LOOK at here. Input MENU for a list of current options.")
             #---------------------------------
             elif command == "HIDE" or command == "HID":
                 if self.player_character.hiding == False:
@@ -226,7 +226,7 @@ class PlayThrough:
                 else:
                     if self.navigation.current_room.exits[self.navigation.test_backward()].link == self.navigation.previous_room: options.append("BACKWARD")
                 if len(self.navigation.current_room.monsters) > 0: options.append("ATTACK")
-                if len(self.navigation.current_room.interactables) > 0 or len(self.navigation.current_room.monsters) > 0: options.append("INVESTIGATE")
+                if len(self.navigation.current_room.interactables) > 0 or len(self.navigation.current_room.monsters) > 0: options.append("LOOK")
                 if self.player_character.hiding == False and len(self.navigation.current_room.interactables) > 0: options.append("HIDE")
                 if len(self.player_character.inventory.consumables) > 0: options.append("USE ITEM")
                 if len(self.navigation.current_room.interactables) > 0:

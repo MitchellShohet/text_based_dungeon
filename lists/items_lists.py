@@ -42,7 +42,7 @@ misc_options = {
     "RUBY DUST" : Item("MISC", "RUBY DUST", 20),
     "GOLEM EYE" : Item("MISC", "GOLEM EYE", 20),
     "MINOTAUR HORN" : Item("MISC", "MINOTAUR HORN", 30),
-    "SHIELD" : Item("MISC", "SHIELD", 35),
+    "SHIELD" : Item("MISC", "SHIELD", 50),
     "MAGIC BRIDGE": Item("MISC", "MAGIC BRIDGE", 50)
 }
 
