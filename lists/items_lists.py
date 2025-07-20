@@ -66,7 +66,7 @@ class HealthPotion(HealingItem):
         super().__init__(
             name="HEALTH POTION",
             description="A small vial with a red liquid; it smells of cherries. Using will heal between 5-7 health.",
-            value=10,
+            value=14,
             healing=random.randint(5,7)
         )
 
@@ -76,9 +76,9 @@ class GreaterHealthPotion(HealingItem):
     def __init__(self):
         super().__init__(
             name="GREATER HEALTH POTION",
-            description="A small vial with a pink liquid; it smells of fresh sourdough. Using will heal between 10-15 health.",
-            value=20,
-            healing=random.randint(10,15)
+            description="A small vial with a pink liquid; it smells of fresh sourdough. Using will heal between 16-22 health.",
+            value=29,
+            healing=random.randint(14,21)
         )
 
 #------------------------------------------------------------------------------------
@@ -87,9 +87,9 @@ class Pie(HealingItem):
     def __init__(self):
         super().__init__(
             name="PIE",
-            description="A nicely baked pie, can be made from a variety of ingredients. Using will heal between 7-10 health.",
-            value=16,
-            healing=random.randint(7,10)
+            description="A nicely baked pie, can be made from a variety of ingredients. Using will heal between 10-15 health.",
+            value=20,
+            healing=random.randint(10,15)
         )
 
 #------------------------------------------------------------------------------------

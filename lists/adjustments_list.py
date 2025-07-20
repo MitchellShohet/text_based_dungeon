@@ -42,12 +42,6 @@ def change_monster_spawning(room, dungeon_length): ##
 def change_adjustable_argument(room, dungeon_length):
     room.adjustments[2][room.adjustments[2]["change_adjustable_argument"][0]][room.adjustments[2]["change_adjustable_argument"][1]] = room.adjustments[2]["change_adjustable_argument"][2]
 
-def tree_inspect_renew(room, dungeon_length):
-    for each_interactable in room.interactables:
-        if each_interactable.type == "GLOWING TREE" and each_interactable.challenge >= 6:
-            if each_interactable.gift_given == False and "INSPECT" not in each_interactable.action_words and "APOLOGIZE" not in each_interactable.action_words:
-                each_interactable.action_words.append("INSPECT")
-
 def shop_refresh(room, dungeon_length):
     for each_interactable in room.interactables:
         if "BUY" in each_interactable.action_words:
@@ -58,6 +52,25 @@ def shop_refresh(room, dungeon_length):
                 each_interactable.refresh_requirement = dungeon_length
                 each_interactable.convo[0] = room.adjustments[2]["shop_refresh"][2]
             else: each_interactable.convo[0] = room.adjustments[2]["shop_refresh"][3]
+
+def tree_inspect_renew(room, dungeon_length):
+    for each_interactable in room.interactables:
+        if each_interactable.type == "GLOWING TREE" and each_interactable.challenge >= 6:
+            if room.visits == 1: each_interactable.refresh_requirement = dungeon_length
+            elif each_interactable.gift_given == False and "INSPECT" not in each_interactable.action_words and "APOLOGIZE" not in each_interactable.action_words and dungeon_length >= each_interactable.refresh_requirement:
+                each_interactable.action_words.append("INSPECT")
+                each_interactable.refresh_requirement = dungeon_length
+
+def inspectable_renew(room, dungeon_length):
+    for each_interactable in room.interactables:
+        try: each_interactable.refresh_requirement + 1
+        except: pass
+        else:
+            if room.visits == 1: each_interactable.refresh_requirement = dungeon_length
+            elif dungeon_length >= each_interactable.refresh_requirement:
+                each_interactable.action_words.append("INSPECT")
+                each_interactable.refresh_requirement = dungeon_length
+            print(each_interactable.refresh_requirement)
 
 def money_tree_refresh(room, dungeon_length):
     for each_interactable in room.interactables:
@@ -99,27 +112,18 @@ def randomize_container_contents(room, dungeon_length):
 #------------- TRIGGERED AT END OF TURN ----------------
 #-------------------------------------------------------
 
-def test_inspectables(room, player):
-    for each_interactable in room.interactables:
-        try: each_interactable.run_effect
-        except: pass
-        else: 
-            if each_interactable.run_effect:
-                each_interactable.run_effect = False
-                each_interactable.effect(room, each_interactable, player)
-
 def damage_player(room, player):
     print(f""" {room.adjustments[2]["damage_player"][0]}""")
     player.take_damage(room.adjustments[2]["damage_player"][1], True)
 
 def obtain_item(room, player):
+    room.adjustments[1].remove(obtain_item)
     player.inventory.add_item(room.adjustments[2]["obtain_item"][0])
     print(f""" {room.adjustments[2]["obtain_item"][1]}""")
-    room.adjustments[1].remove(obtain_item)
 
 def remove_item(room, player):
-    player.inventory.remove_item(room.adjustments[2]["remove_item"][0])
     room.adjustments[1].remove(remove_item)
+    player.inventory.remove_item(room.adjustments[2]["remove_item"][0])
 
 def clear_cave_in(room, player):
     room.adjustments[1].remove(clear_cave_in)
@@ -137,6 +141,7 @@ def clear_cave_in(room, player):
     room.exits[0].link.description = "A rocky tunnel with heavy timbers reenforcing the walls. The cave in has been cleared away and the passage is usable again."
 
 def ceribane_alchemy(room, player):
+    room.adjustments[1].remove(ceribane_alchemy)
     player.inventory.add_item(StatMedallion())
     print(" You hired CERIBANE to make you a STAT MEDALLION for 2 GOLEM EYES!")
     room.adjustments[2]["ceribane_alchemy"][0] += 1
@@ -198,9 +203,9 @@ def golem_machinery(room, player):
     working_drill = sum(1 for each_interactable in room.interactables if each_interactable.type == "DRILL")
     if active_gems == 0: 
         print(" Both gems on the machine have been destroyed!")
-        shutdown_machine(room)
+        shutdown_golem_machine(room)
     elif working_drill == 0:
-        shutdown_machine(room)
+        shutdown_golem_machine(room)
     elif room.adjustments[2]["add_monsters"][0] < room.visits: room.adjustments[2]["add_monsters"][0] = room.visits
     else: 
         add_monsters(room, 0)
@@ -213,7 +218,6 @@ def reveal_mimics(room, player):
             except: pass
             else: each_interactable.reveal()
         room.adjustments[1].remove(reveal_mimics)
-        
 
 def change_room(nav, player):
     nav.enter_room(nav.current_room.adjustments[2]["change_room"][0])
@@ -249,7 +253,7 @@ def teleport_sequence(nav, player): #**Room options will need to be updated as w
         print(f""" {nav.current_room.interactables[0].name}: {nav.current_room.interactables[0].convo[8]}""",
             "\n",
             line_spacer,
-            "\n"
+            "\n",
             "\n You feel your feet landing back on solid ground, the magic fading.")
         change_room(nav, player)
     else: print(" You changed your mind and the fairy looks disappointed")
@@ -262,12 +266,11 @@ def teleport_sequence(nav, player): #**Room options will need to be updated as w
 def run_inspect(interactable, player, room):
         if player.investigation + random.randint(1,5) >= interactable.invest_requirement:
             interactable.invest_requirement = 0
-            interactable.run_effect = True
-            room.adjustments[1].append(test_inspectables)
+            interactable.effect(room, interactable, player)
         else:
             if interactable.number == 0: print(f""" The secrets of the {interactable.type} elude you.""")
             else: print(f""" The secrets of {interactable.type} {interactable.number} elude you.""")
-        interactable.action_words.remove("INSPECT")
+        if "INSPECT" in interactable.action_words: interactable.action_words.remove("INSPECT")
 
 def run_shatter(interactable, player, room):
     defender_object = Combatant(interactable.type, 1, 1, 0, int(interactable.challenge), Inventory(), interactable.number)
@@ -299,6 +302,8 @@ def punchline_test(interactable, action_word):
     action = False
     if action_word == "PLACE HAND" and "PLACE HAND" in interactable.action_words:
         action = " You PLACE YOUR HAND on the " + interactable.type
+    elif action_word == "READ" and "READ" in interactable.action_words:
+        action = f""" You READ the {interactable.type}. It says:"""
     elif action_word == "LICK" and "LICK" in interactable.action_words:
         action = " You LICK the " + interactable.type
     elif action_word == "OBSERVE" and "OBSERVE" in interactable.action_words:
@@ -306,7 +311,7 @@ def punchline_test(interactable, action_word):
     elif action_word == "INSPECT" and "INSPECT" in interactable.action_words:
         action = f""" You INSPECT the {interactable.type} for a while. Determined to uncover it's secrets."""
     elif action_word == "SIT" and "SIT" in interactable.action_words:
-        if interactable.type == "TREE" or interactable.type == "GLOWING TREE" or interactable.type == " MONEY TREE": action = f""" You SIT under the {interactable.type} for a while. It's a good chance to organize your thoughts."""
+        if interactable.type == "TREE" or interactable.type == "GLOWING TREE" or interactable.type == " MONEY TREE" or interactable.type == "STATUE": action = f""" You SIT under the {interactable.type} for a while. It's a good chance to organize your thoughts."""
         elif interactable.type == "TABLE": action = f""" You SIT at the {interactable.type} for a while. It's a good chance to organize your thoughts."""
         else: action = f""" You SIT on the {interactable.type} for a while. It's a good chance to organize your thoughts."""
     if action: 
@@ -337,14 +342,30 @@ def inspect_tree(room, tree, player):
 def inspect_machine(room, machine, player):
     if golem_machinery in room.adjustments[1]:
         print(" After some time you figure out how to operate the MACHINE and turn it off.")
-        shutdown_machine(room)
+        shutdown_golem_machine(room)
     else: print(" You play with the buttons on the machine for a bit. It's a fun time and the machine is definitely shut down.")
 
-def shutdown_machine(room):
+def shutdown_golem_machine(room):
     print(" No more MUD GOLEMS will spawn in this room.")
     room.adjustments[1].remove(golem_machinery)
     room.adjustments[2]["change_monster_spawning"][0] = room.visits
     change_monster_spawning(room, 0)
 
+def inspect_control_panel(room, control_panel, player):
+    if "INSPECT FIRST DIAL" in control_panel.action_words:
+        print(" You're able to quickly decypher the runes of the first dial! Now to analyze the second!")
+        control_panel.action_words.clear()
+        control_panel.action_words.append("INSPECT SECOND DIAL")
+    else:
+        print(" You're able to quickly analyze the second dial and use both dials to shut down the barrier!")
+        room.interactables.clear()
+        for each_chest in room.adjustments[2]["shutdown_control_panel"]:
+            room.interactables.append(each_chest)
+        room.description = "Upon crossing a door you find yourself in a room filled with a green acidic gas. At the far end you see two chests behind a disabled magical barrier."
+
 def get_number(container):
     return container.number
+
+def reveal_tunnel(room, secret_tunnel, player):
+    print(room.adjustments[2]["reveal_tunnel"][0])
+    secret_tunnel.action_words.append("SECRET TUNNEL")

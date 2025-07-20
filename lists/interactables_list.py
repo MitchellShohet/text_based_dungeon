@@ -1,6 +1,7 @@
 import random, math
 from abc import ABC, abstractmethod
 from confirm_sequence import confirm_sequence
+from line_spacer import line_spacer
 from classes.dungeon.room_components import Interactable
 from classes.combatants.combatant import Combatant
 from classes.dungeon.room import Room
@@ -61,7 +62,7 @@ class NPC(Interactable):
             self.inventory.clear()
             self.dollar_bills = 0
             self.invest_requirement *= 2
-        elif player.hiding_score >= self.invest_requirement * 1:
+        elif player.hiding_score >= self.invest_requirement:
             if self.dollar_bills < 30: self.dollar_bills += 30
             print(f""" You robbed {self.name} a little without {self.pronouns[1]} noticing!""")
             if rand_num != -1:
@@ -114,7 +115,7 @@ class Inspectable(Interactable):
 
     def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, effect=None):
         self.effect = effect
-        self.run_effect = False
+        self.refresh_requirement = 0
         super().__init__(
             type, 
             number, 
@@ -124,7 +125,8 @@ class Inspectable(Interactable):
             stealth_mod)
     
     def run_interaction(self, action_word, player, room):
-        if action_word == "INSPECT" and "INSPECT" in self.action_words:
+        if action_word == "INSPECT" and "INSPECT" in self.action_words or action_word == "INSPECT FIRST DIAL" and "INSPECT FIRST DIAL" in self.action_words or action_word == "INSPECT SECOND DIAL" and "INSPECT SECOND DIAL" in self.action_words:
+            print("GLKJASDF")
             run_inspect(self, player, room)
 
 #---------------------------------------------------------
@@ -203,7 +205,6 @@ class Tree(Breakable):
 
     def __init__(self, number, action_words, descriptor, stealth_mod=1, challenge=0, fruit=misc_options["APPLES"], type="TREE", punchline=None, contents=misc_options["WOOD"]):
         self.fruit = fruit
-        self.challenge = challenge
         self.punchline = punchline
         super().__init__(
             type=type, 
@@ -212,6 +213,7 @@ class Tree(Breakable):
             description="A" + descriptor + " tree.", 
             invest_requirement=challenge, 
             stealth_mod=stealth_mod,
+            challenge = challenge,
             contents=contents
             )
 
@@ -223,9 +225,11 @@ class Tree(Breakable):
         else: punchline_test(self, action_word)
 
     def pick_fruit(self, player):
-        print(f""" You picked some of the tree's {self.fruit.name}!""")
-        player.inventory.add_item(self.fruit)
-        self.action_words.remove("PICK FRUIT")
+        if "APOLOGIZE" not in self.action_words:
+            print(f""" You picked some of the tree's {self.fruit.name}!""")
+            player.inventory.add_item(self.fruit)
+            self.action_words.remove("PICK FRUIT")
+        else: print(f""" The {self.type} won't let you pick it's fruit.""")
 
     def chop(self, player, room):
         run_shatter(self, player, room)
@@ -366,6 +370,24 @@ class ExitHold(RedHerring):
 
 #---------------------------------------------------------
 
+class SecretTunnel(Inspectable):
+    def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, effect=None):
+        super().__init__(type, number, action_words, description, invest_requirement, stealth_mod, effect)
+
+    def run_interaction(self, action_word, player, room):
+            if action_word == "INSPECT" and "INSPECT" in self.action_words or action_word == "INSPECT FIRST DIAL" and "INSPECT FIRST DIAL" in self.action_words or action_word == "INSPECT SECOND DIAL" and "INSPECT SECOND DIAL" in self.action_words:
+                run_inspect(self, player, room)
+                if "SECRET TUNNEL" not in self.action_words: 
+                    print(" You can try again later.")
+                    self.refresh_requirement += 1
+            elif action_word == "SECRET TUNNEL" and "SECRET TUNNEL" in self.action_words:
+                print(line_spacer,
+                "\n",
+                "\n You took the SECRET TUNNEL")
+                room.adjustments[1].append(change_room)
+
+#---------------------------------------------------------
+
 class Chest(Lockable):
 
     def __init__(self, number, action_words, descriptor, challenge=0, contents=[10]):
@@ -487,7 +509,7 @@ class GlowingCrystal(Breakable):
             action_words=action_words, 
             description="A large cluster of gems with a mysterious light sourced from within. Roughly the size of a" + descriptor, 
             challenge=challenge,
-            invest_requirement=challenge*3, 
+            invest_requirement=challenge, 
             stealth_mod=challenge,
             contents=self.contents
             )
@@ -502,9 +524,10 @@ class GlowingCrystal(Breakable):
 
 class GlowingTree(Tree):
 
-    def __init__(self, number, action_words, descriptor=" glowing", stealth_mod=1, challenge=6):
+    def __init__(self, number, action_words, descriptor=" glowing", stealth_mod=1, challenge=7):
         self.gift_given = False
         self.run_effect = False
+        self.refresh_requirement = 0
         self.effect = inspect_tree
         if challenge == 15:
             self.reward = weapon_options["MAGIC SWORD"]
@@ -513,7 +536,7 @@ class GlowingTree(Tree):
             self.reward = armor_options["CHAINMAIL"]
             self.monster = MudGolem()
         else: 
-            self.reward = StatMedallion()
+            self.reward = GreaterHealthPotion()
             self.monster = Wizard()
         super().__init__(
             type="GLOWING TREE", 
@@ -521,8 +544,8 @@ class GlowingTree(Tree):
             action_words=action_words, 
             descriptor=descriptor, 
             stealth_mod=stealth_mod,
-            challenge = challenge,
-            fruit = misc_options["GLOWING FRUIT"]
+            challenge=challenge,
+            fruit=misc_options["GLOWING FRUIT"]
             )
     
     def run_interaction(self, action_word, player, room):
@@ -532,6 +555,9 @@ class GlowingTree(Tree):
             self.chop(player, room)
         elif action_word == "INSPECT" and "INSPECT" in self.action_words:
             run_inspect(self, player, room)
+            if self.gift_given == False: 
+                print(" Though, it will allow you to try again later.")
+                self.refresh_requirement += 2
         elif action_word == "APOLOGIZE" and "APOLOGIZE" in self.action_words: print(" The GLOWING TREE does not accept your apology.")
 
     def chop(self, player, room):
@@ -544,7 +570,6 @@ class GlowingTree(Tree):
             if "TREE REMAINS" in each_interactable.type: room.interactables.remove(each_interactable)
         if self.type == "GLOWING TREE":
             print(" The GLOWING TREE hardened itself with magic. You can no longer CHOP or INSPECT it.")
-            self.action_words.remove("CHOP")
             if "INSPECT" in self.action_words: self.action_words.remove("INSPECT")
             self.action_words.append("APOLOGIZE")
 
