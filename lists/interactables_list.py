@@ -164,7 +164,7 @@ class Lockable(Interactable, ABC):
         while selection_loop == True:
             print(f""" The {self.type} is locked. How would you like to open it?""")
             for each_option in self.action_words:
-                print(f"""{each_option}""")
+                if each_option != "OPEN": print(f"""{each_option}""")
             print("NEVERMIND")
             selection = input("- ").upper()
             if selection == "NEVERMIND": selection_loop = False
@@ -357,7 +357,7 @@ class Crossing(Interactable, ABC):
 #--------------- CHILD INTERACTABLES -------------------
 #-------------------------------------------------------
 
-class ExitHold(RedHerring):
+class ExitHold(RedHerring): #MUST BE AT POSITION [0] OF ITS ROOM'S INTERACABLES
 
     def __init__(self, type, action_words, description, punchline=None, exit_hold=None):
         self.exit_hold = exit_hold
@@ -370,27 +370,30 @@ class ExitHold(RedHerring):
 
 #---------------------------------------------------------
 
-class SecretTunnel(Inspectable):
+class SecretPassage(Inspectable): #MUST BE ACCOMPANIED BY AN EXITHOLD
     def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, effect=None):
         super().__init__(type, number, action_words, description, invest_requirement, stealth_mod, effect)
 
     def run_interaction(self, action_word, player, room):
-            if action_word == "INSPECT" and "INSPECT" in self.action_words or action_word == "INSPECT FIRST DIAL" and "INSPECT FIRST DIAL" in self.action_words or action_word == "INSPECT SECOND DIAL" and "INSPECT SECOND DIAL" in self.action_words:
+            if action_word == "INSPECT" and "INSPECT" in self.action_words:
                 run_inspect(self, player, room)
                 if "SECRET TUNNEL" not in self.action_words: 
                     print(" You can try again later.")
                     self.refresh_requirement += 1
-            elif action_word == "SECRET TUNNEL" and "SECRET TUNNEL" in self.action_words:
+            elif action_word == "SECRET TUNNEL" and "SECRET TUNNEL" in self.action_words or action_word == "CASTLE DOOR" and "CASTLE DOOR" in self.action_words and self.type == "KEEP":
+                room.interactables[0].exit_hold = room.adjustments[2]["change_room"][0]
+                room.adjustments[1].append(change_room)
                 print(line_spacer,
                 "\n",
-                "\n You took the SECRET TUNNEL")
-                room.adjustments[1].append(change_room)
+                f"""\n You took the {action_word}""")
+            elif action_word == "CASTLE DOOR" and "CASTLE DOOR" in self.action_words:
+                print( "Magic is keeping the CASTLE DOOR closed.")
 
 #---------------------------------------------------------
 
 class Chest(Lockable):
 
-    def __init__(self, number, action_words, descriptor, challenge=0, contents=[10]):
+    def __init__(self, number, action_words, descriptor="", challenge=0, contents=[10]):
         self.contents = contents
         super().__init__(
             type="CHEST", 
@@ -1060,7 +1063,7 @@ class Pool(Interactable):
         else:
             print(" You took a quick dip in the refreshing water!")
             player.recover_health(4)
-            self.healing_available == False
+            self.healing_available = False
 
     def run_heavy_swim(self, player):
         print(f""" Your {player.inventory.armor.name} is too heavy to swim in!""")
@@ -1088,13 +1091,13 @@ class Pool(Interactable):
 
 class Cauldron(Interactable):
 
-    def __init__(self, number, action_words, descriptor, fire_lit=False):
+    def __init__(self, action_words=["RELIGHT FIRE", "COOK"], fire_lit=False):
         self.fire_lit = fire_lit
         super().__init__(
             type="CAULDRON", 
-            number=number, 
+            number=0, 
             action_words=action_words, 
-            description="A large cauldron" + descriptor, 
+            description="A large cauldron", 
             invest_requirement=0, 
             stealth_mod=2
             )
@@ -1158,3 +1161,35 @@ class Cauldron(Interactable):
                 if ingredient == misc_options["APPLES"]:
                     for x in range(0, 3):
                         player.inventory.misc.remove(ingredient)
+
+#---------------------------------------------------------
+
+class Bed(Breakable):
+
+    def __init__(self, number, type, action_words, descriptor, amount):
+        self.healing_available = True
+        self.amount = amount
+        super().__init__(
+            type=type, 
+            number=number, 
+            action_words=action_words, 
+            description=descriptor, 
+            invest_requirement=0, 
+            stealth_mod=0,
+            challenge=0,
+            contents=misc_options["WOOD"]
+            )
+
+    def run_interaction(self, action_word, player, room):
+        if action_word == "REST" and "REST" in self.action_words:
+            self.rest(player)
+        elif action_word == "CHOP" and "CHOP" in self.action_words:
+            run_shatter(self, player, room)
+
+    def rest(self, player):
+        if player.current_health == player.max_health: print(" Your health is currently full. Come back later to get some rest.")
+        elif self.healing_available == False: print(" You probably shouldn't nap too much, or it'll be harder to get back up.")
+        else:
+            print(f""" You took a quick nap on the {self.type}!""")
+            player.recover_health(self.amount)
+            self.healing_available = False

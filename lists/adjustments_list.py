@@ -88,7 +88,7 @@ def block_exit(room, dungeon_length):
     if room.adjustments[2]["block_exit"][1]: print(room.adjustments[2]["block_exit"][1])
     room.adjustments[0].remove(block_exit)
 
-def cave_in(room, dungeon_length):
+def cave_in(room, dungeon_length): #This removes access to this room from the previous one, in case the player teleports backwards
     for each_exit in room.interactables[0].exit_hold.link.exits:
         if each_exit.link == room:
             room.interactables[1].exit_hold =each_exit
@@ -125,30 +125,15 @@ def remove_item(room, player):
     room.adjustments[1].remove(remove_item)
     player.inventory.remove_item(room.adjustments[2]["remove_item"][0])
 
-def clear_cave_in(room, player):
-    room.adjustments[1].remove(clear_cave_in)
-    room.adjustments[0].append(add_interactable)
-    room.interactables[2].action_words.remove("HIRE")
-    room.adjustments[2]["add_interactable"][0] = room.visits + 1
-    room.adjustments[2]["add_interactable"][1] = room.interactables[2]
-    room.interactables.remove(room.interactables[2])
-    room.interactables[1].punchline = "Somehow you feel Harbor's disappointment."
-    print(" Harbor gets up, grabs some tools and heads out to clear the rubble.")
-    room.exits[0].link.interactables[0].exit_hold.link.exits.append(room.exits[0].link.interactables[1].exit_hold)
-    room.exits[0].link.exits[0] = room.exits[0].link.interactables[0].exit_hold
-    room.exits[0].link.interactables[0].exit_hold = None
-    room.exits[0].link.interactables[1].exit_hold = None
-    room.exits[0].link.description = "A rocky tunnel with heavy timbers reenforcing the walls. The cave in has been cleared away and the passage is usable again."
-
-def ceribane_alchemy(room, player):
-    room.adjustments[1].remove(ceribane_alchemy)
-    player.inventory.add_item(StatMedallion())
-    print(" You hired CERIBANE to make you a STAT MEDALLION for 2 GOLEM EYES!")
-    room.adjustments[2]["ceribane_alchemy"][0] += 1
-    if room.adjustments[2]['ceribane_alchemy'][0] >= 3: 
-        print(" CERIBANE: Well great-grandmother needs to go gather some more ingredients. I hope we see each other again in another life.")
-        room.interactables.pop(0)
-        room.description = "You see a door with an 'OPEN 7 DAYS A WEEK' sign on the front. Inside is a homely shop, its counters covered with books, tools, vials, and strange ingredients. You see a lonely, emerald cauldron longing for an old lady to hunch over it."
+def add_castle_wave(room, player):
+    if len(room.monsters) == 0: 
+        room.adjustments[2]["add_castle_wave"][0] += 1
+        if room.adjustments[2]["add_castle_wave"][0] == 4: end_castle_sequence(room)
+        elif room.adjustments[2]["add_castle_wave"][0] == 1: pass
+        else:
+            add_monsters(room,0)
+            print( f""" Momentarily the CASTLE DOOR opens and {room.adjustments[2]["add_monsters"][1]} more {room.adjustments[2]["add_monsters"][2]().type}S pour into the courtyard!""")
+            room.adjustments[2]["add_monsters"][1] += 1
 
 def add_owl(room, player):
     if len(room.interactables) == 0:
@@ -179,6 +164,31 @@ def break_the_table(room, player):
 def check_for_heavy_armor(room, player):
     if player.inventory.armor.rating == 3 or player.inventory.armor.rating==4:
         damage_player(room, player)
+
+def clear_cave_in(room, player):
+    room.adjustments[1].remove(clear_cave_in)
+    room.adjustments[0].append(add_interactable)
+    room.interactables[2].action_words.remove("HIRE")
+    room.adjustments[2]["add_interactable"][0] = room.visits + 1
+    room.adjustments[2]["add_interactable"][1] = room.interactables[2]
+    room.interactables.remove(room.interactables[2])
+    room.interactables[1].punchline = "Somehow you feel Harbor's disappointment."
+    print(" Harbor gets up, grabs some tools and heads out to clear the rubble.")
+    room.exits[0].link.interactables[0].exit_hold.link.exits.append(room.exits[0].link.interactables[1].exit_hold)
+    room.exits[0].link.exits[0] = room.exits[0].link.interactables[0].exit_hold
+    room.exits[0].link.interactables[0].exit_hold = None
+    room.exits[0].link.interactables[1].exit_hold = None
+    room.exits[0].link.description = "A rocky tunnel with heavy timbers reenforcing the walls. The cave in has been cleared away and the passage is usable again."
+
+def ceribane_alchemy(room, player):
+    room.adjustments[1].remove(ceribane_alchemy)
+    player.inventory.add_item(StatMedallion())
+    print(" You hired CERIBANE to make you a STAT MEDALLION for 2 GOLEM EYES!")
+    room.adjustments[2]["ceribane_alchemy"][0] += 1
+    if room.adjustments[2]['ceribane_alchemy'][0] >= 3: 
+        print(" CERIBANE: Well great-grandmother needs to go gather some more ingredients. I hope we see each other again in another life.")
+        room.interactables.pop(0)
+        room.description = "You see a door with an 'OPEN 7 DAYS A WEEK' sign on the front. Inside is a homely shop, its counters covered with books, tools, vials, and strange ingredients. You see a lonely, emerald cauldron longing for an old lady to hunch over it."
 
 def sea_creature_defeated(room, player):
     for each_interactable in room.interactables:
@@ -222,7 +232,7 @@ def reveal_mimics(room, player):
 def change_room(nav, player):
     nav.enter_room(nav.current_room.adjustments[2]["change_room"][0])
     if change_room in nav.previous_room.adjustments[1]: nav.previous_room.adjustments[1].remove(change_room)
-    if nav.current_room.exits[0] is not None: nav.previous_room = nav.current_room.exits[0]
+    if nav.current_room.exits[0].link != None: nav.previous_room = nav.current_room.exits[0].link
 
 def teleport_sequence(nav, player): #**Room options will need to be updated as we develop more
     nav.current_room.adjustments[1].remove(teleport_sequence)
@@ -310,21 +320,29 @@ def punchline_test(interactable, action_word):
         action = f""" You OBSERVE the {interactable.type} for a while."""
     elif action_word == "INSPECT" and "INSPECT" in interactable.action_words:
         action = f""" You INSPECT the {interactable.type} for a while. Determined to uncover it's secrets."""
+    elif action_word == "ADMIRE" and "ADMIRE" in interactable.action_words:
+        action = f""" Now that you have a moment to ADMIRE the {interactable.type}..."""
     elif action_word == "SIT" and "SIT" in interactable.action_words:
         if interactable.type == "TREE" or interactable.type == "GLOWING TREE" or interactable.type == " MONEY TREE" or interactable.type == "STATUE": action = f""" You SIT under the {interactable.type} for a while. It's a good chance to organize your thoughts."""
         elif interactable.type == "TABLE": action = f""" You SIT at the {interactable.type} for a while. It's a good chance to organize your thoughts."""
         else: action = f""" You SIT on the {interactable.type} for a while. It's a good chance to organize your thoughts."""
+    elif action_word == "OPEN" and "OPEN" in interactable.action_words:
+        action = f""" You pull at the {interactable.type} to try and open it!"""
     if action: 
         print(action)
         if interactable.punchline: print(f""" {interactable.punchline}""")
 
-def inspect_crystal(room, crystal, player):
-    print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
-    if player.current_health == player.max_health: 
-        print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
-        crystal.action_words.append("INSPECT")
-    else:
-        player.recover_health(crystal.number*3)
+def end_castle_sequence(room):
+    room.adjustments[1].remove(add_castle_wave)
+    change_room_description(room,0)
+    print(f""" You defeated all the {room.adjustments[2]["add_monsters"][2]().type}S!""")
+    room.exits[0] = room.interactables[0].exit_hold
+    room.interactables[0].action_words.clear()
+    print(f""" The portcullis behind you opened back up.""")
+    room.interactables[1].type = "KEEP"
+    print(" A strange chime sounds from the CASTLE DOOR that leads into the castle's KEEP.")
+    room.exits[0].link.adjustments[2]["change_room_description"][0] = room.exits[0].link.visits + 1
+    room.exits[0].link.adjustments[2]["add_interactable"][0] = room.exits[0].link.visits + 1
 
 def inspect_tree(room, tree, player):
     print(" After some time you start to understand the secrets of the GLOWING TREE. The tree feels seen and offers you a gift from its branches.")
@@ -338,6 +356,14 @@ def inspect_tree(room, tree, player):
     tree.gift_given = True
     print(f""" A {tree.monster.type} has come to test you.""")
     room.monsters.append(tree.monster)
+
+def inspect_crystal(room, crystal, player):
+    print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
+    if player.current_health == player.max_health: 
+        print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
+        crystal.action_words.append("INSPECT")
+    else:
+        player.recover_health(crystal.number*3)
 
 def inspect_machine(room, machine, player):
     if golem_machinery in room.adjustments[1]:
@@ -366,6 +392,6 @@ def inspect_control_panel(room, control_panel, player):
 def get_number(container):
     return container.number
 
-def reveal_tunnel(room, secret_tunnel, player):
-    print(room.adjustments[2]["reveal_tunnel"][0])
-    secret_tunnel.action_words.append("SECRET TUNNEL")
+def reveal_passage(room, secret_tunnel, player):
+    print(room.adjustments[2]["reveal_passage"][0])
+    secret_tunnel.action_words.append(room.adjustments[2]["reveal_passage"][1])

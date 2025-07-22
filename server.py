@@ -72,6 +72,7 @@ class PlayThrough:
         while selection_loop == True:
             item_names = []
             if action_word == "HIDE": print(" Where would you like to HIDE?")
+            elif action_word == "LOOK": print(" What would you like to LOOK into?")
             else: print(f""" What would you like to {action_word}?""")
             for each_thing in list: #Prints out each option for the player to choose from depending on the list provided
                 if action_word == "LOOK":
