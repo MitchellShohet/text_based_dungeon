@@ -341,6 +341,7 @@ def end_castle_sequence(room):
     print(f""" The portcullis behind you opened back up.""")
     room.interactables[1].type = "KEEP"
     print(" A strange chime sounds from the CASTLE DOOR that leads into the castle's KEEP.")
+    room.interactables[2].action_words.append("ADMIRE")
     room.exits[0].link.adjustments[2]["change_room_description"][0] = room.exits[0].link.visits + 1
     room.exits[0].link.adjustments[2]["add_interactable"][0] = room.exits[0].link.visits + 1
 

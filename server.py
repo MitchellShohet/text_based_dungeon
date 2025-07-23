@@ -212,7 +212,7 @@ class PlayThrough:
                 print(f""" DOLLAR BILLS: {self.player_character.inventory.dollar_bills}""")
             #-------------------------------------
             elif command == "MENU" or command == "START" or command == "PAUSE":
-                options = []
+                options = ["NAVIGATE OPTIONS:"]
                 try:self.navigation.current_room.exits[self.navigation.test_forward()].link
                 except: pass
                 else: options.append("FORWARD")
@@ -226,18 +226,22 @@ class PlayThrough:
                 except: pass
                 else:
                     if self.navigation.current_room.exits[self.navigation.test_backward()].link == self.navigation.previous_room: options.append("BACKWARD")
+                options.append("  ")
+                options.append("GENERAL OPTIONS:")
                 if len(self.navigation.current_room.monsters) > 0: options.append("ATTACK")
                 if len(self.navigation.current_room.interactables) > 0 or len(self.navigation.current_room.monsters) > 0: options.append("LOOK")
                 if self.player_character.hiding == False and len(self.navigation.current_room.interactables) > 0: options.append("HIDE")
                 if len(self.player_character.inventory.consumables) > 0: options.append("USE ITEM")
-                if len(self.navigation.current_room.interactables) > 0:
-                    for each_interactable in self.navigation.current_room.interactables:
-                        if len(each_interactable.action_words) > 0:
-                            for each_action_word in each_interactable.action_words:
-                                options.append(f"""{each_action_word}""")
                 if self.player_character.inventory.has_equipables == True: options.append("EQUIP")
                 options.append("STATS")
                 options.append("INVENTORY")
+                if len(self.navigation.current_room.interactables) > 0:
+                    options.append(" ")
+                    options.append("ROOM OPTIONS:")
+                    for each_interactable in self.navigation.current_room.interactables:
+                        if len(each_interactable.action_words) > 0:
+                            for each_action_word in each_interactable.action_words:
+                                options.append(each_action_word)
                 i=0
                 while i < len(options):
                     j=i+1

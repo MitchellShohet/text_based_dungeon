@@ -1187,8 +1187,8 @@ class Bed(Breakable):
             run_shatter(self, player, room)
 
     def rest(self, player):
-        if player.current_health == player.max_health: print(" Your health is currently full. Come back later to get some rest.")
-        elif self.healing_available == False: print(" You probably shouldn't nap too much, or it'll be harder to get back up.")
+        if self.healing_available == False: print(" You probably shouldn't nap too much, or it'll be harder to get back up.")
+        elif player.current_health == player.max_health: print(" Your health is currently full. Come back later to get some rest.")
         else:
             print(f""" You took a quick nap on the {self.type}!""")
             player.recover_health(self.amount)

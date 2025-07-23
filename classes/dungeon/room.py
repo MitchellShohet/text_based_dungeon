@@ -31,7 +31,7 @@ class Room:
                     new_monster = self.monster_spawning.monster1()
         else: new_monster = monster_given()
         if new_monster is not None:
-            new_monster.number = sum(1 for each_monster in self.monsters if each_monster.type == new_monster.type) + 1
+            new_monster.number = sum(1 for each_monster in self.monsters if each_monster.type == new_monster.type) + sum(1 for each_dead_monster in self.interactables if each_dead_monster.type == new_monster.type) + 1
             self.monsters.append(new_monster)
 
     def view_monster_count(self, player_request=False):
