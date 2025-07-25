@@ -3,7 +3,7 @@ from line_spacer import line_spacer
 from classes.combatants.player_character import PlayerCharacter
 from classes.dungeon.navigation import Navigation
 from lists.items_lists import weapon_options, armor_options, HealthPotion, StatMedallion, SmokeBomb, DurabilityGem, PowerBerry
-from lists.adjustments_list import change_room, teleport_sequence
+from lists.adjustments_list import change_room, teleport_sequence, check_for_heavy_armor
 
 class PlayThrough:
     def __init__(self):
@@ -171,6 +171,7 @@ class PlayThrough:
                                 each_monster.notice_player(self.player_character.hiding_score, player_request=True)
                                 if each_monster.is_aware == True: each_monster.make_attack(self.player_character)
                     else: print(" There's nowhere to hide here. Input MENU for a list of current options.")
+                elif check_for_heavy_armor in self.navigation.current_room.adjustments[1]: print(" You can't hide while fighting the SEA CREATURE")
                 else: print(" You are already hiding.")
             #------------------------------------
             elif command == "ATTACK" or command == "SWING SWORD" or command == "ATACK" or command == "ATTAC" or command == "ATTACVK" or command == "KILL" or command == "STAB":

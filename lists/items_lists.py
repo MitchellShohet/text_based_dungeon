@@ -14,7 +14,7 @@ weapon_options = {
     "LONGSWORD" : Weapon(6, "WEAPON", "LONGSWORD", 3, 9, 2, 4, 55),
     "BATTLE AXE" : Weapon(7, "WEAPON", "BATTLE AXE", 3, 10, 3, 6, 80),
     "MAGIC SWORD" : Weapon(8, "WEAPON", "MAGIC SWORD", 4, 12, 3, 9, 120),
-    "MAGIC WAND" : Weapon(0, "WEAPON", "MAGIC WAND", 1, 7, 1, 4, 0)
+    "MAGIC WAND" : Weapon(0, "WEAPON", "MAGIC WAND", 1, 9, 1, 4, 0)
 }
 
 #----------------------------------------------

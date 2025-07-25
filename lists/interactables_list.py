@@ -10,7 +10,7 @@ from classes.inventory.inventory import Inventory
 from classes.inventory.items import Weapon
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature, MonsterMimic
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, Pie, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import check_for_heavy_armor, add_monsters, sleeping_minotaur_defeated, run_shatter, punchline_test, run_inspect, inspect_crystal, inspect_tree, change_room, teleport_sequence, block_exit, change_room_description
+from lists.adjustments_list import check_for_heavy_armor, add_monsters, sleeping_minotaur_defeated, run_sea_creature, run_shatter, punchline_test, run_inspect, inspect_crystal, inspect_tree, change_room, teleport_sequence, block_exit, change_room_description
 
 #-------------------------------------------------------
 #----------- PARENT INTERACTABLES ----------------------
@@ -183,7 +183,6 @@ class Lockable(Interactable, ABC):
             self.challenge*=2
             self.description += " THE LOCK has been jammed closed."
             if "USE A KEY" in self.action_words: self.action_words.remove("USE A KEY")
-
     
     def use_key(self, player, room):
         if misc_options["KEY"] in player.inventory.misc:
@@ -328,7 +327,7 @@ class Crossing(Interactable, ABC):
     def cross_bridge(self, player, room):
         print(f""" You crossed the {self.bridge} BRIDGE over the {self.type}""")
         self.switch_sides(room)
-        if self.bridge == "WOOD":
+        if self.bridge == "WOOD" or self.bridge == "RICKETY OLD":
             self.wood_failure(player, room)
     
     def take_bridge(self, player):
@@ -377,17 +376,19 @@ class SecretPassage(Inspectable): #MUST BE ACCOMPANIED BY AN EXITHOLD
     def run_interaction(self, action_word, player, room):
             if action_word == "INSPECT" and "INSPECT" in self.action_words:
                 run_inspect(self, player, room)
-                if "SECRET TUNNEL" not in self.action_words: 
+                if "SECRET TUNNEL" not in self.action_words and "CLIMBING PATH" not in self.action_words: 
                     print(" You can try again later.")
                     self.refresh_requirement += 1
-            elif action_word == "SECRET TUNNEL" and "SECRET TUNNEL" in self.action_words or action_word == "CASTLE DOOR" and "CASTLE DOOR" in self.action_words and self.type == "KEEP":
-                room.interactables[0].exit_hold = room.adjustments[2]["change_room"][0]
+            elif action_word == "SECRET TUNNEL" and "SECRET TUNNEL" in self.action_words or action_word == "CLIMBING PATH" and "CLIMBING PATH" in self.action_words or action_word == "CASTLE DOOR" and "CASTLE DOOR" in self.action_words and self.type == "KEEP" or action_word == "STAIRCASE" and "STAIRCASE" in self.action_words and self.type == "TOWER UPPER FLOORS":
+                if room.name == "CHASM SEA CREATURE": room.adjustments[2]["change_room"][0] = room.interactables[0].exit_hold  #**This should apply to all instances of SecretPassage(), but we'll fix that later
                 room.adjustments[1].append(change_room)
                 print(line_spacer,
                 "\n",
                 f"""\n You took the {action_word}""")
             elif action_word == "CASTLE DOOR" and "CASTLE DOOR" in self.action_words:
-                print( "Magic is keeping the CASTLE DOOR closed.")
+                print(" Magic is keeping the CASTLE DOOR closed.")
+            elif action_word == "STAIRCASE" and "STAIRCASE" in self.action_words:
+                print(" Magic is keeping the STAIRCASE blocked.")
 
 #---------------------------------------------------------
 
@@ -605,11 +606,13 @@ class Chasm(Crossing):
 
     def __init__(self, number, action_words, descriptor, challenge=4, bridge=None):
         self.descriptor = descriptor
+        self.fail_count = 0
+        self.fail_limit = random.randint(1,5)
         super().__init__(
             type="CHASM", 
             number=number, 
             action_words=action_words, 
-            description="A chasm that drops into nothingness below", 
+            description="A chasm that drops into nothingness", 
             exit_hold=Exit(1),
             jump_challenge=challenge,
             bridge=bridge,
@@ -617,13 +620,26 @@ class Chasm(Crossing):
 
     def jump_failure(self, jump_score, player, room):
         print(" You attempt to leap over the abyss, but your footing was off and you tumble into the dark.")
-        print(" You land abruptly, smashing into the ground below!")
-        player.take_damage(4, True)
+        print(room.adjustments[2]["jump_failure"][0])
+        if room.adjustments[2]["jump_failure"][1] > 0: player.take_damage(room.adjustments[2]["jump_failure"][1], True)
         if player.current_health > 0: 
             room.adjustments[1].append(change_room)
 
     def wood_failure(self, player, room):
-        pass
+        if self.bridge == "RICKETY OLD":
+            wood_creak = random.randint(1,4)
+            self.fail_count += 1
+            if wood_creak == 1 or self.fail_count >= self.fail_limit:
+                print(" As you pass there's a loud crack and the rickety bridge collapses under your foot!")
+                print(room.adjustments[2]["jump_failure"][0])
+                if room.adjustments[2]["jump_failure"][1] > 0: player.take_damage(room.adjustments[2]["jump_failure"][1], True)
+                if player.current_health > 0: 
+                    room.adjustments[1].append(change_room)
+                if room.adjustments[2]["wood_failure"][0]: room.description = room.adjustments[2]["wood_failure"][0]
+                self.action_words.append("BUILD BRIDGE")
+                self.action_words.remove("CROSS BRIDGE")
+                self.bridge = None
+            else: print(" As you pass there's a loud crack! You hold your breath, but the bridge holds fine and you cross without issue.")
 
     def throw_rocks(self, player, room):
         print(f""" You throw some rocks into the chasm{self.descriptor}""")
@@ -633,18 +649,14 @@ class Chasm(Crossing):
 
 class MagmaRiver(Crossing):
 
-    def __init__(self, number, action_words, descriptor):
+    def __init__(self, number, action_words, descriptor, exit_hold, jump_challeng=7):
         super().__init__(
             type="MAGMA RIVER", 
             number=number, 
             action_words=action_words, 
-            description="A 10ft wide river of flowing lava." + descriptor, 
-            exit_hold = Exit(1, Room("MAGMA RIVER PASSAGE", 
-                                        "A tunnel beyond the magma river opens to a chamber with a chest. The path continues onward.", 
-                                        [Exit(0), Exit(1)], 
-                                        MonsterSpawning(5, Goblin), 
-                                        [Chest(3, ["BREAK THE LOCK", "USE A KEY"]," with an image of a volcano etched onto its top.",contents=[weapon_options["LONGSWORD"], StatMedallion(), 40])])),
-            jump_challenge=7,
+            description=f"""A {descriptor}wide river of flowing lava.""", 
+            exit_hold = exit_hold,
+            jump_challenge=jump_challeng,
             bridge=None,
             )
 
@@ -831,7 +843,12 @@ class Merchant(NPC):
             self.inventory.append(product)
             if self.dollar_bills >= math.ceil(product.value * .75) + 30: self.dollar_bills -= math.ceil(product.value * .75)
             player.inventory.dollar_bills += math.ceil(product.value * .75)
-            player.inventory.remove_item(product)
+            if product.type == "CONSUMABLE":
+                for each_consumable in player.inventory.consumables:
+                    if each_consumable.name == product.name:
+                        player.inventory.remove_item(each_consumable)
+                        break
+            else: player.inventory.remove_item(product)
 
 #---------------------------------------------------------
 
@@ -1032,6 +1049,7 @@ class Pool(Interactable):
         self.healing_available = True
         self.event_num = random.randint(1,2)
         self.exit_hold = None
+        self.words_hold = None
         super().__init__(
             type="POOL", 
             number=number, 
@@ -1044,7 +1062,7 @@ class Pool(Interactable):
     def run_interaction(self, action_word, player, room):
         if action_word == "SWIM" and "SWIM" in self.action_words:
             if "INSPECT SHADOW" in self.action_words and self.event_num == 1:
-                self.run_sea_creature(player, room)
+                run_sea_creature(room, player)
             elif player.inventory.armor.rating == 3 or player.inventory.armor.rating == 4:
                 self.run_heavy_swim(player)
             elif "INSPECT SHADOW" in self.action_words and self.event_num == 2:
@@ -1075,17 +1093,6 @@ class Pool(Interactable):
         print(" You found a locked chest!")
         room.description = "A room with a small pond."
         room.interactables.append(Chest(2, ["BREAK THE LOCK", "USE A KEY"]," with a rusted lock.", 2, [HealthPotion(), DurabilityGem(), 15]))
-
-    def run_sea_creature(self, player, room):
-        print(" You feel something wrap around your leg and pull you under the water!")
-        room.spawn_monster(SeaCreature)
-        for each_monster in room.monsters: 
-            if each_monster.type == "SEA CREATURE": each_monster.is_aware = True
-        self.action_words.clear()
-        self.exit_hold = room.exits
-        room.exits = None
-        player.hiding = True
-        room.adjustments[1].append(check_for_heavy_armor)
 
 #---------------------------------------------------------
 

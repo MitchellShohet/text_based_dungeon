@@ -13,12 +13,12 @@ class PlayerCharacter(Combatant):
             type="PLAYER", 
             max_health=10000000, #baseline for normal mode is 10
             current_health=10000000, #baseline for normal mode is 10
-            attack=4, #baseline for normal mode is 1
+            attack=13, #baseline for normal mode is 1
             defense=3, 
             inventory=Inventory(
                 weapon=weapon_options["FIST"],
-                armor=armor_options["CLOTHES"],
-                consumables=[DurabilityGem(), HealthPotion(), StatMedallion()], #*** Update this once done testing
+                armor=armor_options["CHAINMAIL"],
+                consumables=[DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem(), HealthPotion(), StatMedallion()], #*** Update this once done testing
                 misc=[misc_options["GOLEM EYE"], misc_options["GOLEM EYE"], misc_options["GOLEM EYE"], misc_options["GOLEM EYE"], misc_options["GOLEM EYE"], misc_options["GOLEM EYE"], misc_options["GOLEM EYE"], misc_options["GOLEM EYE"], armor_options["PLATEMAIL"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["APPLES"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], misc_options["JAW BONE"]], #*** Update this once done testing
                 dollar_bills=10000 #*** Update this once done testing
                 )
