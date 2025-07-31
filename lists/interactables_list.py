@@ -314,10 +314,10 @@ class Crossing(Interactable, ABC):
             wood_count = 0
             for each_item in player.inventory.misc:
                 if each_item.name == "WOOD": wood_count += 1
-            if wood_count >= 3:
+            if wood_count >= 5:
                 print(f""" You built a WOOD BRIDGE over the {self.type}!""")
                 self.bridge = "WOOD"
-                for x in range(3):
+                for x in range(5):
                     player.inventory.misc.remove(misc_options["WOOD"])
                 self.action_words.remove("BUILD BRIDGE")
                 self.action_words.append("CROSS BRIDGE")
@@ -380,7 +380,7 @@ class SecretPassage(Inspectable): #MUST BE ACCOMPANIED BY AN EXITHOLD
                     print(" You can try again later.")
                     self.refresh_requirement += 1
             elif action_word == "SECRET TUNNEL" and "SECRET TUNNEL" in self.action_words or action_word == "CLIMBING PATH" and "CLIMBING PATH" in self.action_words or action_word == "CASTLE DOOR" and "CASTLE DOOR" in self.action_words and self.type == "KEEP" or action_word == "STAIRCASE" and "STAIRCASE" in self.action_words and self.type == "TOWER UPPER FLOORS":
-                if room.name == "CHASM SEA CREATURE": room.adjustments[2]["change_room"][0] = room.interactables[0].exit_hold  #**This should apply to all instances of SecretPassage(), but we'll fix that later
+                if room.name == "CHASM SEA CREATURE" or room.name == "IMMEDIATE RETURN LANDING": room.adjustments[2]["change_room"][0] = room.interactables[0].exit_hold  #**This should apply to all instances of SecretPassage(), but we'll fix that later
                 room.adjustments[1].append(change_room)
                 print(line_spacer,
                 "\n",
