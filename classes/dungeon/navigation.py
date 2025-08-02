@@ -20,15 +20,16 @@ class Navigation:
         self.determine_next_room(exit)
         self.test_link_issues()
         self.run_adjustments()
+        print(self.current_room.name)
         print(f""" {self.current_room.description} """)
         self.current_room.spawn_monster()
         self.run_idol_state()
         self.current_room.view_monster_count()
     
     def determine_floor(self, exit_number):
-        if self.current_room.name == "Second Floor Tunnel" and exit_number == 1 or self.current_room.name == "Final Floor Tunnel" and exit_number == 1: 
+        if self.current_room.name == "SECOND FLOOR TUNNEL" and exit_number == 1 or self.current_room.name == "FINAL FLOOR TUNNEL" and exit_number == 1: 
             self.floor+=1
-        elif self.current_room.name == "Second Floor Landing" and exit_number == 0 or self.current_room.name == "Final Floor Landing" and exit_number == 0: 
+        elif self.current_room.name == "SECOND FLOOR LANDING" and exit_number == 0 or self.current_room.name == "FINAL FLOOR LANDING" and exit_number == 0: 
             self.floor-=1
     
     def determine_next_room(self, exit):
@@ -37,7 +38,7 @@ class Navigation:
             new_room = self.find_unexplored_room()
             exit.link = new_room
             self.rooms_visited[str(self.floor)].append(new_room)
-            if new_room.name != "Placeholder Rooms Maxed" : self.room_options[self.floor].remove(new_room) #**REMOVE AFTER TESTING**
+            if new_room.name != "ROOMS MAXED" : self.room_options[self.floor].remove(new_room) #**REMOVE AFTER TESTING**
             self.previous_room = self.current_room #before leaving the current room, establishes it as the previous room
             self.current_room = exit.link #sets the current room to the new one attached to the link
             self.current_room.exits[0].link = self.previous_room
@@ -54,30 +55,45 @@ class Navigation:
     def find_unexplored_room(self):
         try: new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)] #checks if every possible room has already been added to the dungeon
         except: new_room = self.room_options[0][0] #***CHANGE THIS TO A FAIRY FOUNTAIN***
-        self.test_floor_elegibility(new_room)
+        print(1)
+        new_room = self.test_floor_elegibility(new_room)
+        print(2)
         new_exits = self.check_for_new_exits(new_room)
         attempts = 1
         while new_exits + self.unlinked_exits <= 1: #prevents the dungeon from populating every exit with a dead end
+            print("not enough dungeon exits")
             attempts +=1
             if attempts > 80:
-                new_room = self.room_options[0] #***ADD A LIST OF FAIRY FOUNTAINS TO CHOOSE FROM***
+                new_room = self.room_options[0][0] #***ADD A LIST OF FAIRY FOUNTAINS TO CHOOSE FROM***
                 break
             new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
             new_room = self.test_floor_elegibility(new_room)
             new_exits = self.check_for_new_exits(new_room)
         self.unlinked_exits += new_exits
+        print(3)
         return new_room
     
-    def test_floor_elegibility(self, new_room): #alter numbers for game difficulty settings?
-        while new_room.name == "Second Floor Tunnel" or new_room.name == "Final Floor Tunnel":
-            try: self.rooms_visited[str(self.floor)][0].name #prevents dungeon from spawning next floor before a single room has been added to the current floor list
-            except: new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
-            if len(self.rooms_visited[str(self.floor)]) < 5: #prevents dungeon from spawning next floor before the player explores at least 5 rooms on the current one
-                new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
-        if self.floor == 1 and len(self.rooms_visited["1"]) > 12 and self.room_options[1][len(self.room_options[1])-1].name == "Second Floor Tunnel": #prevents dungeon from taking too long to spawn the second floor tunnel
+    def test_floor_elegibility(self, new_room):
+        print('testing for floor')
+        testing = True
+        while testing == True:
+            if new_room.name == "SECOND FLOOR TUNNEL" or new_room.name == "FIRST FLOOR TUNNEL" or new_room.name == "IDOL ROOM" or new_room.name == "DUNGEON EXIT":
+                print("testing if enough rooms explored")
+                try: self.rooms_visited[str(self.floor)][0].name #prevents dungeon from spawning next floor before a single room has been added to the current floor list
+                except: new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
+                if len(self.rooms_visited[str(self.floor)]) < 5: #prevents dungeon from spawning next floor before the player explores at least 5 rooms on the current one
+                    print("nope- " + new_room.name)
+                    new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
+                else: testing = False
+            else: testing = False
+        print('yep- ' + new_room.name)
+        if self.floor == 1 and len(self.rooms_visited["1"]) > 12 and self.room_options[1][len(self.room_options[1])-1].name == "SECOND FLOOR TUNNEL": #prevents dungeon from taking too long to spawn the second floor tunnel
             new_room = self.room_options[1][len(self.room_options[1])-1]
-        elif self.floor == 2 and len(self.rooms_visited["2"]) > 12 and self.room_options[2][len(self.room_options[2])-1].name == "Final Floor Tunnel": #prevents dungeon from taking too long to spawn the final floor tunnel
+            print('something')
+        elif self.floor == 2 and len(self.rooms_visited["2"]) > 12 and self.room_options[2][len(self.room_options[2])-1].name == "FINAL FLOOR TUNNEL": #prevents dungeon from taking too long to spawn the final floor tunnel
             new_room = self.room_options[2][len(self.room_options[2])-1]
+            print("something else")
+        print('c')
         return new_room
 
     def check_for_new_exits(self, room):

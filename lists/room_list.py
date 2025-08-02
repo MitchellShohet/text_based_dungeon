@@ -8,7 +8,7 @@ from lists.adjustments_list import block_exit, obtain_idol, reveal_mimics, obtai
 
 room_list = [ 
     [
-        Room("Placeholder Rooms Maxed", 
+        Room("ROOMS MAXED", 
             'A deadend with a sign that reads "Sorry, more rooms will be added soon!"', 
             [Exit(0), Exit(1)]) #the second exit needs to be removed when this room is updated (maybe)
         ],
@@ -18,6 +18,13 @@ room_list = [
             [Exit(0, Room("Go Home", 
                         "You decide not to explore the dungeon. Probably a good idea.", 
                         None)), Exit(1), Exit(2)]),
+        Room("IDOL ROOM",
+            "A massive chamber with collumns of ancient stone rising to the massive ceiling. Before you steps lead to an altar where the IDOL OF DYNAE has finally been found! However, a MAGIC BARRIER blocks your way forward.",
+            [Exit(0)],
+            MonsterSpawning(2, Minotaur),
+            [MagicBarrier("IDOL OF DYNAE", obtain_idol),
+                RedHerring("PILLARS", stealth_mod=5)],
+            [[inspectable_renew], [], {}]),
         Room("POND ROOM", 
             "A room with a small pond.", 
             [Exit(0), Exit(1), Exit(2)], 
@@ -100,12 +107,6 @@ room_list = [
                                                         None,
                                                         [PileOfMoney(1, 15),
                                                             Chest(0, ["BREAK THE LOCK", "USE A KEY"], "A treasure chest", 8, [misc_options["KEY"], misc_options["SHIELD"]])]))]}]),
-        Room("IDOL ROOM",
-            "A massive chamber with collumns of ancient stone rising to the massive ceiling. Before you steps lead to an altar where the IDOL OF DYNAE has finally been found! However, a MAGIC BARRIER blocks your way forward.",
-            [Exit(0)],
-            MonsterSpawning(1, Minotaur),
-            [MagicBarrier("IDOL OF DYNAE", obtain_idol),
-                RedHerring("PILLARS", stealth_mod=5)]),
         # Room("SMALL MAGMA RIVER", 
         #     "A 10ft wide river of magma flows in your path, blocking the exit opposite from you", 
         #     [Exit(0)], 
@@ -217,12 +218,12 @@ room_list = [
         #                                                                                                             ["she", "her", "hers", "her", "herself"], 
         #                                                                                                             ["Wow congrats on defeating all of those WIZARDS! If any adventurer is capable of escaping with the IDOL OF DYNAE, its you!", "Heyyyyy wait do you just pick on everybody? Not cool!", "I had hopes for you but not anymore! Leave me alone!", "Yeah I'll buy! Got anything bright?", "This looks fun! Thanks!", "Nothing you have looks that interesting.", "Sure, I can teleport you to a room you've been to! It'll cost you though, 40 dollar bills or 20 blades of grass!", "Sweet!! Where to?", "All right, see you later!"],
         #                                                                                                             6)]))]}]),
-        # Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
-        # Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
-        # Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
-        # Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
-        # Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
-        # Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
         # Room("Deadend", "Placeholder for a deadend", [Exit(0)], MonsterSpawning(5, Goblin, 9, Skeleton)),
         # Room("Deadend", "Placeholder for a deadend", [Exit(0)], MonsterSpawning(5, Goblin, 9, Skeleton)),
         # Room("Deadend", "Placeholder for a deadend", [Exit(0)], MonsterSpawning(5, Goblin, 9, Skeleton)),
@@ -236,7 +237,8 @@ room_list = [
         #                                 "The entrance chamber to the second floor is built of smooth, blue bricks. Decorative pillars dot the edges, and an archway leads to three exits leading deeper into the dungeon.", 
         #                                 exits=[Exit(0), Exit(1), Exit(2), Exit(3)]))])
         Room("BUFFER ROOM",
-            "THIS IS A BUFFER ROOM IT SHOULDN'T BE SEEN IN THE GAME IF IT IS CALL THE FBI")
+            "THIS IS A BUFFER ROOM IT SHOULDN'T BE SEEN IN THE GAME IF IT IS CALL THE FBI",
+            [Exit(0)])
         ],
     [
         # Room("GLOWING CRYSTALS ROOM", 

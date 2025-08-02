@@ -10,7 +10,7 @@ from classes.inventory.inventory import Inventory
 from classes.inventory.items import Weapon
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature, MonsterMimic
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, Pie, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import monsters_attack, monsters_attempt_notice_and_attack, check_for_heavy_armor, add_monsters, reveal_passage, sleeping_minotaur_defeated, run_sea_creature, run_shatter, punchline_test, run_inspect, inspect_crystal, inspect_tree, change_room, teleport_sequence, block_exit, change_room_description
+from lists.adjustments_list import monsters_attack, monsters_attempt_notice_and_attack, disable_magic_barrier, check_for_heavy_armor, add_monsters, reveal_passage, sleeping_minotaur_defeated, run_sea_creature, run_shatter, punchline_test, run_inspect, inspect_crystal, inspect_tree, change_room, teleport_sequence, block_exit, change_room_description
 
 #-------------------------------------------------------
 #----------- PARENT INTERACTABLES ----------------------
@@ -546,9 +546,11 @@ class Mimic(Lockable):
 
 class MagicBarrier(Lockable):
 
-    def __init__(self, descriptor, effect=None):
-        self.effect = effect
+    def __init__(self, descriptor, effect2=None):
+        self.effect = disable_magic_barrier
+        self.effect2 = effect2
         self.refresh_requirement = 0
+        self.monster_hold = None
         super().__init__(
             type="MAGIC BARRIER", 
             number=0, 
@@ -562,9 +564,9 @@ class MagicBarrier(Lockable):
             self.challenge = 12
             run_inspect(self, player, room)
             if self.type == "MAGIC BARRIER":
-                monsters_attack(room, player)
                 self.challenge = 20
                 print(" You can try again once you explore another room in the dungeon.")
+                monsters_attack(room, player)
         elif action_word == "BREAK FIRST LOCK" and "BREAK FIRST LOCK" in self.action_words or action_word == "BREAK SECOND LOCK" and "BREAK SECOND LOCK" in self.action_words:
             self.attempt_to_break(player, room)
             if self.challenge > 20: print(" Exploring more of the dungeon will reset the difficulty.")

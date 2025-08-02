@@ -69,11 +69,10 @@ def inspectable_renew(room, dungeon_length):
         try: each_interactable.refresh_requirement + 1
         except: pass
         else:
-            if room.visits == 1: each_interactable.refresh_requirement = dungeon_length
+            if room.visits == 1: each_interactable.refresh_requirement = dungeon_length + 1
             elif dungeon_length >= each_interactable.refresh_requirement:
                 each_interactable.action_words.append("INSPECT")
-                each_interactable.refresh_requirement = dungeon_length
-            print(each_interactable.refresh_requirement)
+                each_interactable.refresh_requirement = dungeon_length + 1
 
 def money_tree_refresh(room, dungeon_length):
     for each_interactable in room.interactables:
@@ -244,6 +243,11 @@ def chasm_sea_creature_start2(room, player):
     room.adjustments[1].remove(chasm_sea_creature_start2)
     room.interactables[1].description = "A rocky wall that might be climbable, if you weren't being held underwater by a SEA CREATURE."
     run_sea_creature(room, player)
+
+# def renew_idol_room_monsters(room, player): # When the player obtains the idol, the monsters in that room are stored so they don't attack when the player leaves. This restores them to the room.
+#     for each_exit in room.exits:
+#         if exit.link.name == "IDOL ROOM":
+#             exit.link.monsters = exit.link.interactables[0].monster_hold
 
 def change_room(nav, player):
     nav.enter_room(nav.current_room.adjustments[2]["change_room"][0])
@@ -459,10 +463,13 @@ def chasm_sea_creature_defeated(room):
     room.interactables[1].action_words.append("INSPECT")
     room.interactables[1].description = "A rocky wall that might be climbable"
 
-def obtain_idol(room, barrier, player):
+def disable_magic_barrier(room, barrier, player):
     barrier.type = "DISABLED MAGIC BARRIER"
     if barrier.challenge == 12: print(" After some time you were able to unravel the magic of the BARRIER!")
     print(" You disabled the MAGIC BARRIER!")
+    barrier.effect2(room, barrier, player)
+
+def obtain_idol(room, barrier, player):
     print("\n The IDOL OF DYNAE is before you. ")
     select_loop = True
     while select_loop == True:
@@ -476,6 +483,8 @@ def obtain_idol(room, barrier, player):
     room.description = "The mostly collapsed chamber where the IDOL OF DYNAE was housed."
     room.monster_spawning = None
     room.interactables = None
+    for each_monster in room.monsters:
+        each_monster.health = 0
     print(" Suddenly you feel the ground around you begin violently shaking! The room begins collapsing in on itself and you rush back out the way you came!!")
     room.exits[0].link.adjustments[0].append(enter_idol_state)
     room.adjustments[2]["change_room"] = [room.exits[0]]
