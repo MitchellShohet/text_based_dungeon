@@ -1,6 +1,7 @@
 import random
 from lists.room_list import room_list
 from lists.monsters_list import Avatar
+from lists.adjustments_list import enter_idol_state
 
 class Navigation:
     def __init__(self):
@@ -12,16 +13,16 @@ class Navigation:
         self.current_room = self.room_options[self.floor][0] #sets the starting room to "Dungeon Entrance"
         self.previous_room = self.current_room.exits[0].link #sets the starting previous room, this prevents the first test_backward() from crashing the game
         self.unlinked_exits = 2 #counts the total number of unexplored exits currently in the dungeon
-        self.has_idol = False
+        self.idol_state = False
 
     def enter_room(self, exit):
         self.determine_floor(exit.number)
         self.determine_next_room(exit)
         self.test_link_issues()
         self.run_adjustments()
-        self.run_idol_state()
         print(f""" {self.current_room.description} """)
         self.current_room.spawn_monster()
+        self.run_idol_state()
         self.current_room.view_monster_count()
     
     def determine_floor(self, exit_number):
@@ -89,19 +90,20 @@ class Navigation:
         self.current_room.visits += 1
         dungeon_length = len(self.rooms_visited["1"]) + len(self.rooms_visited["2"]) + len(self.rooms_visited["3"])
         for each_adjustment in self.current_room.adjustments[0]:
-            each_adjustment(self.current_room, dungeon_length)
+            if each_adjustment == enter_idol_state: each_adjustment(self)
+            else: each_adjustment(self.current_room, dungeon_length)
     
     def run_idol_state(self):
-        self.determine_idol_taken
-        if self.has_idol == True: 
-            if Avatar() in self.current_room.monsters: 
-                self.current_room.monsters.remove(Avatar())
-                print(" The AVATAR OF DYNAE in this room has been fully healed!")
+        if enter_idol_state in self.current_room.adjustments[0]: 
+            self.current_room.adjustments[0].remove(enter_idol_state)
+            print(" A tear in reality opens in front of you. With an eruption of static electricity, a creature emerges from it.")
+        if self.idol_state == True: 
+            for each_monster in self.current_room.monsters:
+                if each_monster.type == "AVATAR": 
+                    self.current_room.monsters.remove(each_monster)
+                    print(" The AVATAR OF DYNAE in this room has been fully healed!")
             else: print(" A new AVATAR OF DYNAE has appeared!")
             self.current_room.monsters.append(Avatar())
-    
-    def determine_idol_taken(self):
-        if self.current_room.name == "Idol Taken": self.has_idol = True
     
     def test_backward(self): #returns the exit that is backward from the player's perspective
         for each_exit in self.current_room.exits:

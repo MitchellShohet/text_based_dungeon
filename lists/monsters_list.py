@@ -152,9 +152,8 @@ class  Avatar(Monster):
                 weapon=weapon_options["MAGIC SWORD"],
                 consumables=[GreaterHealthPotion(), PowerBerry(), StatMedallion()],
                 misc=[armor_options["MAGIC PLATE"]],
-                dollar_bills=self.difficulty+5
+                dollar_bills=20
                 ),
-            number=0
             )
 
 #----------------------------------------------------------------

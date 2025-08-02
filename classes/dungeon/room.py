@@ -41,7 +41,7 @@ class Room:
             for each_monster in self.monsters:
                 if each_monster.type not in monster_list: monster_list.append(each_monster.type)
             for each_monster_type in monster_list:
-                if sum(1 for each_monster in self.monsters if each_monster.type == each_monster_type) == 1: print(f""" A {each_monster_type} is here.""")
+                if sum(1 for each_monster in self.monsters if each_monster.type == each_monster_type) == 1: print(f""" One {each_monster_type} is here.""")
                 else: print(f""" {sum(1 for each_monster in self.monsters if each_monster.type == each_monster_type)} {each_monster_type}s are here.""")
     
     def room_interaction(self, player_action, player, room): #consider moving this to server.py and merging with select_sequence() for DRY

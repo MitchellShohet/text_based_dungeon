@@ -10,7 +10,7 @@ from classes.inventory.inventory import Inventory
 from classes.inventory.items import Weapon
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature, MonsterMimic
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, Pie, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import check_for_heavy_armor, add_monsters, sleeping_minotaur_defeated, run_sea_creature, run_shatter, punchline_test, run_inspect, inspect_crystal, inspect_tree, change_room, teleport_sequence, block_exit, change_room_description
+from lists.adjustments_list import monsters_attack, monsters_attempt_notice_and_attack, check_for_heavy_armor, add_monsters, reveal_passage, sleeping_minotaur_defeated, run_sea_creature, run_shatter, punchline_test, run_inspect, inspect_crystal, inspect_tree, change_room, teleport_sequence, block_exit, change_room_description
 
 #-------------------------------------------------------
 #----------- PARENT INTERACTABLES ----------------------
@@ -38,8 +38,10 @@ class NPC(Interactable):
     def run_interaction(self, action_word, player, room):
         if action_word == "TALK" and "TALK" in self.action_words:
             self.talk()
+            monsters_attack(room, player)
         elif action_word == "ROB" and "ROB" in self.action_words:
             self.attempt_robbery(player)
+            monsters_attack(room, player)
 
     def talk(self):
         if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
@@ -107,6 +109,7 @@ class Breakable(Interactable):
     def run_interaction(self, action_word, player, room):
         if action_word == "SHATTER" and "SHATTER" in self.action_words or action_word == "BREAK" and "BREAK" in self.action_words or action_word == "CHOP" and "CHOP" in self.action_words or action_word == "SMASH" and "SMASH" in self.action_words:
             run_shatter(self, player, room)
+            monsters_attempt_notice_and_attack(room, player)
         else: punchline_test(self, action_word)
 
 #---------------------------------------------------------
@@ -126,8 +129,8 @@ class Inspectable(Interactable):
     
     def run_interaction(self, action_word, player, room):
         if action_word == "INSPECT" and "INSPECT" in self.action_words or action_word == "INSPECT FIRST DIAL" and "INSPECT FIRST DIAL" in self.action_words or action_word == "INSPECT SECOND DIAL" and "INSPECT SECOND DIAL" in self.action_words:
-            print("GLKJASDF")
             run_inspect(self, player, room)
+            monsters_attack(room, player)
 
 #---------------------------------------------------------
 
@@ -140,7 +143,7 @@ class Lockable(Interactable, ABC):
             number=number, 
             action_words=action_words, 
             description=description, 
-            invest_requirement=number, 
+            invest_requirement=challenge, 
             stealth_mod=stealth_mod
             )
 
@@ -149,14 +152,16 @@ class Lockable(Interactable, ABC):
             if self.challenge > 0: self.select_unlock_method(player, room)
             else: 
                 print(f""" You opened the {self.type}!""")
-                self.open(player)
+                self.open(player, room)
+                monsters_attack(room, player)
         elif action_word == "BREAK THE LOCK" and "BREAK THE LOCK" in self.action_words:
             self.attempt_to_break(player, room)
+            monsters_attempt_notice_and_attack(room, player)
         elif action_word == "USE A KEY" and "USE A KEY" in self.action_words:
             self.use_key(player, room)
     
     @abstractmethod
-    def open(self, player):
+    def open(self, player, room):
         pass
 
     def select_unlock_method(self, player, room):
@@ -181,7 +186,6 @@ class Lockable(Interactable, ABC):
         else:
             print(" You jammed THE LOCK into the closed position. You can try again but it'll be even more difficult now.")
             self.challenge*=2
-            self.description += " THE LOCK has been jammed closed."
             if "USE A KEY" in self.action_words: self.action_words.remove("USE A KEY")
     
     def use_key(self, player, room):
@@ -221,6 +225,7 @@ class Tree(Breakable):
             self.pick_fruit(player)
         elif action_word == "CHOP" and "CHOP" in self.action_words:
             self.chop(player, room)
+            monsters_attempt_notice_and_attack(room, player)
         else: punchline_test(self, action_word)
 
     def pick_fruit(self, player):
@@ -275,6 +280,7 @@ class Crossing(Interactable, ABC):
             self.jump(player, room)
         elif action_word == "BUILD BRIDGE" and "BUILD BRIDGE" in self.action_words:
             self.build_bridge(player)
+            monsters_attempt_notice_and_attack(room, player)
         elif action_word == "CROSS BRIDGE" and "CROSS BRIDGE" in self.action_words:
             self.cross_bridge(player, room)
         elif action_word == "TAKE BRIDGE" and "TAKE BRIDGE" in self.action_words:
@@ -314,10 +320,10 @@ class Crossing(Interactable, ABC):
             wood_count = 0
             for each_item in player.inventory.misc:
                 if each_item.name == "WOOD": wood_count += 1
-            if wood_count >= 5:
+            if wood_count >= 4:
                 print(f""" You built a WOOD BRIDGE over the {self.type}!""")
                 self.bridge = "WOOD"
-                for x in range(5):
+                for x in range(4):
                     player.inventory.misc.remove(misc_options["WOOD"])
                 self.action_words.remove("BUILD BRIDGE")
                 self.action_words.append("CROSS BRIDGE")
@@ -382,6 +388,7 @@ class SecretPassage(Inspectable): #MUST BE ACCOMPANIED BY AN EXITHOLD
             elif action_word == "SECRET TUNNEL" and "SECRET TUNNEL" in self.action_words or action_word == "CLIMBING PATH" and "CLIMBING PATH" in self.action_words or action_word == "CASTLE DOOR" and "CASTLE DOOR" in self.action_words and self.type == "KEEP" or action_word == "STAIRCASE" and "STAIRCASE" in self.action_words and self.type == "TOWER UPPER FLOORS":
                 if room.name == "CHASM SEA CREATURE" or room.name == "IMMEDIATE RETURN LANDING": room.adjustments[2]["change_room"][0] = room.interactables[0].exit_hold  #**This should apply to all instances of SecretPassage(), but we'll fix that later
                 room.adjustments[1].append(change_room)
+                monsters_attempt_notice_and_attack(room, player)
                 print(line_spacer,
                 "\n",
                 f"""\n You took the {action_word}""")
@@ -389,6 +396,43 @@ class SecretPassage(Inspectable): #MUST BE ACCOMPANIED BY AN EXITHOLD
                 print(" Magic is keeping the CASTLE DOOR closed.")
             elif action_word == "STAIRCASE" and "STAIRCASE" in self.action_words:
                 print(" Magic is keeping the STAIRCASE blocked.")
+
+#---------------------------------------------------------
+
+class LockedDoor(Lockable):
+
+    def __init__(self, challenge=0):
+        super().__init__(
+            type = "LOCKED DOOR", 
+            number = 0, 
+            action_words = ["BREAK THE LOCK", "USE A KEY"], 
+            description = "A door with a large chain wrapped around the handle, a padlock, and some nearby anchor points. The chain is keeping the door securely closed.", 
+            stealth_mod = -2, 
+            challenge = challenge)
+        
+    def run_interaction(self, action_word, player, room):
+        if action_word == "OPEN DOOR" and "OPEN DOOR" in self.action_words:
+            if self.challenge > 0: self.select_unlock_method(player, room)
+            else: self.open(player, room)
+        elif action_word == "BREAK THE LOCK" and "BREAK THE LOCK" in self.action_words:
+            self.attempt_to_break(player, room)
+            monsters_attempt_notice_and_attack(room, player)
+        elif action_word == "USE A KEY" and "USE A KEY" in self.action_words:
+            self.use_key(player, room)
+    
+    def open(self, player, room):
+        room.adjustments[1].append(change_room)
+        monsters_attempt_notice_and_attack(room, player)
+        print(line_spacer,
+        "\n",
+        f"""\n You passed through the UNLOCKED DOOR""")
+
+    def unlock_success(self, player, room):
+        self.challenge = 0
+        self.action_words.remove("BREAK THE LOCK")
+        if "USE A KEY" in self.action_words: self.action_words.remove("USE A KEY")
+        self.type = "UNLOCKED DOOR"
+        reveal_passage(room, self, player)
 
 #---------------------------------------------------------
 
@@ -405,7 +449,7 @@ class Chest(Lockable):
             challenge=challenge
             )
     
-    def open(self, player):
+    def open(self, player, room):
         reward_num = random.randint(1, len(self.contents))-1
         try:
             self.contents[reward_num].type
@@ -490,12 +534,55 @@ class Mimic(Lockable):
             self.type = "COMPROMISED MIMIC"
             for each_interactable in room.interactables:
                 if each_interactable.type == "COMPROMISED MIMIC": room.interactables.remove(each_interactable)
+            monsters_attempt_notice_and_attack(room, player)
         else: print(f""" What're you talking about? That's a {self.type}?""")
         
     def reveal(self):
         self.type = "MIMIC"
         self.number = 0
         if "ATTACK MIMIC" not in self.action_words: self.action_words.append("ATTACK MIMIC")
+
+#---------------------------------------------------------
+
+class MagicBarrier(Lockable):
+
+    def __init__(self, descriptor, effect=None):
+        self.effect = effect
+        self.refresh_requirement = 0
+        super().__init__(
+            type="MAGIC BARRIER", 
+            number=0, 
+            action_words=["INSPECT", "BREAK FIRST LOCK", "USE A KEY"], 
+            description="A magic barrier that is preventing you from reaching the " + descriptor, 
+            stealth_mod=0, 
+            challenge=20)
+    
+    def run_interaction(self, action_word, player, room):
+        if action_word == "INSPECT" and "INSPECT" in self.action_words:
+            self.challenge = 12
+            run_inspect(self, player, room)
+            if self.type == "MAGIC BARRIER":
+                monsters_attack(room, player)
+                self.challenge = 20
+                print(" You can try again once you explore another room in the dungeon.")
+        elif action_word == "BREAK FIRST LOCK" and "BREAK FIRST LOCK" in self.action_words or action_word == "BREAK SECOND LOCK" and "BREAK SECOND LOCK" in self.action_words:
+            self.attempt_to_break(player, room)
+            if self.challenge > 20: print(" Exploring more of the dungeon will reset the difficulty.")
+            monsters_attempt_notice_and_attack(room, player)
+        elif action_word == "USE A KEY" and "USE A KEY" in self.action_words:
+            self.use_key(player, room)
+            monsters_attack(room, player)
+    
+    def open(self, player, room):
+        pass
+    
+    def unlock_success(self, player, room):
+        if "BREAK FIRST LOCK" in self.action_words:
+            self.action_words.remove("BREAK FIRST LOCK")
+            self.action_words.append("BREAK SECOND LOCK")
+            print(" You still have one more lock to open.")
+        else:
+            self.effect(room, self, player)
 
 #---------------------------------------------------------
 
@@ -521,9 +608,42 @@ class GlowingCrystal(Breakable):
     def run_interaction(self, action_word, player, room):
         if action_word == "SHATTER" and "SHATTER" in self.action_words:
             run_shatter(self, player, room)
+            monsters_attempt_notice_and_attack(room, player)
         elif action_word == "INSPECT" and "INSPECT" in self.action_words:
             run_inspect(self, player, room)
 
+#---------------------------------------------------------
+
+class Bed(Breakable):
+
+    def __init__(self, number, type, action_words, descriptor, amount):
+        self.healing_available = True
+        self.amount = amount
+        super().__init__(
+            type=type, 
+            number=number, 
+            action_words=action_words, 
+            description=descriptor, 
+            invest_requirement=0, 
+            stealth_mod=0,
+            challenge=0,
+            contents=misc_options["WOOD"]
+            )
+
+    def run_interaction(self, action_word, player, room):
+        if action_word == "REST" and "REST" in self.action_words:
+            self.rest(player)
+        elif action_word == "CHOP" and "CHOP" in self.action_words:
+            run_shatter(self, player, room)
+            monsters_attack(room, player)
+
+    def rest(self, player):
+        if self.healing_available == False: print(" You probably shouldn't nap too much, or it'll be harder to get back up.")
+        elif player.current_health == player.max_health: print(" Your health is currently full. Come back later to get some rest.")
+        else:
+            print(f""" You took a quick nap on the {self.type}!""")
+            player.recover_health(self.amount)
+            self.healing_available = False
 #---------------------------------------------------------
 
 class GlowingTree(Tree):
@@ -557,6 +677,7 @@ class GlowingTree(Tree):
             self.pick_fruit(player)
         elif action_word == "CHOP" and "CHOP" in self.action_words:
             self.chop(player, room)
+            monsters_attempt_notice_and_attack(room, player)
         elif action_word == "INSPECT" and "INSPECT" in self.action_words:
             run_inspect(self, player, room)
             if self.gift_given == False: 
@@ -770,10 +891,13 @@ class Merchant(NPC):
     def run_interaction(self, action_word, player, room):
         if action_word == "TALK" and "TALK" in self.action_words:
             self.talk()
+            monsters_attack(room, player)
         elif action_word == "ROB" and "ROB" in self.action_words:
             self.attempt_robbery(player)
+            monsters_attack(room, player)
         elif action_word == "SELL" and "SELL" in self.action_words:
             self.run_sell_sequence(player)
+            monsters_attack(room, player)
 
     def run_sell_sequence(self, player):
         if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
@@ -873,12 +997,16 @@ class Artisan(Merchant):
     def run_interaction(self, action_word, player, room):
         if action_word == "TALK":
             self.talk()
+            monsters_attack(room, player)
         elif action_word == "ROB" and "ROB" in self.action_words:
             self.attempt_robbery(player)
+            monsters_attack(room, player)
         elif action_word == "SELL":
             self.run_sell_sequence(player)
+            monsters_attack(room, player)
         elif action_word == "TRADE" and "TRADE" in self.action_words or action_word == "HIRE" and "HIRE" in self.action_words or action_word == "TELEPORT" and "TELEPORT" in self.action_words or action_word == "ENCHANT" and "ENCHANT" in self.action_words:
             self.trade(player, room, action_word)
+            monsters_attack(room, player)
 
     def trade(self, player, room, action_word):
         if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
@@ -952,12 +1080,16 @@ class ShopOwner(Merchant):
     def run_interaction(self, action_word, player, room):
         if action_word == "TALK" and "TALK" in self.action_words:
             self.talk()
+            monsters_attack(room, player)
         elif action_word == "ROB" and "ROB" in self.action_words:
             self.attempt_robbery(player)
+            monsters_attack(room, player)
         elif action_word == "BUY" and "BUY" in self.action_words:
             self.run_buy_sequence(player)
+            monsters_attack(room, player)
         elif action_word == "SELL" and "SELL" in self.action_words:
             self.run_sell_sequence(player)
+            monsters_attack(room, player)
 
     def run_buy_sequence(self, player):
         if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
@@ -1035,6 +1167,7 @@ class Owl(RedHerring):
             print(" You mimic the owl, it doesn't look amused.")
         if action_word == "WAVE ARMS":
             print(" You flap around at the owl and look kinda stupid." + self.punchline)
+            monsters_attack(room, player)
         if action_word == "GLARE BACK":
             print(" It's a staring contest. The owl wins and you feel a little stupid." + self.punchline)
 
@@ -1045,13 +1178,13 @@ class Owl(RedHerring):
 
 class Pool(Interactable):
 
-    def __init__(self, number, action_words, descriptor):
+    def __init__(self, number, type, action_words, descriptor):
         self.healing_available = True
         self.event_num = random.randint(1,2)
         self.exit_hold = None
         self.words_hold = None
         super().__init__(
-            type="POOL", 
+            type=type, 
             number=number, 
             action_words=action_words, 
             description=descriptor, 
@@ -1119,7 +1252,6 @@ class Cauldron(Interactable):
                 if len(ingredient_options) > 0: 
                     ingredient = self.select_ingredient(ingredient_options)
                     self.cook(player, ingredient)
-                
 
     def relight(self, player, room):
         if misc_options["WOOD"] in player.inventory.misc:
@@ -1171,32 +1303,23 @@ class Cauldron(Interactable):
 
 #---------------------------------------------------------
 
-class Bed(Breakable):
+class PileOfMoney(Interactable):
 
-    def __init__(self, number, type, action_words, descriptor, amount):
-        self.healing_available = True
+    def __init__(self, number, amount = 10):
         self.amount = amount
         super().__init__(
-            type=type, 
-            number=number, 
-            action_words=action_words, 
-            description=descriptor, 
+            type="PILE OF MONEY", 
+            number=number,
+            action_words=["TAKE"], 
+            description="It's a stack of dollar bills!", 
             invest_requirement=0, 
-            stealth_mod=0,
-            challenge=0,
-            contents=misc_options["WOOD"]
-            )
-
+            stealth_mod=1)
+        
     def run_interaction(self, action_word, player, room):
-        if action_word == "REST" and "REST" in self.action_words:
-            self.rest(player)
-        elif action_word == "CHOP" and "CHOP" in self.action_words:
-            run_shatter(self, player, room)
-
-    def rest(self, player):
-        if self.healing_available == False: print(" You probably shouldn't nap too much, or it'll be harder to get back up.")
-        elif player.current_health == player.max_health: print(" Your health is currently full. Come back later to get some rest.")
-        else:
-            print(f""" You took a quick nap on the {self.type}!""")
-            player.recover_health(self.amount)
-            self.healing_available = False
+        if action_word == "TAKE" and "TAKE" in self.action_words:
+            player.inventory.dollar_bills += self.amount
+            print(f""" You got {self.amount} dollar bills!""")
+            for each_interactable in room.interactables:
+                if each_interactable.type == "PILE OF MONEY" and each_interactable.number == self.number:
+                    room.interactables.remove(each_interactable)
+                    break

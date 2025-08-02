@@ -3,7 +3,7 @@ from line_spacer import line_spacer
 from classes.dungeon.room_components import Exit
 from classes.combatants.combatant import Combatant
 from classes.inventory.inventory import Inventory
-from lists.items_lists import StatMedallion, DurabilityGem
+from lists.items_lists import StatMedallion, DurabilityGem, misc_options
 from lists.monsters_list import Skeleton, SeaCreature
 
 # since these are called generically but have different perameters, 
@@ -25,6 +25,9 @@ def add_to_interactable(room, dungeon_length):
 def change_room_description(room, dungeon_length):
     if room.visits == room.adjustments[2]["change_room_description"][0]:
         room.description = room.adjustments[2]["change_room_description"][1]
+
+def change_room_name(room, dungeon_length):
+    if room.visits == room.adjustments[2]["change_room_name"][0]: room.name = room.adjustments[2]["change_room_name"][1]
 
 def add_monsters(room, dungeon_length):
     if room.visits == room.adjustments[2]["add_monsters"][0]:
@@ -91,7 +94,7 @@ def block_exit(room, dungeon_length):
 def cave_in(room, dungeon_length): #This removes access to this room from the previous one, in case the player teleports backwards
     for each_exit in room.interactables[0].exit_hold.link.exits:
         if each_exit.link == room:
-            room.interactables[1].exit_hold =each_exit
+            room.interactables[1].exit_hold = each_exit
             room.interactables[0].exit_hold.link.exits.remove(each_exit)
 
 def randomize_container_contents(room, dungeon_length):
@@ -289,6 +292,29 @@ def teleport_sequence(nav, player): #**Room options will need to be updated as w
 #---------------- TRIGGERED ELSEWHERE ------------------
 #-------------------------------------------------------
 
+def monsters_notice_then_attack(room, player):
+    for each_monster in room.monsters:
+        if each_monster.is_aware == False:
+            print(f"""\n {each_monster.type} {each_monster.number} noticed you!""")
+            each_monster.is_aware = True
+        else: print(f"""\n {each_monster.type} {each_monster.number} is aware of you!""")
+        each_monster.make_attack(player)
+
+def monsters_attempt_notice_and_attack(room, player, player_request=False):
+    for each_monster in room.monsters:
+        each_monster.notice_player(player.hiding_score, player_request)
+        each_monster.make_attack(player)
+
+def monsters_attack(room, player):
+    for each_monster in room.monsters: 
+        if each_monster.is_aware == True: 
+            print(f"""\n {each_monster.type} {each_monster.number} is aware of you!""")
+            each_monster.make_attack(player)
+
+def player_leaves_hiding(room, player):
+    player.hiding_score = random.randint(1,5) #this is the luck component of hiding for each room as the player enters it
+    player.hiding = False
+
 def run_inspect(interactable, player, room):
         if player.investigation + random.randint(1,5) >= interactable.invest_requirement:
             interactable.invest_requirement = 0
@@ -432,3 +458,28 @@ def chasm_sea_creature_defeated(room):
     room.interactables[0].action_words.append("SIT")
     room.interactables[1].action_words.append("INSPECT")
     room.interactables[1].description = "A rocky wall that might be climbable"
+
+def obtain_idol(room, barrier, player):
+    barrier.type = "DISABLED MAGIC BARRIER"
+    if barrier.challenge == 12: print(" After some time you were able to unravel the magic of the BARRIER!")
+    print(" You disabled the MAGIC BARRIER!")
+    print("\n The IDOL OF DYNAE is before you. ")
+    select_loop = True
+    while select_loop == True:
+        print(" Take the IDOL?")
+        selection = input("\n - ").upper()
+        if selection == "YES" or selection == "YE" or selection == "Y" or selection == "YEA" or selection == "YEP" or selection == "YEAH" or selection == "YUP" or selection == "YA" or selection == "YAR" or selection == "SI" or selection == "TRUE" or selection == "YAS" or selection == "YESSIR":
+            select_loop = False
+        else: print(f""" The IDOL draws you to it.. {selection} isn't an option.""")
+    player.inventory.add_item(misc_options["IDOL OF DYNAE"])
+    print("\n You got the IDOL OF DYNAE!")
+    room.description = "The mostly collapsed chamber where the IDOL OF DYNAE was housed."
+    room.monster_spawning = None
+    room.interactables = None
+    print(" Suddenly you feel the ground around you begin violently shaking! The room begins collapsing in on itself and you rush back out the way you came!!")
+    room.exits[0].link.adjustments[0].append(enter_idol_state)
+    room.adjustments[2]["change_room"] = [room.exits[0]]
+    room.adjustments[1].append(change_room)
+
+def enter_idol_state(nav):
+    nav.idol_state = True

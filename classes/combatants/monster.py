@@ -9,7 +9,7 @@ class Monster(Combatant):
         self.description = description
         self.perception = perception
         self.is_aware = False
-        self.invest_requirement = 5
+        self.invest_requirement = 6
         self.stealth_mod = stealth_mod
         self.action_words = []
         self.can_investigate = True
@@ -17,8 +17,10 @@ class Monster(Combatant):
     def notice_player(self, stealth_check, player_request=False):
         print(f"""\n Your stealth is: {stealth_check}. {self.type} {self.number}'s perception is: {self.perception}.""")
         if stealth_check <= self.perception:
-            self.is_aware = True
-            print(f""" {self.type} {self.number} noticed you!""")
+            if self.is_aware == True: print(f"""\n {self.type} {self.number} is aware of you!""")
+            else: 
+                self.is_aware = True
+                print(f""" {self.type} {self.number} noticed you!""")
         elif stealth_check >= self.perception and player_request == True and self.is_aware == True:
             self.is_aware = False
             print(f""" {self.type} {self.number} lost you!""")

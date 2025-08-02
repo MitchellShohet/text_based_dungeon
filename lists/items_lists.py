@@ -10,10 +10,10 @@ weapon_options = {
     "GOLEM FIST" : Weapon(3, "WEAPON", "GOLEM FIST", 2, 8, 0, 2, 25),
     "SHORTSWORD" : Weapon(4, "WEAPON", "SHORTSWORD", 2, 8, 1, 4, 7),
     "TRIDENT" : Weapon(5, "WEAPON", "TRIDENT", 2, 9, 2, 4, 24),
-    "MIMIC TOOTH" : Weapon(5, "WEAPON", "MIMIC TOOTH", 2, 9, 2, 4, 24),
-    "LONGSWORD" : Weapon(6, "WEAPON", "LONGSWORD", 3, 9, 2, 4, 55),
-    "BATTLE AXE" : Weapon(7, "WEAPON", "BATTLE AXE", 3, 10, 3, 6, 80),
-    "MAGIC SWORD" : Weapon(8, "WEAPON", "MAGIC SWORD", 4, 12, 3, 9, 120),
+    "MIMIC TOOTH" : Weapon(5, "WEAPON", "MIMIC TOOTH", 2, 9, 2, 4, 28),
+    "LONGSWORD" : Weapon(6, "WEAPON", "LONGSWORD", 3, 9, 2, 4, 59),
+    "BATTLE AXE" : Weapon(7, "WEAPON", "BATTLE AXE", 3, 10, 3, 6, 87),
+    "MAGIC SWORD" : Weapon(8, "WEAPON", "MAGIC SWORD", 4, 12, 3, 9, 140),
     "MAGIC WAND" : Weapon(0, "WEAPON", "MAGIC WAND", 1, 9, 1, 4, 0)
 }
 
@@ -21,10 +21,10 @@ weapon_options = {
 
 armor_options = {
     "CLOTHES" : Armor(1, "ARMOR", "CLOTHES", 3, 1),
-    "GAMBESON" : Armor(2, "ARMOR", "GAMBESON", 5, 12),
-    "CHAINMAIL" : Armor(3, "ARMOR", "CHAINMAIL", 7, 35),
-    "PLATEMAIL" : Armor(4, "ARMOR", "PLATEMAIL", 9, 100), #don't sell platemail in regular shops
-    "MAGIC PLATE" : Armor(5, "ARMOR", "MAGIC PLATE", 12, 250)
+    "GAMBESON" : Armor(2, "ARMOR", "GAMBESON", 5, 14),
+    "CHAINMAIL" : Armor(3, "ARMOR", "CHAINMAIL", 7, 44),
+    "PLATEMAIL" : Armor(4, "ARMOR", "PLATEMAIL", 9, 130), #don't sell platemail in regular shops
+    "MAGIC PLATE" : Armor(5, "ARMOR", "MAGIC PLATE", 12, 280)
 }
 
 #---------------------------------------------
@@ -34,17 +34,18 @@ misc_options = {
     "WOOD" : Item("MISC", "WOOD", 1),
     "GOBLIN HORN" : Item("MISC", "GOBLIN HORN", 3),
     "NOT ENOUGH APPLES" : Item("MISC", "NOT ENOUGH APPLES", 0),
-    "APPLES": Item("MISC", "APPLES", 3),
-    "JAW BONE" : Item("MISC", "JAW BONE", 5),
-    "GLOWING FRUIT" : Item("MISC", "GLOWING FRUIT", 10),
-    "SEA CREATURE MEAT" : Item("MISC", "SEA CREATURE MEAT", 12),
-    "KEY" : Item("MISC", "KEY", 20),
+    "APPLES": Item("MISC", "APPLES", 2),
+    "JAW BONE" : Item("MISC", "JAW BONE", 4),
+    "GLOWING FRUIT" : Item("MISC", "GLOWING FRUIT", 6),
+    "SEA CREATURE MEAT" : Item("MISC", "SEA CREATURE MEAT", 8),
+    "KEY" : Item("MISC", "KEY", 24),
+    "GOLEM EYE" : Item("MISC", "GOLEM EYE", 16),
     "RUBY DUST" : Item("MISC", "RUBY DUST", 20),
-    "GOLEM EYE" : Item("MISC", "GOLEM EYE", 20),
-    "MINOTAUR HORN" : Item("MISC", "MINOTAUR HORN", 30),
-    "SHIELD" : Item("MISC", "SHIELD", 50),
-    "MAGIC BRIDGE": Item("MISC", "MAGIC BRIDGE", 50),
-    "BOOK OF FAE LANGUAGE": Item("MISC", "BOOK OF FAE LANGUAGE", 50)
+    "MINOTAUR HORN" : Item("MISC", "MINOTAUR HORN", 25),
+    "SHIELD" : Item("MISC", "SHIELD", 70),
+    "MAGIC BRIDGE": Item("MISC", "MAGIC BRIDGE", 70),
+    "BOOK OF FAE LANGUAGE": Item("MISC", "BOOK OF FAE LANGUAGE", 60),
+    "IDOL OF DYNAE": Item("MISC", "IDOL OF DYNAE", 700)
 }
 
 #-------------------
@@ -67,7 +68,7 @@ class HealthPotion(HealingItem):
         super().__init__(
             name="HEALTH POTION",
             description="A small vial with a red liquid; it smells of cherries. Using will heal between 5-7 health.",
-            value=14,
+            value=16,
             healing=random.randint(5,7)
         )
 
@@ -78,7 +79,7 @@ class GreaterHealthPotion(HealingItem):
         super().__init__(
             name="GREATER HEALTH POTION",
             description="A small vial with a pink liquid; it smells of fresh sourdough. Using will heal between 16-22 health.",
-            value=29,
+            value=32,
             healing=random.randint(14,21)
         )
 
@@ -89,7 +90,7 @@ class Pie(HealingItem):
         super().__init__(
             name="PIE",
             description="A nicely baked pie, can be made from a variety of ingredients. Using will heal between 10-15 health.",
-            value=20,
+            value=24,
             healing=random.randint(10,15)
         )
 
