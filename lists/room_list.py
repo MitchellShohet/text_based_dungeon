@@ -15,7 +15,7 @@ room_list = [
     [
         Room("DUNGEON ENTRANCE", 
             "Here's a short placeholder description about the Dungeon Entrance.", 
-            [Exit(0, Room("Go Home", 
+            [Exit(0, Room("GO HOME", 
                         "You decide not to explore the dungeon. Probably a good idea.", 
                         None)), Exit(1), Exit(2)]),
         Room("IDOL ROOM",

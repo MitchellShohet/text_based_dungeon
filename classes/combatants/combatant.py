@@ -39,6 +39,8 @@ class Combatant:
 
     def take_damage(self, incoming_damage, print_damage=False):
         self.current_health -= incoming_damage
+        if self.type != "PLAYER" and print_damage == True:
+            print(f""" {self.type} {self.number} took {incoming_damage} damage!""")
         if self.current_health <= 0 and self.type != "PLAYER":
             if self.type in self.exceptions: 
                 if self.number == 0: print(f""" THE {self.type} has been destroyed.""")

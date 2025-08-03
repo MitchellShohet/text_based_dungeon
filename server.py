@@ -7,6 +7,7 @@ from lists.adjustments_list import change_room, teleport_sequence, check_for_hea
 
 class PlayThrough:
     def __init__(self):
+        self.run_active = True
         self.player_alive = True
         self.navigation = Navigation()
         self.player_character = PlayerCharacter()
@@ -22,23 +23,24 @@ class PlayThrough:
         self.player_character.set_player_stats()
         print(f"""\n {self.navigation.current_room.description} """)
 
-    def death_sequence(self):
+    def end_sequence(self):
         print(f"""\n {line_spacer}
-            \n {line_spacer}
-            \n You have died.
-            \n {line_spacer}
-            \n {line_spacer} """)
-        death_loop = True
-        while death_loop == True: 
+            \n {line_spacer}""")
+        if self.player_alive == True: print("\n Congratulations! You have escaped the dungeon!")
+        else: print(f""" \n You have died.""")
+        print(f"""\n {line_spacer}
+            \n {line_spacer}""")
+        replay_loop = True
+        while replay_loop == True: 
             print("\n RETRY?")
             command = input("\n - ")
             if command.upper() == "NO":
-                death_loop = False
+                replay_loop = False
                 return False
             if command.upper() == "YES": #bug here where it starts you in the same dungeon as last game
-                death_loop = False
+                replay_loop = False
                 return True
-            
+
     def nav_sequence(self, direction):
         if direction == "FORWARD":
             def move_function(): return self.navigation.test_forward()
@@ -50,7 +52,7 @@ class PlayThrough:
             def move_function(): return self.navigation.test_backward()
         else: move_function = None
         try: self.navigation.current_room.exits[move_function()].link
-        except: print("There is no exit that direction.")
+        except: print(" There is no exit that direction.")
         else: 
             monsters_attempt_notice_and_attack(self.navigation.current_room, self.player_character)
             if self.player_character.current_health > 0:
@@ -83,7 +85,8 @@ class PlayThrough:
                 elif action_word == "HIDE":
                     if each_thing.number == 0: print(f""" {each_thing.type}""")
                     else: print(f""" {each_thing.type} {each_thing.number}""")
-                elif action_word == "ATTACK": print(f""" {each_thing.type} {each_thing.number}""")
+                elif action_word == "ATTACK" and each_thing.type != "AVATAR OF DYNAE": print(f""" {each_thing.type} {each_thing.number}""")
+                elif action_word == "ATTACK": print(f""" {each_thing.type}""")
             print(" NEVERMIND")
             selection = input("\n - ").upper()
             if selection == "NEVERMIND":
@@ -95,6 +98,7 @@ class PlayThrough:
                         if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number) or str(selection) + "0" == each_thing.type + str(each_thing.number):
                             each_thing.investigate(self.player_character, self.navigation.current_room)
                             selection_loop = False
+                            break
                 if action_word == "EQUIP": #each_thing is each equipable item in the player's inventory
                     if each_thing.name == selection:
                         self.player_character.equip(each_thing)
@@ -118,19 +122,20 @@ class PlayThrough:
                         self.player_character.hiding = True
                         selection_loop = False
                 if action_word == "ATTACK": #each_thing is each monster in the room
-                    if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number):
+                    if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number) or selection == each_thing.type and each_thing.type == "AVATAR OF DYNAE":
                         self.player_character.make_attack(each_thing)
                         if each_thing.current_health <= 0:
                             self.navigation.current_room.interactables.append(each_thing)
                             self.navigation.current_room.monsters.remove(each_thing)
                         elif each_thing.is_aware == False:
-                            print(f"""\n {each_thing.type} noticed you!""")
+                            if each_thing.type == "AVATAR OF DYNAE": print(f"""\n The {each_thing.type} noticed you!""")
+                            else: print(f"""\n {each_thing.type} {each_thing.number} noticed you!""")
                             each_thing.is_aware = True
                         selection_loop = False
             if selection_loop == True: print(f""" {selection} is not an option (include the number if it has one).""")
 
     def game_loop(self):
-        while self.player_alive == True:
+        while self.run_active == True:
             print(" What would you like to do?")
             command = input("\n - ").upper()
             #-------------------------------
@@ -246,19 +251,18 @@ class PlayThrough:
                 if each_adjustment == change_room or each_adjustment == teleport_sequence:
                     each_adjustment(self.navigation, self.player_character)
                 else: each_adjustment(self.navigation.current_room, self.player_character)
-            if self.player_character.current_health <= 0: self.player_alive = False
-            if self.navigation.current_room.name == "Go Home":
-                print(f"""
-                        \n {line_spacer}
-                        \n You live out the rest of your life not dying in the dungeon.
-                        \n Then one day you die.
-                    """)
+            if self.player_character.current_health <= 0: 
                 self.player_alive = False
+                self.run_active = False
+            elif self.navigation.current_room.name == "GO HOME":
+                self.run_active = False
+            elif self.navigation.current_room.name == "DUNGEON ESCAPED":
+                pass
 
 is_active = True
 while is_active == True:
     current_game = PlayThrough()
     current_game.game_start()
     current_game.game_loop()
-    is_active = current_game.death_sequence()
+    is_active = current_game.end_sequence()
     if is_active == False: print("\n Thanks for playing!")

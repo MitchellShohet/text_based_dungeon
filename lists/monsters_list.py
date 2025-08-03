@@ -137,27 +137,6 @@ class  Minotaur(Monster):
 
 #----------------------------------------------------------------
 
-class  Avatar(Monster):
-    def __init__(self):
-        super().__init__(
-            type="AVATAR OF DYNAE", 
-            max_health=80,
-            current_health=80,
-            attack=4,
-            defense=14, 
-            perception=18,
-            stealth_mod=7,
-            description="An monsterous abomination. A snake creature with 7 heads, waves of electrical energy surge around its form.",
-            inventory=Inventory(
-                weapon=weapon_options["MAGIC SWORD"],
-                consumables=[GreaterHealthPotion(), PowerBerry(), StatMedallion()],
-                misc=[armor_options["MAGIC PLATE"]],
-                dollar_bills=20
-                ),
-            )
-
-#----------------------------------------------------------------
-
 class MagmaGoblin(Goblin):
     def __init__(self):
         super().__init__(
@@ -194,3 +173,81 @@ class SeaCreature(Monster):
                 dollar_bills=0
                 )
             )
+
+#----------------------------------------------------------------
+
+class  Avatar(Monster):
+    def __init__(self):
+        super().__init__(
+            type="AVATAR OF DYNAE", 
+            max_health=80,
+            current_health=80,
+            attack=4,
+            defense=14, 
+            perception=18,
+            stealth_mod=7,
+            description="An monsterous abomination. A snake creature with 7 heads, waves of electrical energy surge around its form.",
+            inventory=Inventory(
+                weapon=weapon_options["MAGIC SWORD"],
+                consumables=[GreaterHealthPotion(), PowerBerry(), StatMedallion()],
+                misc=[armor_options["MAGIC PLATE"]],
+                dollar_bills=20
+                ),
+            )
+    
+    def make_attack(self, defender):
+        attack_roll = random.randint(int(self.inventory.weapon.attack_odds1), int(self.inventory.weapon.attack_odds2)) + self.attack
+        if misc_options["SHIELD"] in defender.inventory.misc: defender.defense_buff += 1
+        print(f""" The {self.type} attacked with {attack_roll} attack!""")
+        if attack_roll >= defender.defense + defender.defense_buff:
+            print(f""" THE ATTACK HITS!""")
+            damage = random.randint(int(self.inventory.weapon.damage_odds1), int(self.inventory.weapon.damage_odds2)) + self.attack
+            print(f""" The attack deals {damage} damage!""")
+        else:
+            print(" The attack misses!")
+            damage = 0
+        defender.take_damage(damage)
+
+    def take_damage(self, incoming_damage, print_damage=False):
+        self.current_health -= incoming_damage
+        if self.current_health <= 0:
+                print(f""" THE {self.type} has died.""")
+
+    def notice_player(self, stealth_check, player_request=False):
+        print(f""" Your stealth is: {stealth_check}. The {self.type}'s perception is: {self.perception}.""")
+        if stealth_check <= self.perception:
+            if self.is_aware == True: print(f"""\n The {self.type} is aware of you!""")
+            else: 
+                self.is_aware = True
+                print(f"""\n The {self.type} noticed you!""")
+        elif stealth_check >= self.perception and player_request == True and self.is_aware == True:
+            self.is_aware = False
+            print(f"""\n The {self.type} lost you!""")
+        else: print(f"""\n The {self.type} hasn't noticed you!""")
+        return self.is_aware
+
+    def investigate(self, player, room): #named like this to coincide with other interactables, but the player is the one investigating the monster here
+        if player.investigation + random.randint(1,5) >= self.invest_requirement:
+            if self.current_health > 0:
+                print(f"""\n You were able to observe the {self.type} and glean some info about it.""")
+                print(f"""\n The {self.type}'s attack is {self.attack}.""")
+                print(f""" The {self.type}'s defense is {self.defense}.""")
+                print(f""" The {self.type}'s health is {self.current_health}.""")
+                print(f""" The {self.type}'s weapon is {self.inventory.weapon.name}.""")
+                print(f""" The {self.type}'s defense buff is {self.defense_buff}.""")
+                print(f""" The {self.type}'s attack buff is {self.attack_buff}.""")
+            else:
+                print(f"""\n You searched the {self.type} and found a {self.inventory.weapon.name}, """)
+                player.inventory.add_item(self.inventory.weapon)
+                for each_misc in self.inventory.misc:
+                    print(f""" a {each_misc.name}, """)
+                    player.inventory.add_item(each_misc)
+                for each_consumable in self.inventory.consumables:
+                    print(f""" a {each_consumable.name}, """)
+                    player.inventory.add_item(each_consumable)
+                print(f""" and {self.inventory.dollar_bills} dollar bills.""")
+                player.inventory.dollar_bills += self.inventory.dollar_bills
+                self.can_investigate = False
+        else:
+            print(f"""\n You investigated the {self.type}, but couldn't find anything.""")
+            self.can_investigate = False

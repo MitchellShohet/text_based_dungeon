@@ -7,13 +7,13 @@ class PlayerCharacter(Combatant):
 
     def __init__(self):
         self.stealth = 35 #baseline for normal mode is 1
-        self.investigation = 0 #baseline for normal mode is 1
+        self.investigation = 30 #baseline for normal mode is 1
         self.stat_points = 0 #baseline for normal mode is 8
         super().__init__(
             type="PLAYER", 
             max_health=10000000, #baseline for normal mode is 10
             current_health=10000000, #baseline for normal mode is 10
-            attack=13, #baseline for normal mode is 1
+            attack=223, #baseline for normal mode is 1
             defense=3, 
             inventory=Inventory(
                 weapon=weapon_options["FIST"],

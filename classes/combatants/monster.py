@@ -20,11 +20,11 @@ class Monster(Combatant):
             if self.is_aware == True: print(f"""\n {self.type} {self.number} is aware of you!""")
             else: 
                 self.is_aware = True
-                print(f""" {self.type} {self.number} noticed you!""")
+                print(f"""\n {self.type} {self.number} noticed you!""")
         elif stealth_check >= self.perception and player_request == True and self.is_aware == True:
             self.is_aware = False
-            print(f""" {self.type} {self.number} lost you!""")
-        else: print(f""" {self.type} {self.number} hasn't noticed you!""")
+            print(f"""\n {self.type} {self.number} lost you!""")
+        else: print(f"""\n {self.type} {self.number} hasn't noticed you!""")
         return self.is_aware
 
     def investigate(self, player, room): #named like this to coincide with other interactables, but the player is the one investigating the monster here

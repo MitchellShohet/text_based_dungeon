@@ -255,7 +255,11 @@ def change_room(nav, player):
     try: nav.current_room.exits[0].link
     except: pass
     else: 
-        if nav.current_room.exits[0].link != None: nav.previous_room = nav.current_room.exits[0].link
+        rooms_connected = False
+        for each_exit in nav.current_room.exits:
+            if each_exit.link == nav.previous_room:
+                rooms_connected = True
+        if rooms_connected == False and nav.current_room.exits[0].link != None: nav.previous_room = nav.current_room.exits[0].link
 
 def teleport_sequence(nav, player): #**Room options will need to be updated as we develop more
     nav.current_room.adjustments[1].remove(teleport_sequence)
@@ -299,8 +303,11 @@ def teleport_sequence(nav, player): #**Room options will need to be updated as w
 def monsters_notice_then_attack(room, player):
     for each_monster in room.monsters:
         if each_monster.is_aware == False:
-            print(f"""\n {each_monster.type} {each_monster.number} noticed you!""")
+            if each_monster.type == "AVATAR OF DYNAE":
+                print(f"""\n The {each_monster.type} noticed you!""")
+            else: print(f"""\n {each_monster.type} {each_monster.number} noticed you!""")
             each_monster.is_aware = True
+        elif each_monster.type == "AVATAR OF DYNAE": print(f"""\n The {each_monster.type} is aware of you!""")
         else: print(f"""\n {each_monster.type} {each_monster.number} is aware of you!""")
         each_monster.make_attack(player)
 
@@ -312,7 +319,9 @@ def monsters_attempt_notice_and_attack(room, player, player_request=False):
 def monsters_attack(room, player):
     for each_monster in room.monsters: 
         if each_monster.is_aware == True: 
-            print(f"""\n {each_monster.type} {each_monster.number} is aware of you!""")
+            if each_monster.type == "AVATAR OF DYNAE":
+                print(f"""\n The {each_monster.type} is aware of you!""") 
+            else: print(f"""\n {each_monster.type} {each_monster.number} is aware of you!""")
             each_monster.make_attack(player)
 
 def player_leaves_hiding(room, player):
@@ -480,13 +489,15 @@ def obtain_idol(room, barrier, player):
         else: print(f""" The IDOL draws you to it.. {selection} isn't an option.""")
     player.inventory.add_item(misc_options["IDOL OF DYNAE"])
     print("\n You got the IDOL OF DYNAE!")
-    room.description = "The mostly collapsed chamber where the IDOL OF DYNAE was housed."
-    room.monster_spawning = None
-    room.interactables = None
-    for each_monster in room.monsters:
-        each_monster.health = 0
-    print(" Suddenly you feel the ground around you begin violently shaking! The room begins collapsing in on itself and you rush back out the way you came!!")
     room.exits[0].link.adjustments[0].append(enter_idol_state)
+    room.interactables = []
+    room.monster_spawning = None
+    room.description = "The mostly collapsed chamber where the IDOL OF DYNAE was housed."
+    print(" Suddenly you feel the ground around you begin violently shaking! The room begins collapsing in on itself and you rush back out the way you came!!")
+    for x in range(len(room.monsters)):
+        room.monsters[0].take_damage(random.randint(36,71), True)
+        room.interactables.append(room.monsters[0])
+        room.monsters.remove(room.monsters[0])
     room.adjustments[2]["change_room"] = [room.exits[0]]
     room.adjustments[1].append(change_room)
 

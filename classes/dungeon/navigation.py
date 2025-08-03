@@ -20,7 +20,6 @@ class Navigation:
         self.determine_next_room(exit)
         self.test_link_issues()
         self.run_adjustments()
-        print(self.current_room.name)
         print(f""" {self.current_room.description} """)
         self.current_room.spawn_monster()
         self.run_idol_state()
@@ -55,13 +54,10 @@ class Navigation:
     def find_unexplored_room(self):
         try: new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)] #checks if every possible room has already been added to the dungeon
         except: new_room = self.room_options[0][0] #***CHANGE THIS TO A FAIRY FOUNTAIN***
-        print(1)
         new_room = self.test_floor_elegibility(new_room)
-        print(2)
         new_exits = self.check_for_new_exits(new_room)
         attempts = 1
         while new_exits + self.unlinked_exits <= 1: #prevents the dungeon from populating every exit with a dead end
-            print("not enough dungeon exits")
             attempts +=1
             if attempts > 80:
                 new_room = self.room_options[0][0] #***ADD A LIST OF FAIRY FOUNTAINS TO CHOOSE FROM***
@@ -70,30 +66,22 @@ class Navigation:
             new_room = self.test_floor_elegibility(new_room)
             new_exits = self.check_for_new_exits(new_room)
         self.unlinked_exits += new_exits
-        print(3)
         return new_room
     
     def test_floor_elegibility(self, new_room):
-        print('testing for floor')
         testing = True
         while testing == True:
             if new_room.name == "SECOND FLOOR TUNNEL" or new_room.name == "FIRST FLOOR TUNNEL" or new_room.name == "IDOL ROOM" or new_room.name == "DUNGEON EXIT":
-                print("testing if enough rooms explored")
                 try: self.rooms_visited[str(self.floor)][0].name #prevents dungeon from spawning next floor before a single room has been added to the current floor list
                 except: new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
                 if len(self.rooms_visited[str(self.floor)]) < 5: #prevents dungeon from spawning next floor before the player explores at least 5 rooms on the current one
-                    print("nope- " + new_room.name)
                     new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
                 else: testing = False
             else: testing = False
-        print('yep- ' + new_room.name)
         if self.floor == 1 and len(self.rooms_visited["1"]) > 12 and self.room_options[1][len(self.room_options[1])-1].name == "SECOND FLOOR TUNNEL": #prevents dungeon from taking too long to spawn the second floor tunnel
             new_room = self.room_options[1][len(self.room_options[1])-1]
-            print('something')
         elif self.floor == 2 and len(self.rooms_visited["2"]) > 12 and self.room_options[2][len(self.room_options[2])-1].name == "FINAL FLOOR TUNNEL": #prevents dungeon from taking too long to spawn the final floor tunnel
             new_room = self.room_options[2][len(self.room_options[2])-1]
-            print("something else")
-        print('c')
         return new_room
 
     def check_for_new_exits(self, room):
@@ -112,13 +100,18 @@ class Navigation:
     def run_idol_state(self):
         if enter_idol_state in self.current_room.adjustments[0]: 
             self.current_room.adjustments[0].remove(enter_idol_state)
-            print(" A tear in reality opens in front of you. With an eruption of static electricity, a creature emerges from it.")
+            print("\n Suddenly a tear in reality opens in front of you! With an eruption of static electricity, a creature emerges from it.")
         if self.idol_state == True: 
+            fresh_avatar = True
             for each_monster in self.current_room.monsters:
-                if each_monster.type == "AVATAR": 
+                if each_monster.type == "AVATAR OF DYNAE": 
                     self.current_room.monsters.remove(each_monster)
-                    print(" The AVATAR OF DYNAE in this room has been fully healed!")
-            else: print(" A new AVATAR OF DYNAE has appeared!")
+                    fresh_avatar = False
+                    if each_monster.current_health < each_monster.max_health:
+                        print(" The AVATAR OF DYNAE in this room has been fully healed!")
+                elif each_monster.type == "AVATAR OF DYNAE":
+                    fresh_avatar = False
+            if fresh_avatar == True: print(" A new AVATAR OF DYNAE has appeared!")
             self.current_room.monsters.append(Avatar())
     
     def test_backward(self): #returns the exit that is backward from the player's perspective
