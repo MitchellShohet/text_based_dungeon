@@ -4,7 +4,7 @@ from classes.dungeon.room import Room
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, Avatar, MagmaGoblin, FlyingGoblin
 from lists.interactables_list import Owl, Pool, MagicBarrier, LockedDoor, SecretPassage, Mimic, PileOfMoney, SleepingMinotaur, Container,  Artisan, Breakable, Bed, Inspectable, Chasm, RedHerring, GlowingCrystal, ExitHold, Chest, MagmaRiver, MoneyTree, Tree, Cauldron, NPC, ShopOwner, GlowingTree, Fairy
 from lists.items_lists import weapon_options, armor_options, misc_options, Pie, HealthPotion, StatMedallion, PowerBerry, DurabilityGem, MagicWand, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import block_exit, obtain_idol, reveal_mimics, obtain_item, chasm_sea_creature_start1, golem_machinery, add_castle_wave, inspectable_renew, reveal_passage, inspect_control_panel, randomize_container_contents, change_adjustable_argument, ceribane_alchemy, adjustment_print, remove_item, inspect_crystal, inspect_machine, break_the_table, clear_cave_in, add_interactable, add_owl, teleport_sequence, add_to_interactable, money_tree_refresh, change_room_description, change_room, add_monsters, change_monster_spawning, shop_refresh, sea_creature_defeated, tree_inspect_renew, damage_player
+from lists.adjustments_list import block_exit, reach_dungeon_exit, obtain_idol, set_exit_min, dungeon_exit_idol_test, turn_off_idol_state, reveal_mimics, obtain_item, chasm_sea_creature_start1, golem_machinery, add_castle_wave, inspectable_renew, reveal_passage, inspect_control_panel, randomize_container_contents, change_adjustable_argument, ceribane_alchemy, adjustment_print, remove_item, inspect_crystal, inspect_machine, break_the_table, clear_cave_in, add_interactable, add_owl, teleport_sequence, add_to_interactable, money_tree_refresh, change_room_description, change_room, add_monsters, change_monster_spawning, shop_refresh, sea_creature_defeated, tree_inspect_renew, damage_player
 
 room_list = [ 
     [
@@ -24,7 +24,16 @@ room_list = [
             MonsterSpawning(2, Minotaur),
             [MagicBarrier("IDOL OF DYNAE", obtain_idol),
                 RedHerring("PILLARS", stealth_mod=5)],
-            [[inspectable_renew], [], {}]),
+            [[set_exit_min, inspectable_renew], [], {}]),
+        Room("DUNGEON EXIT",
+            "The tunnel opens and you see light pouring in, as the DUNGEON EXIT is before you. However, a MAGIC BARRIER blocks the way.",
+            [Exit(0)],
+            MonsterSpawning(1, Minotaur, 1, "TWICE"),
+            [ExitHold("LIGHT FROM THE EXIT", ["LOOK AT"], "A light coming from beyond the DUNGEON EXIT", " It's so close."),
+                RedHerring("MAGIC BARRIER", 0, ["BREAK", "INSPECT"], "A magic barrier that is preventing you from reaching the DUNGEON EXIT", 0, 0, "You can't escape the dungeon without the IDOL OF DYNAE!")],
+            [[set_exit_min], [dungeon_exit_idol_test], {"dungeon_exit_idol_test" : [MagicBarrier("DUNGEON EXIT", reach_dungeon_exit)],
+                                            "reach_dungeon_exit" : [SecretPassage("DUNGEON EXIT", 0, ["LEAVE THE DUNGEON"], "The threshold between the Dungeon and the outside world.", 0, 0)],
+                                            "change_room" : [Exit(1, Room("DUNGEON ESCAPED", "", [], None, [], [[turn_off_idol_state],[],{}]))]}]),
         Room("POND ROOM", 
             "A room with a small pond.", 
             [Exit(0), Exit(1), Exit(2)], 
@@ -218,6 +227,10 @@ room_list = [
         #                                                                                                             ["she", "her", "hers", "her", "herself"], 
         #                                                                                                             ["Wow congrats on defeating all of those WIZARDS! If any adventurer is capable of escaping with the IDOL OF DYNAE, its you!", "Heyyyyy wait do you just pick on everybody? Not cool!", "I had hopes for you but not anymore! Leave me alone!", "Yeah I'll buy! Got anything bright?", "This looks fun! Thanks!", "Nothing you have looks that interesting.", "Sure, I can teleport you to a room you've been to! It'll cost you though, 40 dollar bills or 20 blades of grass!", "Sweet!! Where to?", "All right, see you later!"],
         #                                                                                                             6)]))]}]),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
+        Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
         Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
         Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),
         Room("Hallway", "Placeholder for a hallway", [Exit(0), Exit(1)], MonsterSpawning(5, Goblin, 9, "TWICE")),

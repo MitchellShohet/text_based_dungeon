@@ -10,7 +10,7 @@ from classes.inventory.inventory import Inventory
 from classes.inventory.items import Weapon
 from lists.monsters_list import Goblin, Skeleton, Wizard, MudGolem, Minotaur, SeaCreature, MonsterMimic
 from lists.items_lists import weapon_options, armor_options, misc_options, HealthPotion, Pie, StatMedallion, PowerBerry, DurabilityGem, SmokeBomb, GreaterHealthPotion
-from lists.adjustments_list import monsters_attack, monsters_attempt_notice_and_attack, disable_magic_barrier, check_for_heavy_armor, add_monsters, reveal_passage, sleeping_minotaur_defeated, run_sea_creature, run_shatter, punchline_test, run_inspect, inspect_crystal, inspect_tree, change_room, teleport_sequence, block_exit, change_room_description
+from lists.adjustments_list import monsters_attack, reach_dungeon_exit, monsters_attempt_notice_and_attack, disable_magic_barrier, check_for_heavy_armor, add_monsters, reveal_passage, sleeping_minotaur_defeated, run_sea_creature, run_shatter, punchline_test, run_inspect, inspect_crystal, inspect_tree, change_room, teleport_sequence, block_exit, change_room_description
 
 #-------------------------------------------------------
 #----------- PARENT INTERACTABLES ----------------------
@@ -396,6 +396,8 @@ class SecretPassage(Inspectable): #MUST BE ACCOMPANIED BY AN EXITHOLD
                 print(" Magic is keeping the CASTLE DOOR closed.")
             elif action_word == "STAIRCASE" and "STAIRCASE" in self.action_words:
                 print(" Magic is keeping the STAIRCASE blocked.")
+            elif action_word == "LEAVE THE DUNGEON" and "LEAVE THE DUNGEON" in self.action_words:
+                reach_dungeon_exit(room, self, player)
 
 #---------------------------------------------------------
 

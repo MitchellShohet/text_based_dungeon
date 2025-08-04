@@ -115,9 +115,22 @@ def chasm_sea_creature_start1(room, dungeon_length):
     room.interactables[1].action_words = []
     room.adjustments[1].append(chasm_sea_creature_start2)
 
+def set_exit_min(nav):
+    if nav.exit_min == 1:
+        nav.exit_min = nav.dungeon_length + 4
+
+def turn_off_idol_state(nav):
+    nav.idol_state = False
+
 #-------------------------------------------------------
 #------------- TRIGGERED AT END OF TURN ----------------
 #-------------------------------------------------------
+
+def dungeon_exit_idol_test(room, player):
+    if misc_options["IDOL OF DYNAE"] in player.inventory.misc and "BREAK" in room.interactables[1].action_words:
+        room.interactables[1] = room.adjustments[2]["dungeon_exit_idol_test"][0]
+    elif misc_options["IDOL OF DYNAE"] not in player.inventory.misc and "BREAK" not in room.interactables[1].action_words:
+        room.interactables[1] = room.adjustments[2]["dungeon_exit_idol_test"][1]
 
 def damage_player(room, player):
     print(f""" {room.adjustments[2]["damage_player"][0]}""")
@@ -277,9 +290,9 @@ def teleport_sequence(nav, player): #**Room options will need to be updated as w
     while select_loop == True:
         for each_room in tele_options:
             print(f""" {each_room.name}""")
-        print(" NEVERMIND")
+        # print(" NEVERMIND") **** REFUND?**
         selection = input("\n - ").upper()
-        if selection == "NEVERMIND": select_loop = False
+        # if selection == "NEVERMIND": select_loop = False
         for each_room in tele_options:
             if selection == each_room.name:
                 select_loop = False
@@ -373,10 +386,14 @@ def punchline_test(interactable, action_word):
         action = " You LICK the " + interactable.type
     elif action_word == "OBSERVE" and "OBSERVE" in interactable.action_words:
         action = f""" You OBSERVE the {interactable.type} for a while."""
+    elif action_word == "LOOK AT" and "LOOK AT" in interactable.action_words:
+        action = f""" YOU LOOK AT the {interactable.type}!"""
     elif action_word == "INSPECT" and "INSPECT" in interactable.action_words:
         action = f""" You INSPECT the {interactable.type} for a while. Determined to uncover it's secrets."""
     elif action_word == "ADMIRE" and "ADMIRE" in interactable.action_words:
         action = f""" Now that you have a moment to ADMIRE the {interactable.type}..."""
+    elif action_word == "BREAK" and "BREAK" in interactable.action_words:
+        action = f""" You attempt to break the {interactable.type}!"""
     elif action_word == "SIT" and "SIT" in interactable.action_words:
         if interactable.type == "TREE" or interactable.type == "GLOWING TREE" or interactable.type == " MONEY TREE" or interactable.type == "STATUE": action = f""" You SIT under the {interactable.type} for a while. It's a good chance to organize your thoughts."""
         elif interactable.type == "TABLE": action = f""" You SIT at the {interactable.type} for a while. It's a good chance to organize your thoughts."""
@@ -499,6 +516,29 @@ def obtain_idol(room, barrier, player):
         room.interactables.append(room.monsters[0])
         room.monsters.remove(room.monsters[0])
     room.adjustments[2]["change_room"] = [room.exits[0]]
+    room.adjustments[1].append(change_room)
+
+def reach_dungeon_exit(room, barrier, player):
+    print("\n The DUNGEON EXIT is before you.")
+    select_loop = True
+    while select_loop == True:
+        print(" Leave the Dungeon?")
+        selection = input("\n - ").upper()
+        if selection == "YES" or selection == "YE" or selection == "Y" or selection == "YEA" or selection == "YEP" or selection == "YEAH" or selection == "YUP" or selection == "YA" or selection == "YAR" or selection == "SI" or selection == "TRUE" or selection == "YAS" or selection == "YESSIR":
+            select_loop = False
+        elif selection == "NO" or selection == "N" or selection == "NOT YET" or selection == "NAH" or selection == "NOPE" or selection == "NOO" or selection == "NEVER" or selection == "NA":
+            room.interactables[1] = room.adjustments[2]["reach_dungeon_exit"][0]
+            print(" You decided to stay in the Dungeon for a little longer.")
+            return
+        else: print(f""" {selection} isn't an option.""")
+    for x in range(len(room.monsters)):
+        room.monsters.remove(room.monsters[0])
+    print(line_spacer)
+    print("\n As you cross the boundary leaving the Dungeon, you hear the AVATARS OF DYNAE screeching as the turn to ash behind you.")
+    print(" Walking out into the bright daylight you feel the warmth of the sun against you again.")
+    print(" It's hard to say how much time passed while you were in the dungeon, but that's behind you now.")
+    print(" You have the IDOL OF DYNAE, a massive accomplishment that will garner fame and riches till your dying day.")
+    print(" But for now, it's time to go home...")
     room.adjustments[1].append(change_room)
 
 def enter_idol_state(nav):

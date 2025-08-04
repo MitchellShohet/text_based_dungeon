@@ -2,13 +2,12 @@ import random
 from line_spacer import line_spacer
 from classes.combatants.player_character import PlayerCharacter
 from classes.dungeon.navigation import Navigation
-from lists.items_lists import weapon_options, armor_options, HealthPotion, StatMedallion, SmokeBomb, DurabilityGem, PowerBerry
+from lists.items_lists import misc_options, weapon_options, armor_options, HealthPotion, StatMedallion, SmokeBomb, DurabilityGem, PowerBerry
 from lists.adjustments_list import change_room, teleport_sequence, check_for_heavy_armor, player_leaves_hiding, monsters_attack, monsters_notice_then_attack, monsters_attempt_notice_and_attack
 
 class PlayThrough:
     def __init__(self):
         self.run_active = True
-        self.player_alive = True
         self.navigation = Navigation()
         self.player_character = PlayerCharacter()
         self.player_taking_action = False
@@ -26,13 +25,18 @@ class PlayThrough:
     def end_sequence(self):
         print(f"""\n {line_spacer}
             \n {line_spacer}""")
-        if self.player_alive == True: print("\n Congratulations! You have escaped the dungeon!")
+        if self.player_character.current_health > 0: 
+            print("\n Congratulations! You have escaped the dungeon!")
+            if misc_options["IDOL OF DYNAE"] in self.player_character.inventory.misc: print("\n Thank you so much for playing my game! I hope you enjoyed it and will consider sharing it with others! \n     -Mitch")
+            elif self.player_character.inventory.dollar_bills > 2500: 
+                print(" You may not have found the idol, but who cares you're freakin' rich!!") 
+                print(f"""Safe to say you can rest easy knowing your needs will be met for the rest of your life. \n Final count: {self.player_character.inventory.dollar_bills} dollar bills""")
         else: print(f""" \n You have died.""")
         print(f"""\n {line_spacer}
             \n {line_spacer}""")
         replay_loop = True
         while replay_loop == True: 
-            print("\n RETRY?")
+            print("\n Play again?")
             command = input("\n - ")
             if command.upper() == "NO":
                 replay_loop = False
@@ -251,13 +255,8 @@ class PlayThrough:
                 if each_adjustment == change_room or each_adjustment == teleport_sequence:
                     each_adjustment(self.navigation, self.player_character)
                 else: each_adjustment(self.navigation.current_room, self.player_character)
-            if self.player_character.current_health <= 0: 
-                self.player_alive = False
+            if self.player_character.current_health <= 0 or self.navigation.current_room.name == "GO HOME" or self.navigation.current_room.name == "DUNGEON ESCAPED":
                 self.run_active = False
-            elif self.navigation.current_room.name == "GO HOME":
-                self.run_active = False
-            elif self.navigation.current_room.name == "DUNGEON ESCAPED":
-                pass
 
 is_active = True
 while is_active == True:

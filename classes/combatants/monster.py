@@ -38,7 +38,8 @@ class Monster(Combatant):
                 print(f""" {self.type} {self.number}'s defense buff is {self.defense_buff}.""")
                 print(f""" {self.type} {self.number}'s attack buff is {self.attack_buff}.""")
             else:
-                print(f"""\n You searched {self.type} {self.number} and found a {self.inventory.weapon.name}, """)
+                print(f"""\n You searched {self.type} {self.number} and found: """)
+                print(f"""\n a {self.inventory.weapon.name}, """)
                 if self.inventory.weapon.name == "MAGIC WAND": player.inventory.add_item(MagicWand())
                 else: player.inventory.add_item(self.inventory.weapon)
                 for each_misc in self.inventory.misc:
