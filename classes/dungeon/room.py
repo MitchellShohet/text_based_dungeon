@@ -12,7 +12,7 @@ class Room:
         self.visits = 0
         self.adjustments=adjustments
 
-    def spawn_monster(self, monster_given=False):
+    def spawn_monster(self, monster_given=False, multiplier=False):
         new_monster = None
         if monster_given == False:
             if self.monster_spawning is not None:
@@ -29,7 +29,9 @@ class Room:
                 elif monster_chance >= self.monster_spawning.threshold1:
                     print(f""" A new {self.monster_spawning.monster1().type} has appeared!""")
                     new_monster = self.monster_spawning.monster1()
-        else: new_monster = monster_given()
+        else: 
+            if multiplier: new_monster = monster_given(multiplier)
+            else: new_monster = monster_given()
         if new_monster is not None:
             new_monster.number = sum(1 for each_monster in self.monsters if each_monster.type == new_monster.type) + sum(1 for each_dead_monster in self.interactables if each_dead_monster.type == new_monster.type or each_dead_monster.type == "DEFEATED " + new_monster.type) + 1
             self.monsters.append(new_monster)

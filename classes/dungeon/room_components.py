@@ -19,7 +19,7 @@ class MonsterSpawning:
 
 class Interactable(ABC):
 
-    def __init__(self, type, number=0, action_words=[], description="", invest_requirement=0, stealth_mod=0):
+    def __init__(self, type, number=0, action_words=[], description=[""], invest_requirement=0, stealth_mod=0):
         self.type = type
         self.number = number
         self.action_words = action_words
@@ -33,7 +33,10 @@ class Interactable(ABC):
         pass
 
     def investigate(self, player, room):
-        print(f"""\n {self.description}""")
+        if isinstance(self.description, list):
+            for each_discriptor in self.description:
+                print(f""" {each_discriptor}""")
+        else: print(f""" {self.description}""")
         if len(self.action_words) > 0:
             print(" You could try to ")
             for each_action_word in self.action_words: print(f""" {each_action_word}""")

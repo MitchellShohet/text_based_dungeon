@@ -5,6 +5,7 @@ from classes.combatants.combatant import Combatant
 from classes.inventory.inventory import Inventory
 from lists.items_lists import StatMedallion, DurabilityGem, misc_options
 from lists.monsters_list import Skeleton, SeaCreature
+from lists.hallway_list import hallway_list
 
 # since these are called generically but have different perameters, 
 # each room will have a dictionary for the arguements of its 
@@ -13,6 +14,12 @@ from lists.monsters_list import Skeleton, SeaCreature
 #-------------------------------------------------------
 #---------- TRIGGERED UPON ENTERING A ROOM -------------
 #-------------------------------------------------------
+
+def pick_hallway_description(room, dungeon_length):
+    room.adjustments[0].remove(pick_hallway_description)
+    hallway = hallway_list[random.randint(0, len(hallway_list)-1)]
+    room.description = hallway
+    hallway_list.remove(hallway)
 
 def add_interactable(room, dungeon_length):
     if room.visits == room.adjustments[2]["add_interactable"][0]:
@@ -167,27 +174,27 @@ def add_owl(room, player):
     if len(room.interactables) == 0:
         print(" You notice an owl in the corner glaring at you.")
         room.interactables.append(room.adjustments[2]["add_owl"][0])
-        room.description += " There's an owl glaring at you from the corner."
+        room.description.append("There's an owl glaring at you from the corner.")
 
 def break_the_table(room, player):
     table_destroyed = False
     for each_interactable in room.interactables:
         if "REMAINS" in each_interactable.type:
             if change_room_description in room.adjustments[0]: room.adjustments[0].remove(change_room_description)
-            if room.name == "SLEEPING QUARTERS": room.description = "A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor next to the remains of a table."
+            if room.name == "BILL'S HOVEL": room.description = ["A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor next to the remains of a table."]
             table_destroyed = True
         if each_interactable.type == "BILL" and table_destroyed == True:
             each_interactable.convo[0] = "...You destroyed my table."
-            room.description = "A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor. A younger looking kid is looking at the remains of a destroyed table."
+            room.description = ["A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor.", "A younger looking kid is looking at the remains of a destroyed table."]
         elif each_interactable.type == "HARBOR" and table_destroyed == True:
             each_interactable.convo = ["...You destroyed my table.", "Hey! You want to start something??", "Beat it, I don't need to deal with you.", "I better see a discount to pay for my table.", "Sure", "You don't have anything worthwhile.", "I can clear the path if you want but it's gonna cost. For you- 40 dollar bills"]
             each_interactable.price = 40
-            room.description = "A rocky chamber with heavy timbers reenforcing the walls. A burly woman is looking at the remains of a destroyed table."
+            room.description = ["A rocky chamber with heavy timbers reenforcing the walls.", "A burly woman is looking at the remains of a destroyed table."]
         elif each_interactable.type == "SHIELD" and table_destroyed == True:
             each_interactable.convo = ["...You destroyed my sign. I worked really hard on that.", "Oh come on!! Look I didn't do anything to you, just leave!", "Please just leave.", "Okay yeah I'll look at your stock, but what about my sign?", "Ok, thanks..", "Sorry I'm not really interested in anything you have.", "A BATTLE AXE will help you get further, do you wanna buy one? It's 150 dollar bills."]
             each_interactable.price = 150
             room.adjustments[2]["obtain_item"][1] = "You traded with SHIELD and recieved a BATTLE AXE for 150 dollar bills!"
-            room.description = "A bare-bones forge with multiple BATTLE AXES on display. There's no sign to display the name of the place, but that would probably help business."
+            room.description = ["A bare-bones forge with multiple BATTLE AXES on display.", "There's no sign to display the name of the place, but that would probably help business."]
 
 def sea_creature_defeated(room, player):
     for each_interactable in room.interactables:
@@ -218,7 +225,7 @@ def reveal_mimics(room, player):
 def sleeping_minotaur_defeated(room, player):
     for each_interactable in room.interactables:
         if each_interactable.type == "MINOTAUR":
-            room.description = "An open chamber with a dead minotaur lying on a fur rug."
+            room.description = ["An open chamber with a dead minotaur lying on a fur rug."]
             room.adjustments[1].clear()
 
 def clear_cave_in(room, player):
@@ -234,7 +241,7 @@ def clear_cave_in(room, player):
     room.exits[0].link.exits[0] = room.exits[0].link.interactables[0].exit_hold
     room.exits[0].link.interactables[0].exit_hold = None
     room.exits[0].link.interactables[1].exit_hold = None
-    room.exits[0].link.description = "A rocky tunnel with heavy timbers reenforcing the walls. The cave in has been cleared away and the passage is usable again."
+    room.exits[0].link.description = ["A rocky tunnel with heavy timbers reenforcing the walls.", "The cave in has been cleared away and the passage is usable again."]
 
 def ceribane_alchemy(room, player):
     room.adjustments[1].remove(ceribane_alchemy)
@@ -244,7 +251,7 @@ def ceribane_alchemy(room, player):
     if room.adjustments[2]['ceribane_alchemy'][0] >= 3: 
         print(" CERIBANE: Well great-grandmother needs to go gather some more ingredients. I hope we see each other again in another life.")
         room.interactables.pop(0)
-        room.description = "You see a door with an 'OPEN 7 DAYS A WEEK' sign on the front. Inside is a homely shop, its counters covered with books, tools, vials, and strange ingredients. You see a lonely, emerald cauldron longing for an old lady to hunch over it."
+        room.description = ["You see a door with an 'OPEN 7 DAYS A WEEK' sign on the front.", "Inside is a homely shop, its counters covered with books, tools, vials, and strange ingredients.", "You see a lonely, emerald cauldron longing for an old lady to hunch over it."]
 
 def golem_machinery(room, player):
     active_gems = sum(1 for each_interactable in room.interactables if each_interactable.type == "GREEN GEM")
@@ -263,11 +270,6 @@ def chasm_sea_creature_start2(room, player):
     room.adjustments[1].remove(chasm_sea_creature_start2)
     room.interactables[1].description = "A rocky wall that might be climbable, if you weren't being held underwater by a SEA CREATURE."
     run_sea_creature(room, player)
-
-# def renew_idol_room_monsters(room, player): # When the player obtains the idol, the monsters in that room are stored so they don't attack when the player leaves. This restores them to the room.
-#     for each_exit in room.exits:
-#         if exit.link.name == "IDOL ROOM":
-#             exit.link.monsters = exit.link.interactables[0].monster_hold
 
 def change_room(nav, player):
     nav.enter_room(nav.current_room.adjustments[2]["change_room"][0])
@@ -439,7 +441,7 @@ def inspect_tree(room, tree, player):
     room.monsters.append(tree.monster)
 
 def run_sea_creature(room, player):
-    room.spawn_monster(SeaCreature)
+    room.spawn_monster(SeaCreature, room.adjustments[2]["run_sea_creature"][0])
     for each_monster in room.monsters: 
         if each_monster.type == "SEA CREATURE": each_monster.is_aware = True
     for each_interactable in room.interactables:
@@ -482,7 +484,7 @@ def inspect_control_panel(room, control_panel, player):
         room.interactables.clear()
         for each_chest in room.adjustments[2]["shutdown_control_panel"]:
             room.interactables.append(each_chest)
-        room.description = "Upon crossing a door you find yourself in a room filled with a green acidic gas. At the far end you see two chests behind a disabled magical barrier."
+        room.description = ["Upon crossing a door you find yourself in a room filled with a green acidic gas.", f"""At the far end you see {room.adjustments[2]["inspect_control_panel"][0]} chests behind a disabled magical barrier."""]
 
 def get_number(container):
     return container.number
@@ -492,6 +494,7 @@ def reveal_passage(room, secret_tunnel, player):
     secret_tunnel.action_words.append(room.adjustments[2]["reveal_passage"][1])
 
 def chasm_sea_creature_defeated(room):
+    room.adjustments[2]["run_sea_creature"][0] += 1
     room.interactables[0].action_words.append("SIT")
     room.interactables[1].action_words.append("INSPECT")
     room.interactables[1].description = "A rocky wall that might be climbable"
@@ -517,7 +520,7 @@ def obtain_idol(room, barrier, player):
     room.exits[0].link.adjustments[0].append(enter_idol_state)
     room.interactables = []
     room.monster_spawning = None
-    room.description = "The mostly collapsed chamber where the IDOL OF DYNAE was housed."
+    room.description = ["The mostly collapsed chamber where the IDOL OF DYNAE was housed."]
     print("\n Suddenly you feel the ground around you begin violently shaking! The room begins collapsing in on itself and you rush back out the way you came!!")
     for x in range(len(room.monsters)):
         room.monsters[0].take_damage(random.randint(36,71), True)

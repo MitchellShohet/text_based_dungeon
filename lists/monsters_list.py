@@ -156,14 +156,15 @@ class FlyingGoblin(Goblin):
 #----------------------------------------------------------------
 
 class SeaCreature(Monster):
-    def __init__(self):
-        self.difficulty = 7
+    def __init__(self, multiplier=1):
+        self.difficulty = random.randint(6,8)
+        self.multiplier = multiplier
         super().__init__(
             type="SEA CREATURE", 
-            max_health=self.difficulty+4,
-            current_health=self.difficulty+4,
-            attack=3,
-            defense=self.difficulty, 
+            max_health=self.difficulty+(5*self.multiplier),
+            current_health=self.difficulty+(5*self.multiplier),
+            attack=2+self.multiplier,
+            defense=self.difficulty+1, 
             perception=self.difficulty,
             stealth_mod=2,
             description="An sea creature of some sort. It's hard to make out the details underwater.",

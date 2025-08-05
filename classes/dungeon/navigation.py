@@ -22,10 +22,11 @@ class Navigation:
         self.determine_next_room(exit)
         self.test_link_issues()
         self.run_adjustments()
-        if self.current_room.description != "" :print(f""" {self.current_room.description} """)
+        self.print_room_description()
         self.current_room.spawn_monster()
         self.run_idol_state()
         self.current_room.view_monster_count()
+        if self.current_room.name == "HALLWAY" and len(self.current_room.interactables) > 0: print(" There might be something of interest here.")
     
     def determine_floor(self, exit_number):
         if self.current_room.name == "SECOND FLOOR TUNNEL" and exit_number == 1 or self.current_room.name == "FINAL FLOOR TUNNEL" and exit_number == 1: 
@@ -107,6 +108,12 @@ class Navigation:
         for each_adjustment in self.current_room.adjustments[0]:
             if each_adjustment == enter_idol_state or each_adjustment == turn_off_idol_state or each_adjustment == set_exit_min: each_adjustment(self)
             else: each_adjustment(self.current_room, self.dungeon_length)
+
+    def print_room_description(self):
+        if isinstance(self.current_room.description, list):
+            for each_descriptor in self.current_room.description:
+                if each_descriptor != "": print(f""" {each_descriptor}""")
+        else: print(f""" {self.current_room.description}""")
     
     def run_idol_state(self):
         if enter_idol_state in self.current_room.adjustments[0]: 

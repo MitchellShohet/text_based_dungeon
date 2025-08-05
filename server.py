@@ -20,7 +20,7 @@ class PlayThrough:
             \n Before you can begin your journey, you must build your adventurer's stats!
             {line_spacer}""")
         self.player_character.set_player_stats()
-        print(f"""\n {self.navigation.current_room.description} """)
+        print(f"""\n {self.navigation.current_room.description[0]} """)
 
     def end_sequence(self):
         print(f"""\n {line_spacer}

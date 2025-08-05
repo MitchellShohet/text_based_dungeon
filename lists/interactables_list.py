@@ -213,7 +213,7 @@ class Tree(Breakable):
             type=type, 
             number=number, 
             action_words=action_words, 
-            description="A" + descriptor + " tree.", 
+            description=["A" + descriptor + " tree."], 
             invest_requirement=challenge, 
             stealth_mod=stealth_mod,
             challenge = challenge,
@@ -244,7 +244,7 @@ class Tree(Breakable):
 
 class RedHerring(Interactable):
 
-    def __init__(self, type, number=0, action_words=[], description="", invest_requirement=0, stealth_mod=0, punchline=None):
+    def __init__(self, type, number=0, action_words=[], description=[""], invest_requirement=0, stealth_mod=0, punchline=None):
         self.punchline = punchline
         super().__init__(
             type=type, 
@@ -408,7 +408,7 @@ class LockedDoor(Lockable):
             type = "LOCKED DOOR", 
             number = 0, 
             action_words = ["BREAK THE LOCK", "USE A KEY"], 
-            description = "A door with a large chain wrapped around the handle, a padlock, and some nearby anchor points. The chain is keeping the door securely closed.", 
+            description = ["A door with a large chain wrapped around the handle, a padlock, and some nearby anchor points.", "The chain is keeping the door securely closed."], 
             stealth_mod = -2, 
             challenge = challenge)
         
@@ -446,7 +446,7 @@ class Chest(Lockable):
             type="CHEST", 
             number=number, 
             action_words=action_words, 
-            description="A treasure chest" + descriptor, 
+            description=["A treasure chest" + descriptor], 
             stealth_mod=1,
             challenge=challenge
             )
@@ -557,7 +557,7 @@ class MagicBarrier(Lockable):
             type="MAGIC BARRIER", 
             number=0, 
             action_words=["INSPECT", "BREAK FIRST LOCK", "USE A KEY"], 
-            description="A magic barrier that is preventing you from reaching the " + descriptor, 
+            description=["A magic barrier that is preventing you from reaching the " + descriptor], 
             stealth_mod=0, 
             challenge=20)
     
@@ -602,7 +602,7 @@ class GlowingCrystal(Breakable):
             type="GLOWING CRYSTAL", 
             number=number, 
             action_words=action_words, 
-            description="A large cluster of gems with a mysterious light sourced from within. Roughly the size of a" + descriptor, 
+            description=["A large cluster of gems with a mysterious light sourced from within.", " Roughly the size of a" + descriptor], 
             challenge=challenge,
             invest_requirement=challenge, 
             stealth_mod=challenge,
@@ -737,7 +737,7 @@ class Chasm(Crossing):
             type="CHASM", 
             number=number, 
             action_words=action_words, 
-            description="A chasm that drops into nothingness", 
+            description=["A chasm that drops into nothingness"], 
             exit_hold=Exit(1),
             jump_challenge=challenge,
             bridge=bridge,
@@ -779,7 +779,7 @@ class MagmaRiver(Crossing):
             type="MAGMA RIVER", 
             number=number, 
             action_words=action_words, 
-            description=f"""A {descriptor}wide river of flowing lava.""", 
+            description=[f"""A {descriptor}wide river of flowing lava."""], 
             exit_hold = exit_hold,
             jump_challenge=jump_challeng,
             bridge=None,
@@ -819,7 +819,7 @@ class SleepingMinotaur(Crossing):
             action_words=["WALK PAST", "BUILD BRIDGE", "THROW ROCKS", "SNEAK ATTACK"], 
             description=description, 
             exit_hold = Exit(1, Room("SLEEPING MINOTAUR PASSAGE", 
-                                        "A tunnel beyond the sleeping minotaur opens to a hallway with a chest. The path forks in two directions.", 
+                                        ["A tunnel beyond the sleeping minotaur opens to a hallway with a chest. The path forks in two directions."], 
                                         [Exit(0), Exit(1)], 
                                         MonsterSpawning(7, Skeleton), 
                                         [Chest(3, ["BREAK THE LOCK", "USE A KEY"]," placed over a fur rug.", contents=[weapon_options["BATTLE AXE"], armor_options["CHAINMAIL"], StatMedallion(), 65])])),
@@ -1160,7 +1160,7 @@ class Owl(RedHerring):
         super().__init__(
             type="OWL", 
             action_words=["PET", "HOOT", "WAVE ARMS", "GLARE BACK"],
-            description="A great horned owl perched on a rocky outcropping. It's glaring at you with a big frown.", 
+            description=["A great horned owl perched on a rocky outcropping. It's glaring at you with a big frown."], 
             punchline = " It keeps glaring at you."
             )
         
@@ -1241,7 +1241,7 @@ class Cauldron(Interactable):
             type="CAULDRON", 
             number=0, 
             action_words=action_words, 
-            description="A large cauldron", 
+            description=["A large cauldron"], 
             invest_requirement=0, 
             stealth_mod=2
             )
@@ -1315,7 +1315,7 @@ class PileOfMoney(Interactable):
             type="PILE OF MONEY", 
             number=number,
             action_words=["TAKE"], 
-            description="It's a stack of dollar bills!", 
+            description=["It's a stack of dollar bills!"], 
             invest_requirement=0, 
             stealth_mod=1)
         
