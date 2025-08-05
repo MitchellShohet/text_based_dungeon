@@ -45,7 +45,7 @@ misc_options = {
     "SHIELD" : Item("MISC", "SHIELD", 70),
     "MAGIC BRIDGE": Item("MISC", "MAGIC BRIDGE", 70),
     "BOOK OF FAE LANGUAGE": Item("MISC", "BOOK OF FAE LANGUAGE", 60),
-    "IDOL OF DYNAE": Item("MISC", "IDOL OF DYNAE", 700)
+    "IDOL OF DYNAE": Item("MISC", "IDOL OF DYNAE", 1000)
 }
 
 #-------------------
@@ -120,9 +120,11 @@ class PowerBerry(Consumable):
         )
 
     def effect(self, player_character):
-        print(f"""\n You used the {self.name}!""")
-        print(" ATTACK AND DAMAGE increased by 3 for your next attack.")
-        player_character.attack_buff = 3
+        if player_character.attack_buff > 0: print(" You've already improved your next attack.")
+        else:
+            print(f"""\n You used the {self.name}!""")
+            print(" ATTACK AND DAMAGE increased by 3 for your next attack.")
+            player_character.attack_buff = 3
 
 #------------------------------------------------------------------------------------
 
@@ -135,9 +137,11 @@ class DurabilityGem(Consumable):
         )
 
     def effect(self, player_character):
-        print(f"""\n You used the {self.name}!""")
-        print(" DEFENSE increased by 3 for the next attack.")
-        player_character.defense_buff = 3
+        if player_character.defense_buff > 0: print(" You've already increased your defense for the next attack.")
+        else:
+            print(f"""\n You used the {self.name}!""")
+            print(" DEFENSE increased by 3 for the next attack.")
+            player_character.defense_buff = 3
 
 #------------------------------------------------------------------------------------
 
@@ -146,14 +150,16 @@ class SmokeBomb(Consumable):
         super().__init__(
             name = "SMOKE BOMB",
             description = "A round clump of a charcoal-like substance. Using will give a bonus +3 to your stealth until you leave the current room.",
-            value = 9
+            value = 11
         )
 
     def effect(self, player_character):
-        print(f"""\n You used the {self.name}!""")
-        print(f""" previous hiding score: {player_character.hiding_score}.""")
-        player_character.hiding_score += 3
-        print(f""" new hiding score: {player_character.hiding_score}""")
+        if player_character.stealth_buff > 0: print(" You've already used a SMOKE BOMB in this room.")
+        else: 
+            print(f"""\n You used the {self.name}!""")
+            player_character.stealth_buff = 3
+            player_character.hiding_score += 3
+            print(f""" Current hiding score: {player_character.hiding_score}""")
 
 #------------------------------------------------------------------------------------
 
@@ -166,7 +172,9 @@ class MagicWand(Consumable):
         )
 
     def effect(self, player_character):
-        print(f"""\n You used the {self.name}!""")
-        print(" ATTACK and DAMAGE increased by 2 for your next attack, and DEFENSE increased by 2 for the next attack")
-        player_character.attack_buff = 2
-        player_character.defense_buff = 2
+        if player_character.attack_buff and player_character.defense_buff > 0: print(" You've already improved your next attack, and increased defense for the next attack against you.")
+        else:
+            print(f"""\n You used the {self.name}!""")
+            print(" ATTACK and DAMAGE increased by 2 for your next attack, and DEFENSE increased by 2 for the next attack")
+            player_character.attack_buff = 2
+            player_character.defense_buff = 2

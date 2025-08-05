@@ -30,7 +30,7 @@ class PlayThrough:
             if misc_options["IDOL OF DYNAE"] in self.player_character.inventory.misc: print("\n Thank you so much for playing my game! I hope you enjoyed it and will consider sharing it with others! \n     -Mitch")
             elif self.player_character.inventory.dollar_bills > 2500: 
                 print(" You may not have found the idol, but who cares you're freakin' rich!!") 
-                print(f"""Safe to say you can rest easy knowing your needs will be met for the rest of your life. \n Final count: {self.player_character.inventory.dollar_bills} dollar bills""")
+                print(f""" It's safe to say you can rest easy knowing your needs will be met for the rest of your life. \n Final count: {self.player_character.inventory.dollar_bills} dollar bills""")
         else: print(f""" \n You have died.""")
         print(f"""\n {line_spacer}
             \n {line_spacer}""")
@@ -64,6 +64,7 @@ class PlayThrough:
                 print(f"""\n You moved {direction}""")
                 self.navigation.enter_room(self.navigation.current_room.exits[move_function()]) #uses the move function determined by the direction earlier, as an argument to move rooms
                 player_leaves_hiding(self.navigation.current_room, self.player_character)
+                self.player_character.stealth_buff = 0
 
     def select_sequence(self, action_word, list):
         selection_loop = True
@@ -85,7 +86,7 @@ class PlayThrough:
                 elif action_word == "USE": 
                     if each_thing.name not in item_names:
                         item_names.append(each_thing.name)
-                        print(f""" {each_thing.name}""") 
+                        print(f""" {each_thing.name} x {sum(1 for each_item in list if each_item.name == each_thing.name)}""") 
                 elif action_word == "HIDE":
                     if each_thing.number == 0: print(f""" {each_thing.type}""")
                     else: print(f""" {each_thing.type} {each_thing.number}""")
@@ -99,7 +100,7 @@ class PlayThrough:
             for each_thing in list: 
                 if action_word == "LOOK": #each_thing is each interactable and each monster in the room
                     if each_thing.can_investigate == True:
-                        if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number) or str(selection) + "0" == each_thing.type + str(each_thing.number):
+                        if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number) or str(selection) + "0" == each_thing.type + str(each_thing.number) or selection == each_thing.type:
                             each_thing.investigate(self.player_character, self.navigation.current_room)
                             selection_loop = False
                             break
@@ -119,14 +120,14 @@ class PlayThrough:
                             selection_loop = False
                         break
                 if action_word == "HIDE": #each_thing is each interactable in the room
-                    if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number) or selection + "0" == each_thing.type + str(each_thing.number):
+                    if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number) or selection + "0" == each_thing.type + str(each_thing.number) or selection == each_thing.type:
                         print(f""" Hiding place modifier: {each_thing.stealth_mod}""") #to be removed?
                         print(f""" Luck: {self.player_character.hiding_score}""")
                         self.player_character.hiding_score += each_thing.stealth_mod + self.player_character.stealth
                         self.player_character.hiding = True
                         selection_loop = False
                 if action_word == "ATTACK": #each_thing is each monster in the room
-                    if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number) or selection == each_thing.type and each_thing.type == "AVATAR OF DYNAE":
+                    if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number) or selection == each_thing.type:
                         self.player_character.make_attack(each_thing)
                         if each_thing.current_health <= 0:
                             self.navigation.current_room.interactables.append(each_thing)

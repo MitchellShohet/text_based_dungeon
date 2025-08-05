@@ -87,6 +87,13 @@ class Navigation:
             new_room = self.room_options[1][len(self.room_options[1])-1]
         elif self.floor == 2 and len(self.rooms_visited["2"]) > 12 and self.room_options[2][len(self.room_options[2])-1].name == "FINAL FLOOR TUNNEL": #prevents dungeon from taking too long to spawn the final floor tunnel
             new_room = self.room_options[2][len(self.room_options[2])-1]
+        elif self.floor == 3 and len(self.rooms_visited["3"]) > 12 and self.room_options[3][len(self.room_options[3])-1].name == "DUNGEON EXIT" and sum(1 for each_room in self.room_options[3] if each_room.name == "IDOL ROOM") < 1: #prevents dungeon from taking too long to spawn the Dungeon Exit or the Idol Room
+            new_room = self.room_options[2][len(self.room_options[2])-1]
+        elif self.floor == 3 and len(self.rooms_visited["3"]) > 19 and self.room_options[3][len(self.room_options[3])-1].name == "DUNGEON EXIT": #prevents dungeon from taking too long to spawn the Dungeon Exit after spawing the Idol room
+            new_room = self.room_options[2][len(self.room_options[2])-1]
+        elif self.floor == 3 and len(self.rooms_visited["3"]) > 19 and sum(1 for each_room in self.room_options[3] if each_room.name == "IDOL ROOM") < 1: #prevents dungeon from taking too long to spawn Idol room after spawning the Dungeon Exit
+            for each_room in self.room_options:
+                if each_room.name == "IDOL ROOM": new_room = each_room
         return new_room
 
     def check_for_new_exits(self, room):
@@ -105,7 +112,7 @@ class Navigation:
         if enter_idol_state in self.current_room.adjustments[0]: 
             self.current_room.adjustments[0].remove(enter_idol_state)
             print("\n Suddenly a tear in reality opens in front of you! With an eruption of static electricity, a creature emerges from it.")
-        if self.idol_state == True: 
+        if self.idol_state == True and self.current_room.name != "GO HOME": 
             fresh_avatar = True
             for each_monster in self.current_room.monsters:
                 if each_monster.type == "AVATAR OF DYNAE": 

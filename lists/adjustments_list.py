@@ -126,6 +126,13 @@ def turn_off_idol_state(nav):
 #------------- TRIGGERED AT END OF TURN ----------------
 #-------------------------------------------------------
 
+def block_dungeon_entrance(room, player):
+    if misc_options["IDOL OF DYNAE"] in player.inventory.misc and room.exits[0] != None:
+        room.adjustments[2]["block_exit"][0] = room.visits
+        block_exit(room, 0)
+    else:
+        if room.exits[0] == None: room.exits[0] = room.interactables[0].exit_hold
+
 def dungeon_exit_idol_test(room, player):
     if misc_options["IDOL OF DYNAE"] in player.inventory.misc and "BREAK" in room.interactables[1].action_words:
         room.interactables[1] = room.adjustments[2]["dungeon_exit_idol_test"][0]
@@ -506,11 +513,12 @@ def obtain_idol(room, barrier, player):
         else: print(f""" The IDOL draws you to it.. {selection} isn't an option.""")
     player.inventory.add_item(misc_options["IDOL OF DYNAE"])
     print("\n You got the IDOL OF DYNAE!")
+    print(" Now hurry to the DUNGEON EXIT!")
     room.exits[0].link.adjustments[0].append(enter_idol_state)
     room.interactables = []
     room.monster_spawning = None
     room.description = "The mostly collapsed chamber where the IDOL OF DYNAE was housed."
-    print(" Suddenly you feel the ground around you begin violently shaking! The room begins collapsing in on itself and you rush back out the way you came!!")
+    print("\n Suddenly you feel the ground around you begin violently shaking! The room begins collapsing in on itself and you rush back out the way you came!!")
     for x in range(len(room.monsters)):
         room.monsters[0].take_damage(random.randint(36,71), True)
         room.interactables.append(room.monsters[0])
