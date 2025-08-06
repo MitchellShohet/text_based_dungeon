@@ -5,7 +5,7 @@ from classes.combatants.combatant import Combatant
 from classes.inventory.inventory import Inventory
 from lists.items_lists import StatMedallion, DurabilityGem, misc_options
 from lists.monsters_list import Skeleton, SeaCreature
-from lists.hallway_list import hallway_list
+from lists.alt_rooms_list import hallway_list, dead_end_list
 
 # since these are called generically but have different perameters, 
 # each room will have a dictionary for the arguements of its 
@@ -15,11 +15,13 @@ from lists.hallway_list import hallway_list
 #---------- TRIGGERED UPON ENTERING A ROOM -------------
 #-------------------------------------------------------
 
-def pick_hallway_description(room, dungeon_length):
-    room.adjustments[0].remove(pick_hallway_description)
-    hallway = hallway_list[random.randint(0, len(hallway_list)-1)]
-    room.description = hallway
-    hallway_list.remove(hallway)
+def pick_alt_room_description(room, dungeon_length):
+    room.adjustments[0].remove(pick_alt_room_description)
+    if room.name == "HALLWAY": alt_room_list = hallway_list
+    else: alt_room_list = dead_end_list
+    alt_room = alt_room_list[random.randint(0, len(alt_room_list)-1)]
+    room.description = alt_room
+    alt_room_list.remove(alt_room)
 
 def add_interactable(room, dungeon_length):
     if room.visits == room.adjustments[2]["add_interactable"][0]:
@@ -150,10 +152,12 @@ def damage_player(room, player):
     print(f""" {room.adjustments[2]["damage_player"][0]}""")
     player.take_damage(room.adjustments[2]["damage_player"][1], True)
 
-def obtain_item(room, player):
-    room.adjustments[1].remove(obtain_item)
+def obtain_item(room, player, interactable=None):
+    if obtain_item in room.adjustments[1]: room.adjustments[1].remove(obtain_item)
     player.inventory.add_item(room.adjustments[2]["obtain_item"][0])
-    print(f""" {room.adjustments[2]["obtain_item"][1]}""")
+    if isinstance(room.adjustments[2]["obtain_item"][1], list):
+        for each_text in room.adjustments[2]["obtain_item"][1]: print(f""" {each_text}""")
+    else: print(f""" {room.adjustments[2]["obtain_item"][1]}""")
 
 def remove_item(room, player):
     room.adjustments[1].remove(remove_item)
@@ -350,10 +354,10 @@ def player_leaves_hiding(room, player):
     player.hiding_score = random.randint(1,5) #this is the luck component of hiding for each room as the player enters it
     player.hiding = False
 
-def run_inspect(interactable, player, room):
+def run_inspect(interactable, player, room):  #Change the failure message to be dependant on a room adjustment variable
         if player.investigation + random.randint(1,5) >= interactable.invest_requirement:
             interactable.invest_requirement = 0
-            interactable.effect(room, interactable, player)
+            interactable.effect(room=room, interactable=interactable, player=player)
         else:
             if interactable.number == 0: print(f""" The secrets of the {interactable.type} elude you.""")
             else: print(f""" The secrets of {interactable.type} {interactable.number} elude you.""")
@@ -385,6 +389,14 @@ def run_shatter(interactable, player, room):
     elif "CHOP" in interactable.action_words: interactable.action_words.remove("CHOP")
     elif "BREAK" in interactable.action_words: interactable.action_words.remove("BREAK")
 
+def get_money(room, interactable, player):
+    player.inventory.dollar_bills += room.adjustments[2]["get_money"][0]
+    if isinstance(room.adjustments[2]["get_money"][1], list):
+        for each_descriptor in room.adjustments[2]["get_money"][1]:
+            print(f""" {each_descriptor}""")
+    else: print(room.adjustments[2]["get_money"][1])
+
+
 def punchline_test(interactable, action_word):
     action = False
     if action_word == "PLACE HAND" and "PLACE HAND" in interactable.action_words:
@@ -398,7 +410,7 @@ def punchline_test(interactable, action_word):
     elif action_word == "LOOK AT" and "LOOK AT" in interactable.action_words:
         action = f""" YOU LOOK AT the {interactable.type}!"""
     elif action_word == "INSPECT" and "INSPECT" in interactable.action_words:
-        action = f""" You INSPECT the {interactable.type} for a while. Determined to uncover it's secrets."""
+        action = f""" You INSPECT the {interactable.type} for a while, determined to uncover it's secrets.."""
     elif action_word == "ADMIRE" and "ADMIRE" in interactable.action_words:
         action = f""" Now that you have a moment to ADMIRE the {interactable.type}..."""
     elif action_word == "BREAK" and "BREAK" in interactable.action_words:

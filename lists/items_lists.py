@@ -22,8 +22,8 @@ weapon_options = {
 armor_options = {
     "CLOTHES" : Armor(1, "ARMOR", "CLOTHES", 3, 1),
     "GAMBESON" : Armor(2, "ARMOR", "GAMBESON", 5, 14),
-    "CHAINMAIL" : Armor(3, "ARMOR", "CHAINMAIL", 7, 44),
-    "PLATEMAIL" : Armor(4, "ARMOR", "PLATEMAIL", 9, 130), #don't sell platemail in regular shops
+    "CHAINMAIL" : Armor(3, "ARMOR", "CHAINMAIL", 7, 74),
+    "PLATEMAIL" : Armor(4, "ARMOR", "PLATEMAIL", 9, 140), #don't sell platemail in regular shops
     "MAGIC PLATE" : Armor(5, "ARMOR", "MAGIC PLATE", 12, 280)
 }
 

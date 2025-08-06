@@ -128,7 +128,7 @@ class Inspectable(Interactable):
             stealth_mod)
     
     def run_interaction(self, action_word, player, room):
-        if action_word == "INSPECT" and "INSPECT" in self.action_words or action_word == "INSPECT FIRST DIAL" and "INSPECT FIRST DIAL" in self.action_words or action_word == "INSPECT SECOND DIAL" and "INSPECT SECOND DIAL" in self.action_words:
+        if action_word == "INSPECT" and "INSPECT" in self.action_words or action_word == "INSPECT FIRST DIAL" and "INSPECT FIRST DIAL" in self.action_words or action_word == "INSPECT SECOND DIAL" and "INSPECT SECOND DIAL" in self.action_words or action_word == "ADMIRE" and "ADMIRE" in self.action_words or action_word == "OBSERVE" and "OBSERVE" in self.action_words or action_word == "LICK" and "LICK" in self.action_words:
             run_inspect(self, player, room)
             monsters_attack(room, player)
 

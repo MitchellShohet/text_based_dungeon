@@ -226,12 +226,12 @@ class PlayThrough:
                 if len(self.player_character.inventory.consumables) > 0: options.append("USE")
                 if self.player_character.inventory.has_equipables == True: options.append("EQUIP")
                 options.append("STATS")
-                if len(self.navigation.current_room.interactables) > 0:
-                    options.append(" ")
-                    options.append("CURRENT ROOM:")
-                    for each_interactable in self.navigation.current_room.interactables:
-                        if len(each_interactable.action_words) > 0:
-                            options.append(each_interactable.type)
+                # if len(self.navigation.current_room.interactables) > 0:
+                #     options.append(" ")
+                #     options.append("CURRENT ROOM:")
+                #     for each_interactable in self.navigation.current_room.interactables:
+                #         if len(each_interactable.action_words) > 0:
+                #             options.append(each_interactable.type)
                 i=0
                 while i < len(options):
                     j=i+1
