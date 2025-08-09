@@ -15,9 +15,17 @@ class PlayThrough:
     def game_start(self):
         print(f"""
             {line_spacer}
-            \n Welcome to The Dungeon of Dynae! You are an explorer and must navigate through the dungeon to find the Idol of Dynae and escape!
-            \n To play, simply input the choice you'd like to make. You can always input MENU to see your current options.
-            \n Before you can begin your journey, you must build your adventurer's stats!
+            \n Welcome to The Dungeon of Dynae! You are an explorer and must navigate through the dungeon to find the Idol of Dynae and escape!""",
+            """\n To play, simply input an action you'd like to try. The most common actions are:
+            \n FORWARD, BACKWARD, RIGHT, LEFT - Navigate different areas of the dungeon.""",
+            "\n ATTACK - Fight monsters in your vicinity.", 
+            "\n LOOK - Observe your surroundings for things to interact with.", 
+            "\n HIDE - Elude monsters' awareness (good for groups).",
+            "\n USE - Consume a single-use item.",
+            "\n EQUIP - Switch to a new weapon or armor.",
+            f"""\n MENU - View a list of the common actions currently available.
+            \n Each area may also have unique actions available.""",
+            f"""\n Before you can begin your journey, you must build your adventurer's stats!
             {line_spacer}""")
         self.player_character.set_player_stats()
         print(f"""\n {self.navigation.current_room.description[0]} """)

@@ -67,7 +67,7 @@ class HealthPotion(HealingItem):
     def __init__(self):
         super().__init__(
             name="HEALTH POTION",
-            description="A small vial with a red liquid; it smells of cherries. Using will heal between 5-7 health.",
+            description=["A small vial with a red liquid; it smells of cherries.", "Using will heal between 5-7 health."],
             value=16,
             healing=random.randint(5,7)
         )
@@ -78,7 +78,7 @@ class GreaterHealthPotion(HealingItem):
     def __init__(self):
         super().__init__(
             name="GREATER HEALTH POTION",
-            description="A small vial with a pink liquid; it smells of fresh sourdough. Using will heal between 16-22 health.",
+            description=["A small vial with a pink liquid; it smells of fresh sourdough.", "Using will heal between 16-22 health."],
             value=32,
             healing=random.randint(14,21)
         )
@@ -89,7 +89,7 @@ class Pie(HealingItem):
     def __init__(self):
         super().__init__(
             name="PIE",
-            description="A nicely baked pie, can be made from a variety of ingredients. Using will heal between 10-15 health.",
+            description=["A nicely baked pie, can be made from a variety of ingredients.", "Using will heal between 10-15 health."],
             value=24,
             healing=random.randint(10,15)
         )
@@ -100,7 +100,7 @@ class StatMedallion(Consumable):
     def __init__(self):
         super().__init__(
             name="STAT MEDALLION",
-            description="A lime-green coin that's warm to the touch. Using will allow you to increase your stats by 2 points.",
+            description=["A lime-green coin that's warm to the touch.", "Using will allow you to increase your stats by 2 points."],
             value=46
         )
 
@@ -115,7 +115,7 @@ class PowerBerry(Consumable):
     def __init__(self):
         super().__init__(
             name="POWER BERRY",
-            description="A massive berry the size of a fist; yet light, like eating a cloud. Using will give a bonus +3 to your next attack and the damage if that attack hits (does not stack).",
+            description=["A massive berry the size of a fist; yet light, like eating a cloud.", "Using will give a bonus +3 to your next attack and the damage if that attack hits (does not stack)."],
             value=5
         )
 
@@ -132,7 +132,7 @@ class DurabilityGem(Consumable):
     def __init__(self):
         super().__init__(
             name="DURABILITY GEM",
-            description="A small, sharp, ceramic gemestone. Using will give a bonus +3 to your defense against the next attack against you (does not stack).",
+            description=["A small, sharp, ceramic gemestone.", "Using will give a bonus +3 to your defense against the next attack against you (does not stack)."],
             value=8
         )
 
@@ -149,7 +149,7 @@ class SmokeBomb(Consumable):
     def __init__(self):
         super().__init__(
             name = "SMOKE BOMB",
-            description = "A round clump of a charcoal-like substance. Using will give a bonus +3 to your stealth until you leave the current room.",
+            description=["A round clump of a charcoal-like substance.", "Using will give a bonus +3 to your stealth until you leave the current room."],
             value = 11
         )
 
@@ -167,7 +167,7 @@ class MagicWand(Consumable):
     def __init__(self):
         super().__init__(
             name="MAGIC WAND",
-            description="A Stick made out of wood- no wait, metal? Clay? It's hard to tell but using will give a bonus +2 to your next attack, the damage if that attack hits, and your defense for the next attack against you (These do not stack with other items with similar effects).",
+            description=["A Stick made out of wood- no wait, metal? Clay?", "It's hard to tell but using will give a bonus +2 to your next attack, the damage if that attack hits,", "and your defense for the next attack against you (does not stack)."],
             value=13
         )
 

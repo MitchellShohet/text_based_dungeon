@@ -7,7 +7,7 @@ class PlayerCharacter(Combatant):
 
     def __init__(self):
         self.stealth = 35 #baseline for normal mode is 1
-        self.investigation = 30 #baseline for normal mode is 1
+        self.investigation = 3 #baseline for normal mode is 1
         self.stat_points = 0 #baseline for normal mode is 8
         super().__init__(
             type="PLAYER", 

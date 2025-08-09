@@ -94,7 +94,7 @@ class NPC(Interactable):
 
 class Breakable(Interactable):
 
-    def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, challenge=1, contents=None, punchline=None):
+    def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, challenge=1, contents=0, punchline=None):
         self.challenge = challenge
         self.contents = contents
         self.punchline = punchline
@@ -380,13 +380,14 @@ class SecretPassage(Inspectable): #MUST BE ACCOMPANIED BY AN EXITHOLD
         super().__init__(type, number, action_words, description, invest_requirement, stealth_mod, effect)
 
     def run_interaction(self, action_word, player, room):
-            if action_word == "INSPECT" and "INSPECT" in self.action_words:
+            if action_word == "INSPECT" and "INSPECT" in self.action_words or action_word == "PET" and "PET" in self.action_words:
                 run_inspect(self, player, room)
                 if "SECRET TUNNEL" not in self.action_words and "CLIMBING PATH" not in self.action_words: 
                     print(" You can try again later.")
                     self.refresh_requirement += 1
             elif action_word == "SECRET TUNNEL" and "SECRET TUNNEL" in self.action_words or action_word == "CLIMBING PATH" and "CLIMBING PATH" in self.action_words or action_word == "CASTLE DOOR" and "CASTLE DOOR" in self.action_words and self.type == "KEEP" or action_word == "STAIRCASE" and "STAIRCASE" in self.action_words and self.type == "TOWER UPPER FLOORS":
-                if room.name == "CHASM SEA CREATURE" or room.name == "IMMEDIATE RETURN LANDING": room.adjustments[2]["change_room"][0] = room.interactables[0].exit_hold  #**This should apply to all instances of SecretPassage(), but we'll fix that later
+                if room.name == "CHASM SEA CREATURE" or room.name == "IMMEDIATE RETURN LANDING": room.adjustments[2]["change_room"][0] = room.interactables[0].exit_hold  #**This applies to cases where the exit hold holds the previous room that's being returned to
+                else: room.interactables[0].exit_hold = room.adjustments[2]["change_room"][0] #**this is for cases where the exit hold holds the current room that's being left
                 room.adjustments[1].append(change_room)
                 monsters_attempt_notice_and_attack(room, player)
                 print(line_spacer,
@@ -423,6 +424,7 @@ class LockedDoor(Lockable):
             self.use_key(player, room)
     
     def open(self, player, room):
+        room.interactables[0].exit_hold = room.adjustments[2]["change_room"][0]
         room.adjustments[1].append(change_room)
         monsters_attempt_notice_and_attack(room, player)
         print(line_spacer,
@@ -434,6 +436,7 @@ class LockedDoor(Lockable):
         self.action_words.remove("BREAK THE LOCK")
         if "USE A KEY" in self.action_words: self.action_words.remove("USE A KEY")
         self.type = "UNLOCKED DOOR"
+        self.description = ["Just a normal door now!"]
         reveal_passage(room, self, player)
 
 #---------------------------------------------------------
@@ -467,7 +470,7 @@ class Chest(Lockable):
 
 class Container(Lockable):
 
-    def __init__(self, type, number, action_words, descriptor, contents=None, stealth_mod=1):
+    def __init__(self, type, number, action_words, descriptor, contents=0, stealth_mod=1):
         self.contents = contents
         super().__init__(
             type=type, 
@@ -478,7 +481,7 @@ class Container(Lockable):
             challenge=0
             )
     
-    def open(self, player):
+    def open(self, player, room):
         if self.contents == None: print(" There was nothing inside.")
         else:
             try:
@@ -495,7 +498,7 @@ class Container(Lockable):
 class Mimic(Lockable):
 
     def __init__(self, type, number, action_words, description, challenge=0, stealth_mod=1):
-        self.contents = None
+        self.contents = 0
         super().__init__(
             type=type, 
             number=number, 
@@ -533,6 +536,9 @@ class Mimic(Lockable):
             room.monsters[len(room.monsters)-1].is_aware = True
             if self.contents != None: room.monsters[len(room.monsters)-1].inventory.misc.append(self.contents)
             player.make_attack(room.monsters[len(room.monsters)-1])
+            if room.monsters[len(room.monsters)-1].current_health <= 0:
+                room.interactables.append(room.monsters[len(room.monsters)-1])
+                room.monsters.remove(room.monsters[len(room.monsters)-1])
             self.type = "COMPROMISED MIMIC"
             for each_interactable in room.interactables:
                 if each_interactable.type == "COMPROMISED MIMIC": room.interactables.remove(each_interactable)
@@ -1125,7 +1131,10 @@ class ShopOwner(Merchant):
         return products
     
     def confirm_buy_details(self, player, product):
-        if product.type == "CONSUMABLE": print(f""" {product.name}- {product.description}""")
+        if product.type == "CONSUMABLE": 
+            if isinstance(product.description, list):
+                for each_descriptor in product.description: print(f""" {each_descriptor}""")
+            else: print(f""" {product.name}- {product.description}""")
         elif product.type == "ARMOR": print(f""" {product.name}- Sets DEFENSE to {product.defense}.""")
         elif product.type == "WEAPON": print(f""" {product.name}- Weapon rank {product.rating}/8.""")
         elif product.name == "SHIELD": print(f""" {product.name}- Raises DEFENSE by 1 while in your inventory.""")

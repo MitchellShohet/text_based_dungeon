@@ -16,12 +16,12 @@ from lists.alt_rooms_list import hallway_list, dead_end_list
 #-------------------------------------------------------
 
 def pick_alt_room_description(room, dungeon_length):
-    room.adjustments[0].remove(pick_alt_room_description)
-    if room.name == "HALLWAY": alt_room_list = hallway_list
-    else: alt_room_list = dead_end_list
-    alt_room = alt_room_list[random.randint(0, len(alt_room_list)-1)]
-    room.description = alt_room
-    alt_room_list.remove(alt_room)
+    if room.visits == 1:
+        if room.name == "HALLWAY": alt_room_list = hallway_list
+        else: alt_room_list = dead_end_list
+        alt_room = alt_room_list[random.randint(0, len(alt_room_list)-1)]
+        room.description = alt_room
+        alt_room_list.remove(alt_room)
 
 def add_interactable(room, dungeon_length):
     if room.visits == room.adjustments[2]["add_interactable"][0]:
@@ -106,18 +106,25 @@ def cave_in(room, dungeon_length): #This removes access to this room from the pr
             room.interactables[0].exit_hold.link.exits.remove(each_exit)
 
 def randomize_container_contents(room, dungeon_length):
-    x = 0
-    while x < len(room.interactables):
-        container = room.interactables[random.randint(0,len(room.interactables)-1)]
-        if container.number == 0:
-            container.contents = room.adjustments[2]["randomize_container_contents"][x]
+    if room.visits == 1:
+        container_options = ["CRATE", "BARREL", "TRUNK", "TENT"]
+        room_containers = []
+        for each_interactable in room.interactables:
+            if each_interactable.type in container_options: 
+                room_containers.append(each_interactable)
+        for each_container in room_containers: room.interactables.remove(each_container)
+        x = 0
+        while x < len(room_containers):
+            container = room_containers[random.randint(0,len(room_containers)-1)]
+            if container.contents == 0:
+                container.contents = room.adjustments[2]["randomize_container_contents"][x]
+                x += 1
+        random.shuffle(room_containers)
+        x = 1
+        for each_container in room_containers:
+            each_container.number = x
             x += 1
-    random.shuffle(room.interactables)
-    x = 1
-    for each_container in room.interactables:
-        each_container.number = x
-        x += 1
-    room.adjustments[0].remove(randomize_container_contents)
+            room.interactables.append(each_container)
 
 def chasm_sea_creature_start1(room, dungeon_length):
     room.interactables[0].action_words  = []
@@ -396,7 +403,6 @@ def get_money(room, interactable, player):
             print(f""" {each_descriptor}""")
     else: print(room.adjustments[2]["get_money"][1])
 
-
 def punchline_test(interactable, action_word):
     action = False
     if action_word == "PLACE HAND" and "PLACE HAND" in interactable.action_words:
@@ -425,6 +431,10 @@ def punchline_test(interactable, action_word):
         print(action)
         if interactable.punchline: print(f""" {interactable.punchline}""")
 
+def reveal_passage(room, interactable, player):
+    print(room.adjustments[2]["reveal_passage"][0])
+    interactable.action_words.append(room.adjustments[2]["reveal_passage"][1])
+
 def end_castle_sequence(room):
     room.adjustments[1].remove(add_castle_wave)
     change_room_description(room,0)
@@ -439,18 +449,18 @@ def end_castle_sequence(room):
     room.exits[0].link.adjustments[2]["change_room_description"][0] = room.exits[0].link.visits + 1
     room.exits[0].link.adjustments[2]["add_interactable"][0] = room.exits[0].link.visits + 1
 
-def inspect_tree(room, tree, player):
+def inspect_tree(room, interactable, player):
     print(" After some time you start to understand the secrets of the GLOWING TREE. The tree feels seen and offers you a gift from its branches.")
-    if tree.number == 0 and tree.monster.type == "WIZARD" or tree.number == 0 and tree.monster.type == "MUD GOLEM":
-        tree.monster.number = 1
+    if interactable.number == 0 and interactable.monster.type == "WIZARD" or interactable.number == 0 and interactable.monster.type == "MUD GOLEM":
+        interactable.monster.number = 1
     else:
-        if sum(1 for each_monster in room.monsters if each_monster.type == "MINOTAUR") == 0: tree.monster.number = 1
-        else: tree.monster.number = sum(1 for each_monster in room.monsters if each_monster.type == "MINOTAUR") + 1
-    print(f""" The GLOWING TREE gifted you a {tree.reward.name}!""")
-    player.inventory.add_item(tree.reward)
-    tree.gift_given = True
-    print(f""" A {tree.monster.type} has come to test you.""")
-    room.monsters.append(tree.monster)
+        if sum(1 for each_monster in room.monsters if each_monster.type == "MINOTAUR") == 0: interactable.monster.number = 1
+        else: interactable.monster.number = sum(1 for each_monster in room.monsters if each_monster.type == "MINOTAUR") + 1
+    print(f""" The GLOWING TREE gifted you a {interactable.reward.name}!""")
+    player.inventory.add_item(interactable.reward)
+    interactable.gift_given = True
+    print(f""" A {interactable.monster.type} has come to test you.""")
+    room.monsters.append(interactable.monster)
 
 def run_sea_creature(room, player):
     room.spawn_monster(SeaCreature, room.adjustments[2]["run_sea_creature"][0])
@@ -466,15 +476,15 @@ def run_sea_creature(room, player):
     room.adjustments[1].append(check_for_heavy_armor)
     print(" Immediately you feel something WRAP AROUND YOUR LEG AND PULL YOU UNDER THE WATER!!!")
 
-def inspect_crystal(room, crystal, player):
+def inspect_crystal(room, interactable, player):
     print(" After some time you start to understand the secrets of the GLOWING CRYSTAL.  You're able to extract the magic and recover some health.")
     if player.current_health == player.max_health: 
         print(" Your health is currently full. Come back later to regain some from the GLOWING CRYSTAL.")
-        crystal.action_words.append("INSPECT")
+        interactable.action_words.append("INSPECT")
     else:
-        player.recover_health(crystal.number*3)
+        player.recover_health(interactable.number*3)
 
-def inspect_machine(room, machine, player):
+def inspect_machine(room, interactable, player):
     if golem_machinery in room.adjustments[1]:
         print(" After some time you figure out how to operate the MACHINE and turn it off.")
         shutdown_golem_machine(room)
@@ -486,24 +496,20 @@ def shutdown_golem_machine(room):
     room.adjustments[2]["change_monster_spawning"][0] = room.visits
     change_monster_spawning(room, 0)
 
-def inspect_control_panel(room, control_panel, player):
-    if "INSPECT FIRST DIAL" in control_panel.action_words:
+def inspect_control_panel(room, interactable, player):
+    if "INSPECT FIRST DIAL" in interactable.action_words:
         print(" You're able to quickly decypher the runes of the first dial! Now to analyze the second!")
-        control_panel.action_words.clear()
-        control_panel.action_words.append("INSPECT SECOND DIAL")
+        interactable.action_words.clear()
+        interactable.action_words.append("INSPECT SECOND DIAL")
     else:
         print(" You're able to quickly analyze the second dial and use both dials to shut down the barrier!")
         room.interactables.clear()
         for each_chest in room.adjustments[2]["shutdown_control_panel"]:
             room.interactables.append(each_chest)
-        room.description = ["Upon crossing a door you find yourself in a room filled with a green acidic gas.", f"""At the far end you see {room.adjustments[2]["inspect_control_panel"][0]} chests behind a disabled magical barrier."""]
+        room.description = ["Upon crossing a door you find yourself in a room filled with a green acidic gas.", f"""At the far end you see {room.adjustments[2]["inspect_control_panel"][0]} chests behind a disabled magical interactable."""]
 
 def get_number(container):
     return container.number
-
-def reveal_passage(room, secret_tunnel, player):
-    print(room.adjustments[2]["reveal_passage"][0])
-    secret_tunnel.action_words.append(room.adjustments[2]["reveal_passage"][1])
 
 def chasm_sea_creature_defeated(room):
     room.adjustments[2]["run_sea_creature"][0] += 1
@@ -511,13 +517,13 @@ def chasm_sea_creature_defeated(room):
     room.interactables[1].action_words.append("INSPECT")
     room.interactables[1].description = "A rocky wall that might be climbable"
 
-def disable_magic_barrier(room, barrier, player):
-    barrier.type = "DISABLED MAGIC BARRIER"
-    if barrier.challenge == 12: print(" After some time you were able to unravel the magic of the BARRIER!")
+def disable_magic_barrier(room, interactable, player):
+    interactable.type = "DISABLED MAGIC BARRIER"
+    if interactable.challenge == 12: print(" After some time you were able to unravel the magic of the BARRIER!")
     print(" You disabled the MAGIC BARRIER!")
-    barrier.effect2(room, barrier, player)
+    interactable.effect2(room, interactable, player)
 
-def obtain_idol(room, barrier, player):
+def obtain_idol(room, interactable, player):
     print("\n The IDOL OF DYNAE is before you. ")
     select_loop = True
     while select_loop == True:
@@ -541,7 +547,7 @@ def obtain_idol(room, barrier, player):
     room.adjustments[2]["change_room"] = [room.exits[0]]
     room.adjustments[1].append(change_room)
 
-def reach_dungeon_exit(room, barrier, player):
+def reach_dungeon_exit(room, interactable, player):
     print("\n The DUNGEON EXIT is before you.")
     select_loop = True
     while select_loop == True:
