@@ -84,15 +84,15 @@ class Navigation:
                     new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
                 else: testing = False
             else: testing = False
-        if self.floor == 1 and len(self.rooms_visited["1"]) > 12 and self.room_options[1][len(self.room_options[1])-1].name == "SECOND FLOOR TUNNEL": #prevents dungeon from taking too long to spawn the second floor tunnel
+        if self.floor == 1 and len(self.rooms_visited["1"]) > 18 and self.room_options[1][len(self.room_options[1])-1].name == "SECOND FLOOR TUNNEL": #prevents dungeon from taking too long to spawn the second floor tunnel
             new_room = self.room_options[1][len(self.room_options[1])-1]
-        elif self.floor == 2 and len(self.rooms_visited["2"]) > 12 and self.room_options[2][len(self.room_options[2])-1].name == "FINAL FLOOR TUNNEL": #prevents dungeon from taking too long to spawn the final floor tunnel
+        elif self.floor == 2 and len(self.rooms_visited["2"]) > 18 and self.room_options[2][len(self.room_options[2])-1].name == "FINAL FLOOR TUNNEL": #prevents dungeon from taking too long to spawn the final floor tunnel
             new_room = self.room_options[2][len(self.room_options[2])-1]
-        elif self.floor == 3 and len(self.rooms_visited["3"]) > 12 and self.room_options[3][len(self.room_options[3])-1].name == "DUNGEON EXIT" and sum(1 for each_room in self.room_options[3] if each_room.name == "IDOL ROOM") < 1: #prevents dungeon from taking too long to spawn the Dungeon Exit or the Idol Room
+        elif self.floor == 3 and len(self.rooms_visited["3"]) > 18 and self.room_options[3][len(self.room_options[3])-1].name == "DUNGEON EXIT" and sum(1 for each_room in self.room_options[3] if each_room.name == "IDOL ROOM") < 1: #prevents dungeon from taking too long to spawn the Dungeon Exit or the Idol Room
             new_room = self.room_options[2][len(self.room_options[2])-1]
-        elif self.floor == 3 and len(self.rooms_visited["3"]) > 19 and self.room_options[3][len(self.room_options[3])-1].name == "DUNGEON EXIT": #prevents dungeon from taking too long to spawn the Dungeon Exit after spawing the Idol room
+        elif self.floor == 3 and len(self.rooms_visited["3"]) > 27 and self.room_options[3][len(self.room_options[3])-1].name == "DUNGEON EXIT": #prevents dungeon from taking too long to spawn the Dungeon Exit after spawing the Idol room
             new_room = self.room_options[2][len(self.room_options[2])-1]
-        elif self.floor == 3 and len(self.rooms_visited["3"]) > 19 and sum(1 for each_room in self.room_options[3] if each_room.name == "IDOL ROOM") < 1: #prevents dungeon from taking too long to spawn Idol room after spawning the Dungeon Exit
+        elif self.floor == 3 and len(self.rooms_visited["3"]) > 27 and sum(1 for each_room in self.room_options[3] if each_room.name == "IDOL ROOM") < 1: #prevents dungeon from taking too long to spawn Idol room after spawning the Dungeon Exit
             for each_room in self.room_options:
                 if each_room.name == "IDOL ROOM": new_room = each_room
         return new_room

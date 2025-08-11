@@ -192,20 +192,20 @@ def break_the_table(room, player):
     for each_interactable in room.interactables:
         if "REMAINS" in each_interactable.type:
             if change_room_description in room.adjustments[0]: room.adjustments[0].remove(change_room_description)
-            if room.name == "BILL'S HOVEL": room.description = ["A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor next to the remains of a table."]
+            if room.name == "BILL'S HOVEL": room.description = ["You enter a tight cavern and find a bedroll, an extinguished firepit,", "and some small trinkets on the floor next to the remains of a table."]
             table_destroyed = True
         if each_interactable.type == "BILL" and table_destroyed == True:
             each_interactable.convo[0] = "...You destroyed my table."
-            room.description = ["A small room with a bedroll, an extinguished firepit, and some small trinkets on the floor.", "A younger looking kid is looking at the remains of a destroyed table."]
+            room.description = ["You enter a tight cavern and find a bedroll, an extinguished firepit, and some small trinkets on the floor.", "A younger looking kid is looking at the remains of a destroyed table."]
         elif each_interactable.type == "HARBOR" and table_destroyed == True:
             each_interactable.convo = ["...You destroyed my table.", "Hey! You want to start something??", "Beat it, I don't need to deal with you.", "I better see a discount to pay for my table.", "Sure", "You don't have anything worthwhile.", "I can clear the path if you want but it's gonna cost. For you- 40 dollar bills"]
             each_interactable.price = 40
-            room.description = ["A rocky chamber with heavy timbers reenforcing the walls.", "A burly woman is looking at the remains of a destroyed table."]
+            room.description = ["The path leads to a rocky chamber with heavy timbers reenforcing the walls.", "A burly woman is looking at the remains of a destroyed table."]
         elif each_interactable.type == "SHIELD" and table_destroyed == True:
             each_interactable.convo = ["...You destroyed my sign. I worked really hard on that.", "Oh come on!! Look I didn't do anything to you, just leave!", "Please just leave.", "Okay yeah I'll look at your stock, but what about my sign?", "Ok, thanks..", "Sorry I'm not really interested in anything you have.", "A BATTLE AXE will help you get further, do you wanna buy one? It's 150 dollar bills."]
             each_interactable.price = 150
             room.adjustments[2]["obtain_item"][1] = "You traded with SHIELD and recieved a BATTLE AXE for 150 dollar bills!"
-            room.description = ["A bare-bones forge with multiple BATTLE AXES on display.", "There's no sign to display the name of the place, but that would probably help business."]
+            room.description = ["You wander across a bare-bones forge with multiple BATTLE AXES on display.", "There's no sign to display the name of the place, but that would probably help business."]
 
 def sea_creature_defeated(room, player):
     for each_interactable in room.interactables:
@@ -236,7 +236,7 @@ def reveal_mimics(room, player):
 def sleeping_minotaur_defeated(room, player):
     for each_interactable in room.interactables:
         if each_interactable.type == "MINOTAUR":
-            room.description = ["An open chamber with a dead minotaur lying on a fur rug."]
+            room.description = ["You enter an open chamber with a dead minotaur lying on a fur rug."]
             room.adjustments[1].clear()
 
 def clear_cave_in(room, player):
@@ -252,7 +252,7 @@ def clear_cave_in(room, player):
     room.exits[0].link.exits[0] = room.exits[0].link.interactables[0].exit_hold
     room.exits[0].link.interactables[0].exit_hold = None
     room.exits[0].link.interactables[1].exit_hold = None
-    room.exits[0].link.description = ["A rocky tunnel with heavy timbers reenforcing the walls.", "The cave in has been cleared away and the passage is usable again."]
+    room.exits[0].link.description = ["You enter a rocky tunnel with heavy timbers reenforcing the walls.", "The cave in has been cleared away and the passage is usable again."]
 
 def ceribane_alchemy(room, player):
     room.adjustments[1].remove(ceribane_alchemy)
@@ -298,13 +298,17 @@ def teleport_sequence(nav, player): #**Room options will need to be updated as w
     nav.current_room.adjustments[1].remove(teleport_sequence)
     tele_options = [nav.room_options[1][0]]
     for each_room in nav.rooms_visited["1"]:
-        if each_room.name == "STELLA'S TRADE CAMP" or each_room.name == "CHASM ROOM" or each_room.name == "GIANT SEQUOIA CHAMBER" or each_room.name == "SECOND FLOOR TUNNEL": tele_options.append(each_room)
+        if each_room.name == "MAGIC TREE GROVE" or each_room.name == "STELLA'S TRADE CAMP" or each_room.name == "VAL'S TRADE CAMP" or each_room.name == "CRYSTAL CAT" or each_room.name == "SECOND FLOOR TUNNEL": tele_options.append(each_room)
     if len(nav.rooms_visited["2"]) > 0: 
+        for each_room in nav.rooms_visited["1"]:
+            if each_room.name == "SECOND FLOOR TUNNEL": tele_options.append(each_room.exits[1].link)
         for each_room in nav.rooms_visited["2"]:
-            if each_room.name == "SECOND FLOOR LANDING" or each_room.name == "SHIELD'S SMITHY" or each_room.name == "EXCAVATOR ROOM" or each_room.name == "FINAL FLOOR TUNNEL": tele_options.append(each_room)
+            if each_room.name == "MONEY TREE CHAMBER" or each_room.name == "ELM TREE CHAMBER" or each_room.name == "GARLAND'S TRADE CAMP" or each_room.name == "SHIELD'S SMITHY" or each_room.name == "JUNIOR ALCHEMIST" or each_room.name == "CAVE IN" or each_room.name == "FINAL FLOOR TUNNEL": tele_options.append(each_room)
     if len(nav.rooms_visited["3"]) > 0: 
+        for each_room in nav.rooms_visited["2"]:
+            if each_room.name == "FINAL FLOOR TUNNEL": tele_options.append(each_room.exits[1].link)
         for each_room in nav.rooms_visited["3"]:
-            if each_room.name == "FINAL FLOOR LANDING" or each_room.name == "FINAL FLOOR MARKET" or each_room.name == "IDOL ROOM": tele_options.append(each_room)
+            if each_room.name == "GIANT SEQUOIA CHAMBER" or each_room.name == "FINAL FLOOR MARKET" or each_room.name == "ALCHEMIST CONDO" or each_room.name == "ENCHANTMENT HOLLOW" or each_room.name == "IDOL ROOM": tele_options.append(each_room)
     room_choice = False
     select_loop = True
     while select_loop == True:

@@ -1,26 +1,26 @@
 from line_spacer import line_spacer
 from classes.combatants.combatant import Combatant
 from classes.inventory.inventory import Inventory
-from lists.items_lists import weapon_options, StatMedallion, misc_options,DurabilityGem, armor_options, SmokeBomb, HealthPotion, GreaterHealthPotion, PowerBerry
+from lists.items_lists import weapon_options, misc_options, armor_options, HealthPotion, PowerBerry
 
 class PlayerCharacter(Combatant):
 
     def __init__(self):
-        self.stealth = 35 #baseline for normal mode is 1
-        self.investigation = 3 #baseline for normal mode is 1
-        self.stat_points = 0 #baseline for normal mode is 8
+        self.stealth = 1 #baseline for normal mode is 1
+        self.investigation = 1 #baseline for normal mode is 1
+        self.stat_points = 8 #baseline for normal mode is 8
         super().__init__(
             type="PLAYER", 
-            max_health=10000000, #baseline for normal mode is 10
-            current_health=10000000, #baseline for normal mode is 10
-            attack=223, #baseline for normal mode is 1
+            max_health=100000000, #baseline for normal mode is 10
+            current_health=100000000, #baseline for normal mode is 10
+            attack=1, #baseline for normal mode is 1
             defense=3, 
             inventory=Inventory(
                 weapon=weapon_options["FIST"],
-                armor=armor_options["CHAINMAIL"],
-                consumables=[DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem(), DurabilityGem(), HealthPotion(), StatMedallion(), PowerBerry(), PowerBerry()], #*** Update this once done testing
-                misc=[misc_options["GOLEM EYE"], misc_options["GOLEM EYE"], misc_options["GOLEM EYE"], misc_options["GOLEM EYE"], misc_options["GOLEM EYE"], misc_options["GOLEM EYE"], misc_options["GOLEM EYE"], misc_options["GOLEM EYE"], armor_options["PLATEMAIL"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["WOOD"], misc_options["APPLES"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], armor_options["GAMBESON"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], weapon_options["SHORTSWORD"], misc_options["JAW BONE"]], #*** Update this once done testing
-                dollar_bills=100000 #*** Update this once done testing
+                armor=armor_options["CLOTHES"],
+                consumables=[HealthPotion(), PowerBerry()], #*** Update this once done testing
+                misc=[misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["WOOD"]], #*** Update this once done testing
+                dollar_bills=0 #*** Update this once done testing
                 )
             )
         self.hiding_score = 0

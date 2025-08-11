@@ -80,7 +80,7 @@ class GreaterHealthPotion(HealingItem):
             name="GREATER HEALTH POTION",
             description=["A small vial with a pink liquid; it smells of fresh sourdough.", "Using will heal between 16-22 health."],
             value=32,
-            healing=random.randint(14,21)
+            healing=random.randint(16,22)
         )
 
 #------------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ class StatMedallion(Consumable):
         super().__init__(
             name="STAT MEDALLION",
             description=["A lime-green coin that's warm to the touch.", "Using will allow you to increase your stats by 2 points."],
-            value=46
+            value=49
         )
 
     def effect(self, player_character):

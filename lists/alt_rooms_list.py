@@ -1,4 +1,4 @@
-hallway_list = [
+hallway_list = [ # TOTAL- 54
     ["You enter a tunnel with a slightly downward slope."],
     ["You enter a tunnel with a slightly upward slope."],
     ["You enter a tunnel with a little stream of water flowing down it's slope."],
@@ -55,7 +55,7 @@ hallway_list = [
     ["A short hallway of bricks, bound by a metal instead of mortar."],
 ]
 
-dead_end_list = [
+dead_end_list = [ # TOTAL- 31
     ["After a long stretch with no offshoots, you hit a frustrating dead end."],
     ["After a long stretch with no offshoots, you hit another dead end."],
     ["After traveling an eerily straight hallway for nearly 30 minutes,",  "you finally hit a dead end."],

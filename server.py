@@ -28,7 +28,8 @@ class PlayThrough:
             f"""\n Before you can begin your journey, you must build your adventurer's stats!
             {line_spacer}""")
         self.player_character.set_player_stats()
-        print(f"""\n {self.navigation.current_room.description[0]} """)
+        print(" After the long journey you finally find yourself at the dungeon entrance!", 
+                f"""\n Crossing the threshold, you find yourself in an open chamber that forks in two directions.""")
 
     def end_sequence(self):
         print(f"""\n {line_spacer}
@@ -264,7 +265,20 @@ class PlayThrough:
                 if each_adjustment == change_room or each_adjustment == teleport_sequence:
                     each_adjustment(self.navigation, self.player_character)
                 else: each_adjustment(self.navigation.current_room, self.player_character)
-            if self.player_character.current_health <= 0 or self.navigation.current_room.name == "GO HOME" or self.navigation.current_room.name == "DUNGEON ESCAPED":
+            if self.navigation.current_room.name == "GO HOME":
+                selection_loop = True
+                while selection_loop == True:
+                    print(" Quit the dungeon and go home?")
+                    selection = input(" - ").upper()
+                    if selection == "YES": 
+                        print("\n You decided to live instead of dealing with this dungeon nonsense. Probably a good idea.")
+                        self.run_active = False
+                        selection_loop = False
+                    elif selection == "NO": 
+                        self.navigation.enter_room(self.navigation.current_room.exits[0])
+                        selection_loop = False
+                    else: print(" You really gotta type 'YES' or 'NO' for this one.")
+            if self.player_character.current_health <= 0 or self.navigation.current_room.name == "DUNGEON ESCAPED":
                 self.run_active = False
 
 is_active = True

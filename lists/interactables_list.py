@@ -116,9 +116,10 @@ class Breakable(Interactable):
 
 class Inspectable(Interactable):
 
-    def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, effect=None):
+    def __init__(self, type, number, action_words, description, invest_requirement, stealth_mod, effect=None, punchline=None):
         self.effect = effect
         self.refresh_requirement = 0
+        self.punchline = punchline
         super().__init__(
             type, 
             number, 
@@ -131,6 +132,7 @@ class Inspectable(Interactable):
         if action_word == "INSPECT" and "INSPECT" in self.action_words or action_word == "INSPECT FIRST DIAL" and "INSPECT FIRST DIAL" in self.action_words or action_word == "INSPECT SECOND DIAL" and "INSPECT SECOND DIAL" in self.action_words or action_word == "ADMIRE" and "ADMIRE" in self.action_words or action_word == "OBSERVE" and "OBSERVE" in self.action_words or action_word == "LICK" and "LICK" in self.action_words:
             run_inspect(self, player, room)
             monsters_attack(room, player)
+        elif action_word == "SIT" and "SIT" in self.action_words: punchline_test(self, action_word)
 
 #---------------------------------------------------------
 
