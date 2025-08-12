@@ -3,7 +3,7 @@ from line_spacer import line_spacer
 from classes.combatants.player_character import PlayerCharacter
 from classes.dungeon.navigation import Navigation
 from lists.items_lists import misc_options, weapon_options, armor_options, HealthPotion, StatMedallion, SmokeBomb, DurabilityGem, PowerBerry
-from lists.adjustments_list import change_room, teleport_sequence, check_for_heavy_armor, player_leaves_hiding, monsters_attack, monsters_notice_then_attack, monsters_attempt_notice_and_attack
+from lists.adjustments_list import change_room, teleport_sequence, randomize_container_contents, check_for_heavy_armor, player_leaves_hiding, monsters_attack, monsters_notice_then_attack, monsters_attempt_notice_and_attack
 
 class PlayThrough:
     def __init__(self):
@@ -23,11 +23,14 @@ class PlayThrough:
             "\n HIDE - Elude monsters' awareness (good for groups).",
             "\n USE - Consume a single-use item.",
             "\n EQUIP - Switch to a new weapon or armor.",
+            "\n STATS - View yor current ability scores and inventory.",
             f"""\n MENU - View a list of the common actions currently available.
             \n Each area may also have unique actions available.""",
             f"""\n Before you can begin your journey, you must build your adventurer's stats!
             {line_spacer}""")
         self.player_character.set_player_stats()
+        self.navigation.current_room.visits = 1
+        randomize_container_contents(self.navigation.current_room, 1)
         print(" After the long journey you finally find yourself at the dungeon entrance!", 
                 f"""\n Crossing the threshold, you find yourself in an open chamber that forks in two directions.""")
 
@@ -85,8 +88,18 @@ class PlayThrough:
             else: print(f""" What would you like to {action_word}?""")
             for each_thing in list: #Prints out each option for the player to choose from depending on the list provided
                 if action_word == "LOOK":
-                    if each_thing.number == 0 and each_thing.can_investigate == True: print(f""" {each_thing.type}""")
-                    elif each_thing.can_investigate == True: print(f""" {each_thing.type} {each_thing.number}""")
+                    if each_thing.can_investigate == True: 
+                        try: each_thing.current_health + 0
+                        except: 
+                            if each_thing.number == 0: print(f""" {each_thing.type}""")
+                            else: print(f""" {each_thing.type} {each_thing.number}""")
+                        else:
+                            if each_thing.current_health > 0:
+                                if each_thing.number == 0: print(f""" {each_thing.type}""")
+                                else: print(f""" {each_thing.type} {each_thing.number}""")
+                            else:
+                                if each_thing.number == 0: print(f""" {each_thing.type} (DEAD)""")
+                                else: print(f""" {each_thing.type} {each_thing.number} (DEAD)""")
                 elif action_word == "EQUIP":
                     if each_thing.type == "WEAPON" or each_thing.type == "ARMOR" or each_thing.name == "SHIELD":
                         if each_thing.name not in item_names:
@@ -97,8 +110,13 @@ class PlayThrough:
                         item_names.append(each_thing.name)
                         print(f""" {each_thing.name} x {sum(1 for each_item in list if each_item.name == each_thing.name)}""") 
                 elif action_word == "HIDE":
-                    if each_thing.number == 0: print(f""" {each_thing.type}""")
-                    else: print(f""" {each_thing.type} {each_thing.number}""")
+                    try: each_thing.current_health + 0
+                    except: 
+                        if each_thing.number == 0: print(f""" {each_thing.type}""")
+                        else: print(f""" {each_thing.type} {each_thing.number}""")
+                    else:
+                        if each_thing.number == 0: print(f""" {each_thing.type} (DEAD)""")
+                        else: print(f""" {each_thing.type} {each_thing.number} (DEAD)""")
                 elif action_word == "ATTACK" and each_thing.type != "AVATAR OF DYNAE": print(f""" {each_thing.type} {each_thing.number}""")
                 elif action_word == "ATTACK": print(f""" {each_thing.type}""")
             print(" NEVERMIND")
@@ -139,6 +157,7 @@ class PlayThrough:
                     if selection == each_thing.type + " " + str(each_thing.number) or selection == each_thing.type + str(each_thing.number) or selection == each_thing.type:
                         self.player_character.make_attack(each_thing)
                         if each_thing.current_health <= 0:
+                            each_thing.can_investigate = True
                             self.navigation.current_room.interactables.append(each_thing)
                             self.navigation.current_room.monsters.remove(each_thing)
                         elif each_thing.is_aware == False:

@@ -97,7 +97,10 @@ def block_exit(room, dungeon_length):
     if room.visits == room.adjustments[2]["block_exit"][0]:
         room.interactables[0].exit_hold = room.exits[room.adjustments[2]["block_exit"][1]]
         room.exits[room.adjustments[2]["block_exit"][1]] = None
-        if room.adjustments[2]["block_exit"][2]: print(room.adjustments[2]["block_exit"][2])
+        if room.adjustments[2]["block_exit"][2]: 
+            if isinstance(room.adjustments[2]["block_exit"][2], list):
+                for each_descriptor in room.adjustments[2]["block_exit"][2]: print(each_descriptor)
+            else: print(room.adjustments[2]["block_exit"][2])
 
 def cave_in(room, dungeon_length): #This removes access to this room from the previous one, in case the player teleports backwards
     for each_exit in room.interactables[0].exit_hold.link.exits:
@@ -110,9 +113,9 @@ def randomize_container_contents(room, dungeon_length):
         container_options = ["CRATE", "BARREL", "TRUNK", "TENT"]
         room_containers = []
         for each_interactable in room.interactables:
-            if each_interactable.type in container_options: 
-                room_containers.append(each_interactable)
-        for each_container in room_containers: room.interactables.remove(each_container)
+            if each_interactable.type in container_options: room_containers.append(each_interactable)
+        for each_container in room_containers: 
+            room.interactables.remove(each_container)
         x = 0
         while x < len(room_containers):
             container = room_containers[random.randint(0,len(room_containers)-1)]
@@ -351,7 +354,7 @@ def monsters_notice_then_attack(room, player):
 def monsters_attempt_notice_and_attack(room, player, player_request=False):
     for each_monster in room.monsters:
         each_monster.notice_player(player.hiding_score, player_request)
-        each_monster.make_attack(player)
+        if each_monster.is_aware == True: each_monster.make_attack(player)
 
 def monsters_attack(room, player):
     for each_monster in room.monsters: 

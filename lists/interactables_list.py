@@ -527,7 +527,7 @@ class Mimic(Lockable):
 
     def open(self, player):
         print(f""" It's a MIMIC!""")
-        player.take_damage(2, True)
+        player.take_damage(random.randint(2,5), True)
         if "ATTACK MIMIC" not in self.action_words: self.action_words.append("ATTACK MIMIC")
         print(f""" You escaped the MIMIC""")
 

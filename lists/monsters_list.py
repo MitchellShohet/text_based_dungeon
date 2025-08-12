@@ -12,13 +12,13 @@ class Goblin(Monster):
             type=type, 
             max_health=self.difficulty,
             current_health=self.difficulty,
-            attack=self.attack,
+            attack=self.attack+1,
             defense=self.difficulty, 
-            perception=self.difficulty+self.attack,
+            perception=self.difficulty+1,
             stealth_mod=1,
             description="Lil gross potato" + descriptor,
             inventory=Inventory(weapon=weapon_options["CLUB"],
-                consumables=[HealthPotion(), StatMedallion(), SmokeBomb(), DurabilityGem(), PowerBerry(), GreaterHealthPotion(), MagicWand()], #*** Update when done testing
+                consumables=[],
                 misc=[misc_options["GOBLIN HORN"], misc_options["BLADE OF GRASS"]],
                 dollar_bills=self.difficulty-3
                 )
@@ -28,12 +28,12 @@ class Goblin(Monster):
 
 class Skeleton(Monster):
     def __init__(self):
-        self.difficulty = random.randint(5,6)
+        self.difficulty = random.randint(5,7)
         super().__init__(
             type="SKELETON", 
             max_health=self.difficulty+2,
             current_health=self.difficulty+2,
-            attack=2,
+            attack=3,
             defense=self.difficulty+1, 
             perception=self.difficulty+2,
             stealth_mod=1,
@@ -49,14 +49,14 @@ class Skeleton(Monster):
 
 class MonsterMimic(Monster):
     def __init__(self):
-        self.difficulty = random.randint(5,6)
+        self.difficulty = random.randint(5,7)
         super().__init__(
             type="MIMIC", 
             max_health=self.difficulty*2,
             current_health=self.difficulty*2,
-            attack=2,
+            attack=3,
             defense=self.difficulty+3, 
-            perception=self.difficulty+2,
+            perception=self.difficulty+1,
             stealth_mod=1,
             description="A thing pretending to be a different thing.",
             inventory=Inventory(
@@ -70,9 +70,9 @@ class MonsterMimic(Monster):
 
 class Wizard(Monster):
     def __init__(self):
-        self.difficulty = random.randint(5,6)
+        self.difficulty = random.randint(5,7)
         if self.difficulty == 5: self.attack = 2
-        else: self.attack = 3 
+        else: self.attack = 4 
         super().__init__(
             type="WIZARD", 
             max_health=self.difficulty-1,
@@ -85,7 +85,7 @@ class Wizard(Monster):
             inventory=Inventory(weapon=weapon_options["MAGIC WAND"],
                 consumables=[HealthPotion(), SmokeBomb()],
                 misc=[misc_options["RUBY DUST"]],
-                dollar_bills=self.difficulty+5
+                dollar_bills=self.difficulty+3
                 ),
             attack_buff=5,
             defense_buff=5
@@ -95,14 +95,14 @@ class Wizard(Monster):
 
 class  MudGolem(Monster):
     def __init__(self):
-        self.difficulty = random.randint(5,6)
+        self.difficulty = random.randint(5,7)
         super().__init__(
             type="MUD GOLEM", 
             max_health=self.difficulty*10,
             current_health=self.difficulty*10,
             attack=3,
             defense=self.difficulty+2, 
-            perception=self.difficulty+2,
+            perception=self.difficulty+1,
             stealth_mod=5,
             description="A massive construct of hardened mud. Two piercing green marbles form its eyes, eminating magical energy. The smell is putrid.",
             inventory=Inventory(
@@ -117,14 +117,14 @@ class  MudGolem(Monster):
 
 class  Minotaur(Monster):
     def __init__(self):
-        self.difficulty = random.randint(7,9)
+        self.difficulty = random.randint(7,10)
         super().__init__(
             type="MINOTAUR", 
             max_health=self.difficulty*4,
             current_health=self.difficulty*4,
             attack=4,
             defense=self.difficulty+3, 
-            perception=self.difficulty+6,
+            perception=self.difficulty+2,
             stealth_mod=5,
             description="12 feet tall, half-man, half bull. No joke.",
             inventory=Inventory(
@@ -133,15 +133,6 @@ class  Minotaur(Monster):
                 misc=[misc_options["MINOTAUR HORN"]],
                 dollar_bills=self.difficulty+5
                 )
-            )
-
-#----------------------------------------------------------------
-
-class MagmaGoblin(Goblin):
-    def __init__(self):
-        super().__init__(
-            type="MAGMA GOBLIN", 
-            descriptor="- magma variety."
             )
 
 #----------------------------------------------------------------
@@ -157,7 +148,7 @@ class FlyingGoblin(Goblin):
 
 class SeaCreature(Monster):
     def __init__(self, multiplier=1):
-        self.difficulty = random.randint(6,8)
+        self.difficulty = random.randint(6,9)
         self.multiplier = multiplier
         super().__init__(
             type="SEA CREATURE", 
