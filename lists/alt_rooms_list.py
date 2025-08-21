@@ -1,6 +1,8 @@
-hallway_list = [ # TOTAL- 54
+hallway_list = [ # TOTAL- 63
     ["You enter a tunnel with a slightly downward slope."],
     ["You enter a tunnel with a slightly upward slope."],
+    ["You find the path continues up a steep rocky incline."],
+    ["Your path continues up a nearly vertical rocky tunnel.", "It's climbable but not fun."],
     ["You enter a tunnel with a little stream of water flowing down it's slope."],
     ["You enter a tunnel with a colony of colorful mushrooms growing along its edges."],
     ["You find yourself in a tunnel with a colony of bioluminescent mushrooms illuminating a path through."],
@@ -53,16 +55,25 @@ hallway_list = [ # TOTAL- 54
     ["Your route opens up to a medium-sized chamber.", "You see a strange shadow across the floor, looking up you see a school of fish swimming through the air."],
     ["A long brick hallway with faux windows that look out to more bricks."],
     ["A short hallway of bricks, bound by a metal instead of mortar."],
+    ["You pass through a short tunnel with hundreds of rough carvings in its walls", "All of them are of some similarly skeletal figures."],
+    ["While passing through a tunnel, you notice a crude painting on the wall.", "It depicts a bulky, loosly-humanoid shape, and it's form looks like it's almost melting.", "An arrow points to the figure's eyes."],
+    ["While passing through a tunnel, you notice a crude painting on the wall.", "It depicts a castle wall with an open drawbridge. Underneath, the words 'TURN BACK' are written."],
+    ["While passing through a tunnel, you notice a crude painting on the wall.", "It depicts a single tall building with floating objects around it. Underneath, the words 'TURN BACK' are written."],
+    ["You pass through a grove of stone trees. Some of them have real flowers."],
+    ["You pass through a grove of charcoal trees. They seem fragile, and some have collapsed into ash piles."],
+    ["While travelling through a long tunnel, you realize you've had a pep in your step for the last stretch", "You might not be sure why, but the sense of adventure has reinvigorated your stride here."],
+
 ]
 
-dead_end_list = [ # TOTAL- 31
+dead_end_list = [ # TOTAL- 37
     ["After a long stretch with no offshoots, you hit a frustrating dead end."],
     ["After a long stretch with no offshoots, you hit another dead end."],
     ["After traveling an eerily straight hallway for nearly 30 minutes,",  "you finally hit a dead end."],
     ["While traveling a long brick hallway, you suddenly find a wall of a different brick blocking your path."],
     ["You find yourself zig-zagging downward for twenty minutes, before hitting a dead end."],
     ["You find yourself traveling downward for several minutes, before hitting a dead end."],
-    ["After a stretch the tunnel you're in has shrunk till you're crawling to get through.",  "Finally you reach a point where you can't go further, and have to turn back."],
+    ["After a stretch the tunnel you're in has shrunk till you're crawling to get through.", "Finally you reach a point where you can't go further, and have to turn back."],
+    ["Your path opens to a massive, expansive cavern.", "After exploring you realize that, although this space is huge, there are no exits."],
     ["You see ahead that the path you're traveling suddenly drops downward into an abyss.", "You'd fall to your death if you kept going this way."],
     ["A wave of intense heat hits you as your path leads to a massive lake of flowing lava.",  "You aren't able to find a way to cross it."],
     ["You find yourself crossing a stone bridge that drops into an empty expanse on both sides.", "You notice that the bridge has collapsed ahead and there's no visible other side."],
@@ -87,5 +98,11 @@ dead_end_list = [ # TOTAL- 31
     ["After a short while, you find the path ahead has been blocked by a gigantic tortoise.", "After asking nicely, it's willing to move for you but it'd take too long anyway."],
     ["Your path opens up to a small grassy chamber. There's no exits, but it's kind of peaceful here."],
     ["Your path opens up to a small chamber with large sandbox. There's no exits, and you're a little old for sandboxes.."],
-    ["Your route bends a corner, and you come face to face with a massive mechanical construct.", "The creature is stuck on a crawling position and blocks the path onward.", "It holds out a gently closed hand to show it's friendly, there's no telling how long it's been stuck here."]
+    ["Your route bends a corner, and you come face to face with a massive mechanical construct.", "The creature is stuck on a crawling position and blocks the path onward.", "It holds out a gently closed hand to show it's friendly, there's no telling how long it's been stuck here."],
+    ["Your route bends a corner, and you find yourself staring at a 20ft stone carving of a bull's face.", "This is a dead-end, but it also feels like a threat."],
+    ["Your route bends a corner, and you find a WIZARD who was petrified while mid-way of being sucked into the wall.", "A look of terror still rests on his face, along with a natural moss from the years he's been stuck there.", "Further down you sense a strange magic aura, it might be best to turn back."],
+    ["While crawling on your hands and knees through a narrow tunnel, you find it's collapsed ahead.", "You feel confident you can back up safely."],
+    ["You stumble across a large mural depicting an elephant watching over a sleeping husky with a pink collar.", "This space is a dead end, but the painting is beautiful enough to feel worth it."],
+    ["You stumble across a marble statue of a mermaid perched on a capsized sailboat.", "Her massive hair flows into the waves of the sea below her.", "This space is a dead end, but you feel at peace with the chaos of the dungeon."],
+    ["After a long, unremarkable, rocky tunnel, the path hits an unremarkable dead-end.", "The self-doubt hit's a little harder with this one."],
 ]
