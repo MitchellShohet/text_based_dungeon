@@ -297,6 +297,8 @@ def change_room(nav, player):
                 rooms_connected = True
         if rooms_connected == False and nav.current_room.exits[0].link != None: nav.previous_room = nav.current_room.exits[0].link
 
+
+#rename to fairy_teleport after david+hailey play
 def teleport_sequence(nav, player): #**Room options will need to be updated as we develop more
     nav.current_room.adjustments[1].remove(teleport_sequence)
     tele_options = [nav.room_options[1][0]]
@@ -317,24 +319,37 @@ def teleport_sequence(nav, player): #**Room options will need to be updated as w
     while select_loop == True:
         for each_room in tele_options:
             print(f""" {each_room.name}""")
-        # print(" NEVERMIND") **** REFUND?**
         selection = input("\n - ").upper()
-        # if selection == "NEVERMIND": select_loop = False
         for each_room in tele_options:
             if selection == each_room.name:
                 select_loop = False
                 room_choice = each_room
         if select_loop == True: print(f""" {selection} is not an option here.""")
-    if room_choice:
-        nav.current_room.adjustments[2]["change_room"] = [Exit(0, room_choice)]
-        print(f""" {nav.current_room.interactables[0].name}: {nav.current_room.interactables[0].convo[8]}""",
-            "\n",
-            line_spacer,
-            "\n",
-            "\n You feel your feet landing back on solid ground, the magic fading.")
-        change_room(nav, player)
-    else: print(" You changed your mind and the fairy looks disappointed")
+    nav.current_room.adjustments[2]["change_room"] = [Exit(0, room_choice)]
+    print(f""" {nav.current_room.interactables[0].name}: {nav.current_room.interactables[0].convo[8]}""",
+        "\n",
+        line_spacer,
+        "\n",
+        "\n You feel your feet landing back on solid ground, the magic fading.")
+    change_room(nav, player)
     nav.previous_room = nav.current_room.exits[0].link
+
+def mermaid_teleport(nav, player): #**Room options will need to be updated as we develop more
+    nav.current_room.adjustments[1].remove(teleport_sequence)
+    tele_options = [nav.room_options[1][0]]
+    for each_room in nav.rooms_visited["1"]:
+        if each_room.name == "MAGIC TREE GROVE" or each_room.name == "STELLA'S TRADE CAMP" or each_room.name == "VAL'S TRADE CAMP" or each_room.name == "CRYSTAL CAT" or each_room.name == "SECOND FLOOR TUNNEL": tele_options.append(each_room)
+    if len(nav.rooms_visited["2"]) > 0: 
+        for each_room in nav.rooms_visited["1"]:
+            if each_room.name == "SECOND FLOOR TUNNEL": tele_options.append(each_room.exits[1].link)
+        for each_room in nav.rooms_visited["2"]:
+            if each_room.name == "MONEY TREE CHAMBER" or each_room.name == "ELM TREE CHAMBER" or each_room.name == "GARLAND'S TRADE CAMP" or each_room.name == "SHIELD'S SMITHY" or each_room.name == "JUNIOR ALCHEMIST" or each_room.name == "CAVE IN" or each_room.name == "FINAL FLOOR TUNNEL": tele_options.append(each_room)
+    if len(nav.rooms_visited["3"]) > 0: 
+        for each_room in nav.rooms_visited["2"]:
+            if each_room.name == "FINAL FLOOR TUNNEL": tele_options.append(each_room.exits[1].link)
+        for each_room in nav.rooms_visited["3"]:
+            if each_room.name == "GIANT SEQUOIA CHAMBER" or each_room.name == "FINAL FLOOR MARKET" or each_room.name == "ALCHEMIST CONDO" or each_room.name == "ENCHANTMENT HOLLOW" or each_room.name == "IDOL ROOM": tele_options.append(each_room)
+    teleport_sequence(tele_options, "You feel the magic of the scale take effect, and pulls you from this place!")
 
 #-------------------------------------------------------
 #---------------- TRIGGERED ELSEWHERE ------------------
@@ -471,6 +486,7 @@ def inspect_tree(room, interactable, player):
 
 def run_sea_creature(room, player):
     room.spawn_monster(SeaCreature, room.adjustments[2]["run_sea_creature"][0])
+    pool = False
     for each_monster in room.monsters: 
         if each_monster.type == "SEA CREATURE": each_monster.is_aware = True
     for each_interactable in room.interactables:

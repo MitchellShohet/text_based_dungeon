@@ -1,3 +1,4 @@
+# TOTAL- 101
 hallway_list = [ # TOTAL- 63
     ["You enter a tunnel with a slightly downward slope."],
     ["You enter a tunnel with a slightly upward slope."],
@@ -62,10 +63,9 @@ hallway_list = [ # TOTAL- 63
     ["You pass through a grove of stone trees. Some of them have real flowers."],
     ["You pass through a grove of charcoal trees. They seem fragile, and some have collapsed into ash piles."],
     ["While travelling through a long tunnel, you realize you've had a pep in your step for the last stretch", "You might not be sure why, but the sense of adventure has reinvigorated your stride here."],
-
 ]
 
-dead_end_list = [ # TOTAL- 37
+dead_end_list = [ # TOTAL- 38
     ["After a long stretch with no offshoots, you hit a frustrating dead end."],
     ["After a long stretch with no offshoots, you hit another dead end."],
     ["After traveling an eerily straight hallway for nearly 30 minutes,",  "you finally hit a dead end."],

@@ -1,5 +1,6 @@
 import random
 from classes.inventory.items import Item, Weapon, Armor, Consumable
+# from lists.adjustments_list import mermaid_teleport
 from abc import ABC
 
 #---------------------------------------------
@@ -178,3 +179,16 @@ class MagicWand(Consumable):
             print(" ATTACK and DAMAGE increased by 2 for your next attack, and DEFENSE increased by 2 for the next attack")
             player_character.attack_buff = 2
             player_character.defense_buff = 2
+
+#------------------------------------------------------------------------------------
+
+# class MermaidScale(Consumable):
+#     def __init__(self):
+#         super().__init__(
+#             name="MERMAID SCALE",
+#             description=["A scale from a mermaid you befriended!", "It can teleport you to any fey creature you've met."],
+#             value=40
+#         )
+
+#     def effect(self, room):
+#         room.adjustments[1].append(mermaid_teleport)
