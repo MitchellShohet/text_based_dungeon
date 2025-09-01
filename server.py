@@ -185,11 +185,10 @@ class PlayThrough:
             elif command == "EQUIP" or command == "EQIP" or command == "EQUI" or command == "EQUP" or command == "ARMOR" or command == "SWITCH WEAPON" or command == "EQUAIP" or command == "EQUIPE":
                 if self.player_character.inventory.has_equipables == True: 
                     self.select_sequence("EQUIP", self.player_character.inventory.misc)
-                    if self.player_taking_action == True: monsters_attack(self.navigation.current_room, self.player_character)
                 else: print(" You have nothing new to equip. Input MENU for a list of current options.")
             #--------------------------------
             elif command == "LOOK" or command == "PERCEPTION" or command == "INVESTIGATE" or command == "SEARCH"  or command == "LOO" or command == "LOK" or command == "LOOKE": 
-                if len(self.navigation.current_room.interactables) > 0 or len(self.navigation.current_room.monsters) > 0: 
+                if len(self.navigation.current_room.interactables) > 0 and sum(1 for each_interactable in self.navigation.current_room.interactables if each_interactable.can_investigate == True) > 0 or len(self.navigation.current_room.monsters) > 0: 
                     self.select_sequence("LOOK", self.navigation.current_room.interactables + self.navigation.current_room.monsters)
                 else: print(" There's nothing to LOOK at here. Input MENU for a list of current options.")
             #---------------------------------

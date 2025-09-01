@@ -185,10 +185,11 @@ def add_castle_wave(room, player):
             room.adjustments[2]["add_monsters"][1] += 1
 
 def add_owl(room, player):
-    if len(room.interactables) == 0:
+    if sum(1 for each_interactable in room.interactables if each_interactable.type == "TREE" or each_interactable.type == "GLOWING TREE" or each_interactable.type == "MONEY TREE") == 0 and room.adjustments[2]["add_owl"][1] == True: 
         print(" You notice an owl in the corner glaring at you.")
         room.interactables.append(room.adjustments[2]["add_owl"][0])
         room.description.append("There's an owl glaring at you from the corner.")
+        room.adjustments[2]["add_owl"][1] = False
 
 def break_the_table(room, player):
     table_destroyed = False
@@ -365,11 +366,13 @@ def monsters_notice_then_attack(room, player):
         elif each_monster.type == "AVATAR OF DYNAE": print(f"""\n The {each_monster.type} is aware of you!""")
         else: print(f"""\n {each_monster.type} {each_monster.number} is aware of you!""")
         each_monster.make_attack(player)
+        if player.current_health <= 0: break
 
 def monsters_attempt_notice_and_attack(room, player, player_request=False):
     for each_monster in room.monsters:
         each_monster.notice_player(player.hiding_score, player_request)
         if each_monster.is_aware == True: each_monster.make_attack(player)
+        if player.current_health <= 0: break
 
 def monsters_attack(room, player):
     for each_monster in room.monsters: 
@@ -378,6 +381,7 @@ def monsters_attack(room, player):
                 print(f"""\n The {each_monster.type} is aware of you!""") 
             else: print(f"""\n {each_monster.type} {each_monster.number} is aware of you!""")
             each_monster.make_attack(player)
+        if player.current_health <= 0: break
 
 def player_leaves_hiding(room, player):
     player.hiding_score = random.randint(1,5) #this is the luck component of hiding for each room as the player enters it

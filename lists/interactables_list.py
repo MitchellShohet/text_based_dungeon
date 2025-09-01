@@ -187,7 +187,7 @@ class Lockable(Interactable, ABC):
         if lock_def.current_health <= 0: self.unlock_success(player, room)
         else:
             print(" You jammed THE LOCK into the closed position. You can try again but it'll be even more difficult now.")
-            self.challenge*=2
+            self.challenge = math.ceil(self.challenge * 1.3)
             if "USE A KEY" in self.action_words: self.action_words.remove("USE A KEY")
     
     def use_key(self, player, room):
@@ -366,12 +366,13 @@ class Crossing(Interactable, ABC):
 
 class ExitHold(RedHerring): #MUST BE AT POSITION [0] OF ITS ROOM'S INTERACABLES
 
-    def __init__(self, type, action_words, description, punchline=None, exit_hold=None):
+    def __init__(self, type, action_words, description, stealth_mod=0, punchline=None, exit_hold=None):
         self.exit_hold = exit_hold
         super().__init__(
             type=type, 
             action_words=action_words, 
             description=description, 
+            stealth_mod=stealth_mod,
             punchline=punchline
             )
 
@@ -536,6 +537,7 @@ class Mimic(Lockable):
             print(f""" Woah! That was a MIMIC!""")
             room.spawn_monster(MonsterMimic)
             room.monsters[len(room.monsters)-1].is_aware = True
+            room.monsters[len(room.monsters)-1].number -= 1 #this adjusts for the interactable mimic that's still in the interactables list when the monster mimic is spawned
             if self.contents != None: room.monsters[len(room.monsters)-1].inventory.misc.append(self.contents)
             player.make_attack(room.monsters[len(room.monsters)-1])
             if room.monsters[len(room.monsters)-1].current_health <= 0:
@@ -610,7 +612,7 @@ class GlowingCrystal(Breakable):
             type="GLOWING CRYSTAL", 
             number=number, 
             action_words=action_words, 
-            description=["A large cluster of gems with a mysterious light sourced from within.", " Roughly the size of a" + descriptor], 
+            description=["A large cluster of gems with a mysterious light sourced from within.", "Roughly the size of a" + descriptor], 
             challenge=challenge,
             invest_requirement=challenge, 
             stealth_mod=challenge,
@@ -796,11 +798,11 @@ class MagmaRiver(Crossing):
     def jump_failure(self, jump_score, player, room):
         if jump_score == 1:
             print(" The ash in the room choking you, you attempt to leap across the MAGMA RIVER and land less than halfway across.")
-            player.take_damage(random.randint(7,11), True)
+            player.take_damage(random.randint(5,6), True) #  ** UPDATE ** 
             if player.current_health > 0: print(" You make it back onto land. You weren't able to cross, but you did survive jumping into lava.")
         elif jump_score > 1:
             print(" With a running start you successfully leap most of the way accross MAGMA RIVER! You land just short of the opposite bank.")
-            player.take_damage(random.randint(2,4), True)
+            player.take_damage(random.randint(3,5), True) #  ** UPDATE ** 
             if player.current_health > 0:
                 print(" You made it to the opposite bank with minimal burns considering you jumped a MAGMA RIVER. However the opposite side is now blocked.")
                 self.switch_sides(room)
@@ -931,7 +933,7 @@ class Merchant(NPC):
                     if selection == each_product.name:
                         quantity = self.determine_quantity(player.inventory.misc + player.inventory.consumables, each_product)
                         if quantity > 0: 
-                            if confirm_sequence(f""" Sell {quantity} {each_product.name} to {self.name} for {math.ceil(each_product.value * .75 * quantity)}?""", f""" {self.name}: {self.convo[4]}""", f""" {self.name} looks dissapointed but understands."""): 
+                            if confirm_sequence(f""" Sell {quantity} {each_product.name} to {self.name} for {math.ceil(each_product.value * .75) * quantity} dollar bills?""", f""" {self.name}: {self.convo[4]}""", f""" {self.name} looks dissapointed but understands."""): 
                                 self.sell_product(player, each_product, quantity)
                         else: print(f""" {self.name} looks dissapointed but understands.""")
                         selection_loop = False
@@ -1050,24 +1052,24 @@ class Fairy(Artisan):
             pronouns = pronouns,
             convo = convo,
             invest_requirement=invest_requirement, 
-            inventory = [misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"]],
-            price=40,
+            inventory = [misc_options["BLADES OF GRASS"], misc_options["BLADES OF GRASS"], misc_options["BLADES OF GRASS"], misc_options["BLADES OF GRASS"]],
+            price=15,
             service=teleport_sequence
             )
         
     def trade(self, player, room, action_word):
         if self.refresh_requirement == 100000: print(f""" {self.name}: {self.convo[2]} """)
-        elif player.inventory.dollar_bills < 40 and sum(1 for each_item in player.inventory.misc if each_item.name == "BLADE OF GRASS") < 20: print(f""" {self.name}: You don't have enough money or grass!""")
+        elif player.inventory.dollar_bills < self.price and sum(1 for each_item in player.inventory.misc if each_item.name == "BLADES OF GRASS") < 20: print(f""" {self.name}: You don't have enough money or grass!""")
         else:
             if confirm_sequence(f""" {self.name}: {self.convo[6]}""", f""" {self.name} {self.convo[7]}""", f""" {self.name} looks dissappointed but understands."""):
                 room.adjustments[1].append(self.service)
                 self.charge_fee(player, action_word)
 
     def charge_fee(self, player, action_word):
-        if sum(1 for each_item in player.inventory.misc if each_item.name == "BLADE OF GRASS") >= 20:
+        if sum(1 for each_item in player.inventory.misc if each_item.name == "BLADES OF GRASS") >= 20:
             for x in range(20):
-                self.inventory.append(misc_options["BLADE OF GRASS"])
-                player.inventory.misc.remove(misc_options["BLADE OF GRASS"])
+                self.inventory.append(misc_options["BLADES OF GRASS"])
+                player.inventory.misc.remove(misc_options["BLADES OF GRASS"])
         else: 
             self.dollar_bills += self.price
             player.inventory.dollar_bills -= self.price
@@ -1076,7 +1078,7 @@ class Fairy(Artisan):
 
 class ShopOwner(Merchant):
 
-    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, inventory, markup=1.5):
+    def __init__(self, number, action_words, descriptor, name, pronouns, convo, invest_requirement, inventory, markup=1.3):
         self.markup = markup
         super().__init__(
             number=number, 
@@ -1172,6 +1174,7 @@ class Owl(RedHerring):
             type="OWL", 
             action_words=["PET", "HOOT", "WAVE ARMS", "GLARE BACK"],
             description=["A great horned owl perched on a rocky outcropping. It's glaring at you with a big frown."], 
+            stealth_mod=-2,
             punchline = " It keeps glaring at you."
             )
         

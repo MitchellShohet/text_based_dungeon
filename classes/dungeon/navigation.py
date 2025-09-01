@@ -58,13 +58,15 @@ class Navigation:
     def find_unexplored_room(self):
         try: new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)] #checks if every possible room has already been added to the dungeon
         except: new_room = self.room_options[0][0] #***CHANGE THIS TO A FAIRY FOUNTAIN***
+        print(" First attempt")
         new_room = self.test_floor_elegibility(new_room)
         new_exits = self.check_for_new_exits(new_room)
         attempts = 1
         while new_exits + self.unlinked_exits <= 1: #prevents the dungeon from populating every exit with a dead end
+            print(" Looking for more exits")
             attempts +=1
             if attempts > 80:
-                new_room = self.room_options[0][0] #***ADD A LIST OF FAIRY FOUNTAINS TO CHOOSE FROM***
+                new_room = self.room_options[0][0] #***CHANGE THIS TO A HALLWAY***
                 break
             new_room = self.room_options[self.floor][random.randrange(1, len(self.room_options[self.floor])-1)]
             new_room = self.test_floor_elegibility(new_room)
@@ -98,9 +100,17 @@ class Navigation:
         return new_room
 
     def check_for_new_exits(self, room):
+        print(" checking for exits")
         new_exits = 0
         for each_exit in room.exits:
-                if each_exit.number != 0: new_exits += 1
+                if each_exit.number != 0:
+                    if each_exit.link == None: 
+                        print(" easy new exit")
+                        new_exits += 1
+                    else: 
+                        print(" checking exit link for exits")
+                        new_exits += self.check_for_new_exits(each_exit.link)
+        print(new_exits)
         return new_exits
     
     def run_adjustments(self):
@@ -127,8 +137,6 @@ class Navigation:
                     fresh_avatar = False
                     if each_monster.current_health < each_monster.max_health:
                         print(" The AVATAR OF DYNAE in this room has been fully healed!")
-                elif each_monster.type == "AVATAR OF DYNAE":
-                    fresh_avatar = False
             if fresh_avatar == True: print(" A new AVATAR OF DYNAE has appeared!")
             self.current_room.monsters.append(Avatar())
     

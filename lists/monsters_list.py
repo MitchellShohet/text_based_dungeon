@@ -19,7 +19,7 @@ class Goblin(Monster):
             description="Lil gross potato" + descriptor,
             inventory=Inventory(weapon=weapon_options["CLUB"],
                 consumables=[],
-                misc=[misc_options["GOBLIN HORN"], misc_options["BLADE OF GRASS"]],
+                misc=[misc_options["GOBLIN HORN"], misc_options["BLADES OF GRASS"], misc_options["BLADES OF GRASS"]],
                 dollar_bills=self.difficulty-3
                 )
             )

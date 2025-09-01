@@ -43,8 +43,16 @@ class Monster(Combatant):
                 if self.inventory.weapon.name == "MAGIC WAND": player.inventory.add_item(MagicWand())
                 else: player.inventory.add_item(self.inventory.weapon)
                 for each_misc in self.inventory.misc:
-                    print(f""" a {each_misc.name}, """)
-                    player.inventory.add_item(each_misc)
+                    if self.inventory.misc.count(each_misc) == 1: 
+                        print(f""" a {each_misc.name}, """)
+                        player.inventory.add_item(each_misc)
+                    else:
+                        item_count = self.inventory.misc.count(each_misc)
+                        print(f""" {item_count} {each_misc.name}""")
+                        for x in range(item_count): 
+                            player.inventory.add_item(each_misc)
+                            self.inventory.misc.remove(each_misc)
+                        
                 for each_consumable in self.inventory.consumables:
                     print(f""" a {each_consumable.name}, """)
                     player.inventory.add_item(each_consumable)

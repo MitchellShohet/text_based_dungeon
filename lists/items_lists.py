@@ -10,9 +10,9 @@ weapon_options = {
     "CLUB" : Weapon(2, "WEAPON", "CLUB", 1, 7, 1, 3, 1),
     "GOLEM FIST" : Weapon(3, "WEAPON", "GOLEM FIST", 2, 8, 0, 2, 25),
     "SHORTSWORD" : Weapon(4, "WEAPON", "SHORTSWORD", 2, 8, 1, 4, 7),
-    "TRIDENT" : Weapon(5, "WEAPON", "TRIDENT", 2, 9, 2, 4, 24),
+    "TRIDENT" : Weapon(5, "WEAPON", "TRIDENT", 2, 9, 2, 4, 28),
     "MIMIC TOOTH" : Weapon(5, "WEAPON", "MIMIC TOOTH", 2, 9, 2, 4, 28),
-    "LONGSWORD" : Weapon(6, "WEAPON", "LONGSWORD", 3, 9, 2, 4, 59),
+    "LONGSWORD" : Weapon(6, "WEAPON", "LONGSWORD", 3, 9, 2, 4, 48),
     "BATTLE AXE" : Weapon(7, "WEAPON", "BATTLE AXE", 3, 10, 3, 6, 87),
     "MAGIC SWORD" : Weapon(8, "WEAPON", "MAGIC SWORD", 4, 12, 3, 9, 140),
     "MAGIC WAND" : Weapon(0, "WEAPON", "MAGIC WAND", 1, 9, 1, 4, 0)
@@ -22,7 +22,7 @@ weapon_options = {
 
 armor_options = {
     "CLOTHES" : Armor(1, "ARMOR", "CLOTHES", 3, 1),
-    "GAMBESON" : Armor(2, "ARMOR", "GAMBESON", 5, 14),
+    "GAMBESON" : Armor(2, "ARMOR", "GAMBESON", 5, 27),
     "CHAINMAIL" : Armor(3, "ARMOR", "CHAINMAIL", 7, 74),
     "PLATEMAIL" : Armor(4, "ARMOR", "PLATEMAIL", 9, 140), #don't sell platemail in regular shops
     "MAGIC PLATE" : Armor(5, "ARMOR", "MAGIC PLATE", 12, 280)
@@ -31,15 +31,15 @@ armor_options = {
 #---------------------------------------------
 
 misc_options = {
-    "BLADE OF GRASS": Item("MISC", "BLADE OF GRASS", 0),
+    "BLADES OF GRASS": Item("MISC", "BLADES OF GRASS", 0),
     "WOOD" : Item("MISC", "WOOD", 1),
     "GOBLIN HORN" : Item("MISC", "GOBLIN HORN", 3),
     "NOT ENOUGH APPLES" : Item("MISC", "NOT ENOUGH APPLES", 0),
     "APPLES": Item("MISC", "APPLES", 2),
     "JAW BONE" : Item("MISC", "JAW BONE", 4),
     "GLOWING FRUIT" : Item("MISC", "GLOWING FRUIT", 6),
-    "SEA CREATURE MEAT" : Item("MISC", "SEA CREATURE MEAT", 8),
-    "KEY" : Item("MISC", "KEY", 24),
+    "SEA CREATURE MEAT" : Item("MISC", "SEA CREATURE MEAT", 10),
+    "KEY" : Item("MISC", "KEY", 20),
     "GOLEM EYE" : Item("MISC", "GOLEM EYE", 16),
     "RUBY DUST" : Item("MISC", "RUBY DUST", 20),
     "MINOTAUR HORN" : Item("MISC", "MINOTAUR HORN", 25),
@@ -69,7 +69,7 @@ class HealthPotion(HealingItem):
         super().__init__(
             name="HEALTH POTION",
             description=["A small vial with a red liquid; it smells of cherries.", "Using will heal between 5-7 health."],
-            value=16,
+            value=13,
             healing=random.randint(5,7)
         )
 
@@ -80,7 +80,7 @@ class GreaterHealthPotion(HealingItem):
         super().__init__(
             name="GREATER HEALTH POTION",
             description=["A small vial with a pink liquid; it smells of fresh sourdough.", "Using will heal between 16-22 health."],
-            value=32,
+            value=26,
             healing=random.randint(16,22)
         )
 
@@ -91,7 +91,7 @@ class Pie(HealingItem):
         super().__init__(
             name="PIE",
             description=["A nicely baked pie, can be made from a variety of ingredients.", "Using will heal between 10-15 health."],
-            value=24,
+            value=20,
             healing=random.randint(10,15)
         )
 
@@ -117,7 +117,7 @@ class PowerBerry(Consumable):
         super().__init__(
             name="POWER BERRY",
             description=["A massive berry the size of a fist; yet light, like eating a cloud.", "Using will give a bonus +3 to your next attack and the damage if that attack hits (does not stack)."],
-            value=5
+            value=4
         )
 
     def effect(self, player_character):
@@ -134,7 +134,7 @@ class DurabilityGem(Consumable):
         super().__init__(
             name="DURABILITY GEM",
             description=["A small, sharp, ceramic gemestone.", "Using will give a bonus +3 to your defense against the next attack against you (does not stack)."],
-            value=8
+            value=6
         )
 
     def effect(self, player_character):
@@ -151,7 +151,7 @@ class SmokeBomb(Consumable):
         super().__init__(
             name = "SMOKE BOMB",
             description=["A round clump of a charcoal-like substance.", "Using will give a bonus +3 to your stealth until you leave the current room."],
-            value = 11
+            value = 8
         )
 
     def effect(self, player_character):
@@ -169,7 +169,7 @@ class MagicWand(Consumable):
         super().__init__(
             name="MAGIC WAND",
             description=["A Stick made out of wood- no wait, metal? Clay?", "It's hard to tell but using will give a bonus +2 to your next attack, the damage if that attack hits,", "and your defense for the next attack against you (does not stack)."],
-            value=13
+            value=10
         )
 
     def effect(self, player_character):
@@ -187,7 +187,7 @@ class MagicWand(Consumable):
 #         super().__init__(
 #             name="MERMAID SCALE",
 #             description=["A scale from a mermaid you befriended!", "It can teleport you to any fey creature you've met."],
-#             value=40
+#             value=20
 #         )
 
 #     def effect(self, room):

@@ -11,16 +11,16 @@ class PlayerCharacter(Combatant):
         self.stat_points = 8 #baseline for normal mode is 8
         super().__init__(
             type="PLAYER", 
-            max_health=10, #baseline for normal mode is 10
-            current_health=10, #baseline for normal mode is 10
+            max_health=10000, #baseline for normal mode is 10
+            current_health=10000, #baseline for normal mode is 10
             attack=1, #baseline for normal mode is 1
             defense=3, 
             inventory=Inventory(
                 weapon=weapon_options["FIST"],
                 armor=armor_options["CLOTHES"],
-                consumables=[HealthPotion(), PowerBerry()], #*** Update this once done testing
-                misc=[misc_options["BLADE OF GRASS"], misc_options["BLADE OF GRASS"], misc_options["WOOD"]], #*** Update this once done testing
-                dollar_bills=0 #*** Update this once done testing
+                consumables=[HealthPotion(), PowerBerry()],
+                misc=[misc_options["BLADES OF GRASS"], misc_options["BLADES OF GRASS"], misc_options["WOOD"]],
+                dollar_bills=0 
                 )
             )
         self.hiding_score = 0
