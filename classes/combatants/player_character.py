@@ -11,8 +11,8 @@ class PlayerCharacter(Combatant):
         self.stat_points = 8 #baseline for normal mode is 8
         super().__init__(
             type="PLAYER", 
-            max_health=10000, #baseline for normal mode is 10
-            current_health=10000, #baseline for normal mode is 10
+            max_health=10, #baseline for normal mode is 10
+            current_health=10, #baseline for normal mode is 10
             attack=1, #baseline for normal mode is 1
             defense=3, 
             inventory=Inventory(
@@ -84,19 +84,14 @@ class PlayerCharacter(Combatant):
                     print(line_spacer)
                 self.get_player_stats()
             else:
-                if self.initial_setup == False:
-                    setting_stats = False
-                    print("\n Your character has been updated! Returning to the game.")
+                setting_stats = False
+                if self.initial_setup == False: print("\n Your character has been updated! Returning to the game.")
                 else:
                     print("\n Thank you for creating your character!")
                     self.get_player_stats()
                     print(line_spacer)
-                    setting_stats = False
-                    while self.initial_setup == True:
-                            self.initial_setup = False
-                            print(line_spacer)
-                            print(line_spacer)
-                            print(line_spacer)
+                    print(line_spacer)
+                    print(line_spacer)
     
     def equip(self, new_item):
         if new_item.type == "ARMOR":
