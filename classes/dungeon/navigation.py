@@ -1,11 +1,11 @@
 import random
-from lists.room_list import room_list
+from lists.room_list import RoomList
 from lists.monsters_list import Avatar
 from lists.adjustments_list import enter_idol_state, turn_off_idol_state, set_exit_min, dungeon_exit_idol_test
 
 class Navigation:
     def __init__(self):
-        self.room_options = room_list #all of the room options that haven't been added to the dungeon yet
+        self.room_options = RoomList().room_list #all of the room options that haven't been added to the dungeon yet
         self.rooms_visited = {"1" : [],
                             "2" : [],
                             "3" : []} #all of the rooms that have been added to the dungeon already with their floor
